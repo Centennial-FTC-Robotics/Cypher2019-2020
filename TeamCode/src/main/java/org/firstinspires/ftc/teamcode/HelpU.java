@@ -9,42 +9,19 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 
 @TeleOp
-public class HelpU extends LinearOpMode {
-
-    DcMotor leftUp;
-    DcMotor leftDown;
-    DcMotor rightUp;
-    DcMotor rightDown;
-
-
-
+public class HelpU extends CypherMethods {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        leftUp =  hardwareMap.dcMotor.get("upleft");
-        rightUp = hardwareMap.dcMotor.get("upright");
-        rightDown = hardwareMap.dcMotor.get("backright");
-        leftDown = hardwareMap.dcMotor.get("downleft");
-        leftUp.setDirection(DcMotor.Direction.REVERSE);
-        leftDown.setDirection(DcMotor.Direction.REVERSE);
-
-        
-        leftDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
+        super.runOpMode();
         
         waitForStart();
-
         while(opModeIsActive()) {
 
 
             double leftPower = gamepad1.left_stick_x;
             double fowardPower = gamepad1.left_stick_y;
             double rotate = gamepad1.right_stick_x;
-            boolean servoOn = gamepad1.a;
 
             if (rotate != 0) {
                 double magnitude = Math.max(Math.abs(leftPower + fowardPower), Math.abs(leftPower - fowardPower));
@@ -74,5 +51,5 @@ public class HelpU extends LinearOpMode {
 
 
 
-}
+
 //edit
