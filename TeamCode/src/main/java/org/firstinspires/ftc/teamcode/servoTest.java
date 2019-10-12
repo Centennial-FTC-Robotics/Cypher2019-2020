@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-@TeleOp
+@Autonomous(name="autonomous", group="autonomous")
 public class servoTest extends LinearOpMode {
     CRServo leftServo;
     CRServo rightServo;
