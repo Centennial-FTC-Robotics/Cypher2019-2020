@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -16,6 +17,8 @@ public class HelpU extends LinearOpMode {
     DcMotor rightDown;
 
 
+
+
     @Override
     public void runOpMode() throws InterruptedException {
         leftUp =  hardwareMap.dcMotor.get("upleft");
@@ -24,18 +27,25 @@ public class HelpU extends LinearOpMode {
         leftDown = hardwareMap.dcMotor.get("downleft");
         leftUp.setDirection(DcMotor.Direction.REVERSE);
         leftDown.setDirection(DcMotor.Direction.REVERSE);
+
         
         leftDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
         
         waitForStart();
 
         while(opModeIsActive()) {
+
+
             double leftPower = gamepad1.left_stick_x;
             double fowardPower = gamepad1.left_stick_y;
             double rotate = gamepad1.right_stick_x;
+            boolean servoOn = gamepad1.a;
+
             if (rotate != 0) {
                 double magnitude = Math.max(Math.abs(leftPower + fowardPower), Math.abs(leftPower - fowardPower));
                 if (magnitude > 1) {
@@ -54,6 +64,9 @@ public class HelpU extends LinearOpMode {
                 rightDown.setPower(-rotate);
             }
 
+
+
+            }
 
         }
     }
