@@ -18,7 +18,7 @@ public class encoderTests extends LinearOpMode {
         rightUp = hardwareMap.dcMotor.get("upright");
         rightDown = hardwareMap.dcMotor.get("backright");
         leftDown = hardwareMap.dcMotor.get("downleft");
-        
+
         leftUp.setDirection(DcMotor.Direction.REVERSE);
         leftDown.setDirection(DcMotor.Direction.REVERSE);
 
@@ -27,21 +27,55 @@ public class encoderTests extends LinearOpMode {
         rightDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         waitForStart();
         
         while(opModeIsActive()) {
+            leftDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            leftDown.setTargetPosition(5000);
 
+            leftDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            
+            //move 4000 encoder ticks no clue how far that is tho so ¯\_(ツ)_/¯
+            leftUp.setTargetPosition(4000);
+            leftDown.setTargetPosition(4000);
+            rightUp.setTargetPosition(4000);
+            rightDown.setTargetPosition(4000);
+
+            leftUp.setPower(.5);
+            leftDown.setPower(.5);
+            rightDown.setPower(.5);
+            rightUp.setPower(.5);
+
+            while(areMotorsBusy() && opModeIsActive()) {
+
+            }
+
+            leftUp.setPower(0);
+            leftDown.setPower(0);
+            rightUp.setPower(0);
+            rightDown.setPower(0);
+
         }
+
+
     }
 
+    public boolean areMotorsBusy() {
+        boolean busy;
+        //easier way for this to work and look nicer but im lazy rn and wanna play minecraft so no
+        if (leftDown.isBusy() || leftUp.isBusy() || rightUp.isBusy() || rightDown.isBusy()) {
+            busy = true;
+        } else {
+            busy = false;
+        }
+        return busy;
+
+    }
 
 }
