@@ -54,6 +54,22 @@ public class encoderTests extends LinearOpMode {
 
             while(areMotorsBusy() && opModeIsActive()) {
 
+                double distanceX;
+                double distanceY;
+//                if (isRight()) {
+//
+//                    distanceX = ;
+//                    distanceY = ;
+//
+//                } else (isLeft()) {
+//
+//                    distanceX = ;
+//                    distanceY = ;
+//
+//                } else {
+//                    distanceX = 0;
+//                    distanceY = (leftUp.getPower() + leftDown.getPower() + rightDown.getPower() + rightUp.getPower())/4;
+//                }
             }
 
             leftUp.setPower(0);
@@ -65,16 +81,36 @@ public class encoderTests extends LinearOpMode {
 
 
     }
-
     public boolean areMotorsBusy() {
-        boolean busy;
-        //easier way for this to work and look nicer but im lazy rn and wanna play minecraft so no
+        boolean busy = false;
         if (leftDown.isBusy() || leftUp.isBusy() || rightUp.isBusy() || rightDown.isBusy()) {
             busy = true;
-        } else {
-            busy = false;
         }
         return busy;
+
+    }
+    public boolean isLeft(){
+
+        boolean left = false;
+        if (leftUp.getPower() == 1 && rightDown.getPower() == 1) {
+
+            left = true;
+
+        }
+
+        return left;
+
+    }
+
+    public boolean isRight() {
+        boolean right = false;
+        if (leftDown.getPower() == 1 && rightUp.getPower() == 1) {
+
+            right = true;
+
+        }
+
+        return right;
 
     }
 

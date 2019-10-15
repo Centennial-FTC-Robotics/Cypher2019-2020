@@ -26,15 +26,9 @@ public class HelpU extends CypherMethods {
             if (rotate != 0) {
                 double magnitude = Math.max(Math.abs(leftPower + fowardPower), Math.abs(leftPower - fowardPower));
                 if (magnitude > 1) {
-                    leftUp.setPower((-fowardPower + leftPower) / magnitude);
-                    rightUp.setPower((fowardPower + leftPower) / magnitude);
-                    leftDown.setPower((fowardPower + leftPower) / magnitude);
-                    rightDown.setPower((-fowardPower + leftPower) / magnitude);
+                    moveMotors((fowardPower + leftPower) / magnitude);
                 } else {
-                    leftUp.setPower(-fowardPower + leftPower);
-                    rightUp.setPower(fowardPower + leftPower);
-                    leftDown.setPower(fowardPower + leftPower);
-                    rightDown.setPower(-fowardPower + leftPower);
+                    moveMotors(-fowardPower + leftPower);
                 }
             } else {
                 leftUp.setPower(rotate);

@@ -9,6 +9,7 @@ public abstract class CypherHardware extends LinearOpMode {
     DcMotor rightUp;
     DcMotor rightDown;
 
+
     @Override
     public void runOpMode() throws InterruptedException  {
         leftUp =  hardwareMap.dcMotor.get("upleft");
