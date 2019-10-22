@@ -10,14 +10,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class servoTest extends LinearOpMode {
     CRServo leftServo;
     CRServo rightServo;
-    ElapsedTime time;
 
     @Override
     public void runOpMode() throws InterruptedException {
-    leftServo = hardwareMap.crservo.get("leftservo");
-    rightServo = hardwareMap.crservo.get("rightservo");
 
-    leftServo.setDirection(CRServo.Direction.REVERSE);
 
     waitForStart();
 

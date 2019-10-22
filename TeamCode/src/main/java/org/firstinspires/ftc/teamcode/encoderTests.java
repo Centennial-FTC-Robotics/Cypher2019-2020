@@ -17,7 +17,7 @@ public class encoderTests extends LinearOpMode {
         leftUp =  hardwareMap.dcMotor.get("upleft");
         rightUp = hardwareMap.dcMotor.get("upright");
         rightDown = hardwareMap.dcMotor.get("backright");
-        leftDown = hardwareMap.dcMotor.get("downleft");
+        leftDown = hardwareMap.dcMotor.get("backleft");
 
         leftUp.setDirection(DcMotor.Direction.REVERSE);
         leftDown.setDirection(DcMotor.Direction.REVERSE);
