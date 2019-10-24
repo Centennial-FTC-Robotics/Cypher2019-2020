@@ -34,15 +34,15 @@ public class CypherMethods extends CypherHardware {
     public void driveMotors(double fowardPower, double leftPower, double factor) {
         double magnitude = Math.max(Math.abs(leftPower + fowardPower), Math.abs(leftPower - fowardPower));
         if (magnitude > 1) {
-            motors[0].setPower(((-fowardPower + leftPower) / magnitude) * factor);
-            motors[1].setPower(((fowardPower + leftPower) / magnitude) * factor);
-            motors[2].setPower(((fowardPower + leftPower) / magnitude) * factor);
-            motors[3].setPower(((-fowardPower + leftPower) / magnitude) * factor);
+            motors[0].setPower(((fowardPower + leftPower) / magnitude) * factor);
+            motors[1].setPower(((-fowardPower + leftPower) / magnitude) * factor);
+            motors[2].setPower(((-fowardPower + leftPower) / magnitude) * factor);
+            motors[3].setPower(((fowardPower + leftPower) / magnitude) * factor);
         } else {
-            motors[0].setPower((-fowardPower + leftPower) * factor);
-            motors[1].setPower((fowardPower + leftPower) * factor);
-            motors[2].setPower((fowardPower + leftPower) * factor);
-            motors[3].setPower((-fowardPower + leftPower) * factor);
+            motors[0].setPower((fowardPower + leftPower) * factor);
+            motors[1].setPower((-fowardPower + leftPower) * factor);
+            motors[2].setPower((-fowardPower + leftPower) * factor);
+            motors[3].setPower((fowardPower + leftPower) * factor);
         }
 
 
