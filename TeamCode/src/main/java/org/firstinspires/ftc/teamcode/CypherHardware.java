@@ -32,8 +32,8 @@ public abstract class CypherHardware extends LinearOpMode {
         leftServo = hardwareMap.crservo.get("leftservo");
         rightServo = hardwareMap.crservo.get("rightservo");
 
-        leftUp.setDirection(DcMotor.Direction.REVERSE);
         leftDown.setDirection(DcMotor.Direction.REVERSE);
+        leftUp.setDirection(DcMotor.Direction.REVERSE);
 
         leftDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

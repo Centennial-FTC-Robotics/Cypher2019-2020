@@ -3,16 +3,16 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public class CypherMethods extends CypherHardware {
-    DcMotor[] driveMotors = new DcMotor[3];
+public abstract class CypherMethods extends CypherHardware {
+    DcMotor[] driveMotors = new DcMotor[4];
 
-    DcMotor[] leftMotors = new DcMotor[1];
-    DcMotor[] rightMotors = new DcMotor[1];
+    DcMotor[] leftMotors = new DcMotor[2];
+    DcMotor[] rightMotors = new DcMotor[2];
 
-    DcMotor[] strafeNeg = new DcMotor[1];
-    DcMotor[] strafePos = new DcMotor[1];
+    DcMotor[] strafeNeg = new DcMotor[2];
+    DcMotor[] strafePos = new DcMotor[2];
 
-    CRServo[] intakeServos = new CRServo[1];
+    CRServo[] intakeServos = new CRServo[2];
 
 
     @Override
@@ -41,7 +41,35 @@ public class CypherMethods extends CypherHardware {
 
     }
 
+    public void autoMove(double forward, double left, double power) {
+        int forwardMovement = convertInchToEncoder(forward);
+        int leftMovement = convertInchToEncoder(left);
+
+        leftUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDown.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        leftUp.setTargetPosition(forwardMovement - leftMovement);
+        rightUp.setTargetPosition(forwardMovement + leftMovement);
+        leftDown.setTargetPosition(forwardMovement + leftMovement);
+        rightDown.setTargetPosition(forwardMovement - leftMovement);
+
+        setMotorPower(power);
+
+        waitForMotors();
+
+        setMotorPower(0);
+    }
+
+
     /*                      SIMPLE STUFF TO CHECK MOTOR STATUS                                    */
+
     public void waitForMotors() {
         while(areMotorsBusy() && opModeIsActive()) {
 
@@ -51,33 +79,30 @@ public class CypherMethods extends CypherHardware {
     public boolean areMotorsBusy() {
         return leftDown.isBusy() || leftUp.isBusy() || rightUp.isBusy() || rightDown.isBusy();
     }
-
     /*                         THINGS FOR TELEOP I GUESS                                          */
-    public void manDriveMotors(double fowardPower, double leftPower, double factor) {
-        double magnitude = Math.max(Math.abs(leftPower + fowardPower), Math.abs(leftPower - fowardPower));
+    public void manDriveMotors(double forwardPower, double leftPower, double factor) {
+        double magnitude = Math.sqrt(forwardPower * forwardPower + leftPower*leftPower);
         if (magnitude > 1) {
-            for(DcMotor motor : strafeNeg) {
-                motor.setPower(((-fowardPower + leftPower) / magnitude) * factor);
-            }
-            for(DcMotor motor : strafePos) {
-                motor.setPower(((fowardPower + leftPower) / magnitude) * factor);
-            }
+           driveMotors[0].setPower(((-leftPower + forwardPower) / magnitude) * factor);
+           driveMotors[1].setPower(((forwardPower + leftPower) / magnitude) * factor);
+           driveMotors[2].setPower(((forwardPower + leftPower) / magnitude) * factor);
+           driveMotors[3].setPower(((-leftPower + leftPower) / magnitude) * factor);
+
         } else {
-           for(DcMotor motor : strafeNeg) {
-               motor.setPower((-fowardPower + leftPower) * factor);
-           }
-           for(DcMotor motor : strafePos) {
-               motor.setPower((fowardPower + leftPower) * factor);
-           }
+          driveMotors[0].setPower((-leftPower + forwardPower) * factor);
+          driveMotors[1].setPower((forwardPower + leftPower) * factor);
+          driveMotors[2].setPower((forwardPower + leftPower) * factor);
+          driveMotors[3].setPower((-leftPower + forwardPower) * factor);
+
         }
     }
 
 
     public void manRotate(double rotate, double factor) {
-        leftMotors[0].setPower(rotate * factor);
-        leftMotors[1].setPower(rotate * factor);
-        rightMotors[0].setPower(-rotate * factor);
-        rightMotors[1].setPower(-rotate * factor);
+        leftMotors[0].setPower(-rotate * factor);
+        leftMotors[1].setPower(-rotate * factor);
+        rightMotors[0].setPower(rotate * factor);
+        rightMotors[1].setPower(rotate * factor);
     }
 
     /*                     THINGS FOR AUTONONOUS I GUESS                                          */
@@ -95,31 +120,6 @@ public class CypherMethods extends CypherHardware {
 
     }
 
-    public void autoMove(double forward, double left, double power) {
-        int forwardMovement = convertInchToEncoder(forward);
-        int leftMovement = convertInchToEncoder(left);
-
-        for(DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
-        driveMotors[0].setTargetPosition(forwardMovement - leftMovement);
-        driveMotors[1].setTargetPosition(forwardMovement + leftMovement);
-        driveMotors[2].setTargetPosition(forwardMovement + leftMovement);
-        driveMotors[3].setTargetPosition(forwardMovement - leftMovement);
-
-        setMotorPower(power);
-
-        waitForMotors();
-
-        setMotorPower(0);
-
-        for(DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-    }
 
     public void setMotorPower(double power) {
         for(DcMotor motor: driveMotors) {
@@ -128,7 +128,7 @@ public class CypherMethods extends CypherHardware {
     }
 
     public void turnAbsolute() {
-        //make this at some point soon
+        //make th is at some point soon
     }
 
     public void turnRelative() {

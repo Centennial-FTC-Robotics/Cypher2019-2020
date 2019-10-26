@@ -10,21 +10,22 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp
 public class HelpU extends CypherMethods {
-
+    double factor = 1;
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
 
         waitForStart();
         while (opModeIsActive()) {
-            double leftPower = gamepad1.left_stick_x;
-            double fowardPower = gamepad1.left_stick_y;
-            double rotate = gamepad1.right_stick_x;
-            double factor = 1;
+            double leftPower = gamepad1.left_stick_x * .90;
+            double fowardPower = gamepad1.left_stick_y  * .90;
+            double rotate = gamepad1.right_stick_x * .90;
 
             boolean resetServo = gamepad1.y;
             boolean servoIn = gamepad1.a;
             boolean servoOut = gamepad1.b;
+
+
 
             if(servoIn) {
                 controlIntakeServos(1);
@@ -37,10 +38,12 @@ public class HelpU extends CypherMethods {
             if(gamepad1.right_bumper) {
                 factor = 1;
             }
-
             if(gamepad1.left_bumper) {
                 factor = .6;
             }
+
+            telemetry.addData("factor", factor);
+            telemetry.update();
 
             if (rotate == 0) {
                 manDriveMotors(fowardPower, leftPower, factor);
