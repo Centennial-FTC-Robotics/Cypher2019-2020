@@ -86,11 +86,11 @@ public abstract class CypherMethods extends CypherHardware {
            driveMotors[0].setPower(((-leftPower + forwardPower) / magnitude) * factor);
            driveMotors[1].setPower(((forwardPower + leftPower) / magnitude) * factor);
            driveMotors[2].setPower(((forwardPower + leftPower) / magnitude) * factor);
-           driveMotors[3].setPower(((-leftPower + leftPower) / magnitude) * factor);
+           driveMotors[3].setPower(((-leftPower + forwardPower) / magnitude) * factor);
 
         } else {
-          driveMotors[0].setPower((-leftPower + forwardPower) * factor);
-          driveMotors[1].setPower((forwardPower + leftPower) * factor);
+          driveMotors[0].setPower((-leftPower + forwardPower ) * factor);
+          driveMotors[1].setPower((forwardPower + leftPower ) * factor);
           driveMotors[2].setPower((forwardPower + leftPower) * factor);
           driveMotors[3].setPower((-leftPower + forwardPower) * factor);
 
