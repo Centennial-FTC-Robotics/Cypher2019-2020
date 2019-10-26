@@ -22,17 +22,32 @@ public class HelpU extends CypherMethods {
             double rotate = gamepad1.right_stick_x;
             double factor = 1;
 
+            boolean resetServo = gamepad1.y;
+            boolean servoIn = gamepad1.a;
+            boolean servoOut = gamepad1.b;
+
+            if(servoIn) {
+                controlIntakeServos(1);
+            } else if(servoOut) {
+                controlIntakeServos(-1);
+            } else if (resetServo) {
+                controlIntakeServos(0);
+            }
+
             if(gamepad1.right_bumper) {
                 factor = 1;
-            } else if(gamepad1.left_bumper) {
+            }
+
+            if(gamepad1.left_bumper) {
                 factor = .6;
             }
 
             if (rotate == 0) {
-                driveMotors(fowardPower, leftPower, factor);
+                manDriveMotors(fowardPower, leftPower, factor);
             } else if(rotate != 0) {
-                rotateMotors(rotate, factor);
+                manRotate(rotate, factor);
             }
+
         }
     }
 }

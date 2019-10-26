@@ -13,7 +13,7 @@ public class encoderTests extends CypherMethods {
         waitForStart();
 
         while(opModeIsActive()) {
-            move(12, 12, .5);
+            autoMove(12, 12, .5);
         }
 
 
