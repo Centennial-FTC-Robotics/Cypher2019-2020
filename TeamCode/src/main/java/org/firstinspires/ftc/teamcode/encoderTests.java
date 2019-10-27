@@ -5,16 +5,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous
-public class encoderTests extends LinearOpMode {
+public class encoderTests extends /*LinearOpMode*/ CypherMethods {
+    /*
+        DcMotor leftUp;
+        DcMotor rightUp;
+        DcMotor rightDown;
+        DcMotor leftDown;
 
-    DcMotor leftUp;
-    DcMotor rightUp;
-    DcMotor rightDown;
-    DcMotor leftDown;
-
+     */
     @Override
     public void runOpMode() throws InterruptedException {
-
+/*
         leftUp =  hardwareMap.dcMotor.get("upleft");
         rightUp = hardwareMap.dcMotor.get("upright");
         rightDown = hardwareMap.dcMotor.get("backright");
@@ -27,12 +28,13 @@ public class encoderTests extends LinearOpMode {
         waitForStart();
 
 
-
+*/
         while(opModeIsActive()) {
             autoMove(60,0,.5);
+            break;
         }
 
-
+/*
 
     }
     public void autoMove(double forward, double left, double power) {
@@ -54,14 +56,16 @@ public class encoderTests extends LinearOpMode {
         leftDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        telemetry.addData("motor target" , forwardMovement);
+        telemetry.addData("motor current" ,leftUp.getCurrentPosition());
+        telemetry.update();
+
         leftUp.setPower(power);
         rightUp.setPower(power);
         leftDown.setPower(power);
         rightDown.setPower(power);
 
-        telemetry.addData("motor target" , forwardMovement);
-        telemetry.addData("motor current" ,leftUp.getCurrentPosition());
-        telemetry.update();
+
 
         waitForMotors();
 
@@ -87,7 +91,7 @@ public class encoderTests extends LinearOpMode {
 
         double encoderValue = inches/ticksPerInch;
         int intEncoderValue = (int) encoderValue;
-        return intEncoderValue; */
+        return intEncoderValue;
         return  (int) inches*31;
 
 
@@ -100,5 +104,7 @@ public class encoderTests extends LinearOpMode {
 
     public boolean areMotorsBusy() {
         return leftDown.isBusy() || leftUp.isBusy() || rightUp.isBusy() || rightDown.isBusy();
+    }
+    */
     }
 }

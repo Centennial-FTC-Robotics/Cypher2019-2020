@@ -45,11 +45,11 @@ public class HelpU extends CypherMethods {
             telemetry.addData("factor", factor);
             telemetry.update();
 
-            if (rotate == 0) {
-                manDriveMotors(fowardPower, leftPower, factor);
-            } else if(rotate != 0) {
-                manRotate(rotate, factor);
-            }
+            //if (rotate == 0) {
+                manDriveMotors(fowardPower, leftPower, rotate, factor);
+           // } else if(rotate != 0) {
+              //  rotate(rotate * factor);
+           // }
 
         }
     }

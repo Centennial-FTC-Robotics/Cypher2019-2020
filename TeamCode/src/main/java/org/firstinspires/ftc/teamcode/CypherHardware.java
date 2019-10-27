@@ -21,6 +21,11 @@ public abstract class CypherHardware extends LinearOpMode {
     CRServo leftServo;
     CRServo rightServo;
 
+    double initialHeading;
+
+    Orientation orientation = new Orientation(AxesReference.EXTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES,0,0,0,0);
+    BNO055IMU imu;
+
 
     @Override
     public void runOpMode() throws InterruptedException  {
@@ -41,6 +46,14 @@ public abstract class CypherHardware extends LinearOpMode {
         rightUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftServo.setDirection(CRServo.Direction.REVERSE);
+
+
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        initialHeading = orientation.firstAngle;
+
+
 
 
 
