@@ -9,11 +9,11 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.Locale;
 
 public abstract class CypherMethods extends CypherHardware {
+    double startAngle = 0;
     DcMotor[] driveMotors = new DcMotor[4];
 
     DcMotor[] leftMotors = new DcMotor[2];
@@ -55,19 +55,38 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     }
+//MOVEMENT
+    public void autoMove(double forward, double right, double power) {
+        int forwardMovement = convertInchToEncoder(forward);
+        int rightMovement = convertInchToEncoder(right);
 
-
-
-    //GET MOTOR STATUS
-    public void waitForMotors() {
-        while(areMotorsBusy() && opModeIsActive()) {
-
+        for (DcMotor motor : driveMotors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
+
+        leftUp.setTargetPosition(forwardMovement + rightMovement);
+        rightUp.setTargetPosition(forwardMovement - rightMovement);
+        leftDown.setTargetPosition(forwardMovement - rightMovement);
+        rightDown.setTargetPosition(forwardMovement + rightMovement);
+        leftUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftUp.setPower(power);
+        rightUp.setPower(power);
+        leftDown.setPower(power);
+        rightDown.setPower(power);
+       waitForMotors();
+       setMotorPower(0);
+        leftUp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightUp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDown.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDown.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public boolean areMotorsBusy() {
-        return leftDown.isBusy() || leftUp.isBusy() || rightUp.isBusy() || rightDown.isBusy();
-    }
+
+
+
     //MOVE MOTORS IN TELEOP
     public void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
         //double magnitude = Math.sqrt(forwardPower * forwardPower + leftPower*leftPower);
@@ -152,32 +171,26 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     public void turnAbsolute(double targetAngle) {
-        double currentAngle = getHeading();
+        double currentAngle = getRotationinDimension('Z');
         int direction;
-        double turnrate = 0;
-        double P = 1d/60d;
+        double turnRate = 0;
+        double P = 0.004;
         double minSpeed = 0;
         double maxSpeed = 0.3d;
-        double tolerance = 0.5;
-
+        double tolerance = 5;
         double error = getAngleDist(targetAngle, currentAngle);
-        telemetry.addData("error", error);
-        telemetry.update();
 
         while(opModeIsActive() && error > tolerance) {
-            telemetry.addData("Point", 1);
-            telemetry.update();
-            currentAngle = getHeading();
-            direction = getAngleDir(targetAngle, currentAngle);
+            currentAngle = getRotationinDimension('Z');
             error = getAngleDist(targetAngle, currentAngle);
-            turnrate = Range.clip(P * error, minSpeed, maxSpeed);
-            telemetry.addData("turn rate", turnrate);
+            direction = getAngleDir(targetAngle, currentAngle);
+            turnRate = Range.clip(P * error, minSpeed, maxSpeed);
+            telemetry.addData("error",error);
+            telemetry.addData("current angle", currentAngle);
+            telemetry.addData("turnRate", turnRate);
+            telemetry.addData("speed", turnRate*direction);
             telemetry.update();
-            telemetry.addData("direction", direction);
-            telemetry.update();
-            rotate(turnrate*direction);
-            telemetry.addData("point", 2);
-            telemetry.update();
+            setDriveMotors(-(direction * turnRate), (direction * turnRate));
         }
         setMotorPower(0);
     }
@@ -193,7 +206,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
     public double getHeading() {
         orientationUpdate();
-        double heading = Double.parseDouble(properAngleFormat(orientation.angleUnit, orientation.firstAngle));
+        double heading = Double.parseDouble(properAngleFormat(orientation.angleUnit, orientation.firstAngle)) - startAngle;
         if(heading > 180) {
             heading -=360;
         } else if(heading < -180) {
@@ -230,10 +243,56 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
+    public void zeroAngle(){
 
+        startAngle = getRotationinDimension('Z');
+    }
 
+    public double getRotationinDimension(char dimension) {
+        switch (Character.toUpperCase(dimension)) {
+            case 'X':
+                    return AngleUnit.normalizeDegrees(getRawX() - initialPitch);
+            case 'Y':
+                return AngleUnit.normalizeDegrees(getRawY() - initialRoll);
+            case 'Z':
+                return AngleUnit.normalizeDegrees(getRawZ() - initialHeading);
+        }
+        return 0;
+    }
 
+    public double getRawZ() {
+        orientationUpdate();
+        return orientation.firstAngle;
+    }
 
+    public double getRawY() {
+        orientationUpdate();
+        return orientation.thirdAngle;
+    }
+
+    public double getRawX() {
+        orientationUpdate();
+        return orientation.secondAngle;
+    }
+    public void setDriveMotors(double leftPower, double rightPower) {
+        for (DcMotor motor : leftMotors) {
+            motor.setPower(leftPower);
+        }
+        for (DcMotor motor : rightMotors) {
+            motor.setPower(rightPower);
+        }
+        //GET MOTOR STATUS
+
+    }
+    public void waitForMotors() {
+        while(areMotorsBusy() && opModeIsActive()) {
+
+        }
+    }
+
+    public boolean areMotorsBusy() {
+        return leftDown.isBusy() || rightDown.isBusy() || leftUp.isBusy() || rightUp.isBusy();
+    }
 
 
 
