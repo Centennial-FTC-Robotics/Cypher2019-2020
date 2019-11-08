@@ -13,16 +13,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import java.util.Locale;
 
 public abstract class CypherMethods extends CypherHardware {
-    double startAngle = 0;
-    DcMotor[] driveMotors = new DcMotor[4];
+    private double startAngle = 0;
+    private DcMotor[] driveMotors = new DcMotor[4];
 
-    DcMotor[] leftMotors = new DcMotor[2];
-    DcMotor[] rightMotors = new DcMotor[2];
+    private DcMotor[] leftMotors = new DcMotor[2];
+    private DcMotor[] rightMotors = new DcMotor[2];
 
-    DcMotor[] strafeNeg = new DcMotor[2];
-    DcMotor[] strafePos = new DcMotor[2];
+    private DcMotor[] strafeNeg = new DcMotor[2];
+    private DcMotor[] strafePos = new DcMotor[2];
 
-    CRServo[] intakeServos = new CRServo[2];
+    private CRServo[] intakeServos = new CRServo[2];
 
 
     @Override
@@ -68,106 +68,42 @@ public abstract class CypherMethods extends CypherHardware {
         rightUp.setTargetPosition(forwardMovement - rightMovement);
         leftDown.setTargetPosition(forwardMovement - rightMovement);
         rightDown.setTargetPosition(forwardMovement + rightMovement);
-        leftUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightDown.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftUp.setPower(power);
-        rightUp.setPower(power);
-        leftDown.setPower(power);
-        rightDown.setPower(power);
-       waitForMotors();
-       setMotorPower(0);
-        leftUp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightUp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDown.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDown.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        for(DcMotor motor : driveMotors) {
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+
+        setMotorPower(power);
+        waitForMotors();
+        setMotorPower(0);
+        for(DcMotor motor : driveMotors) {
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 
 
-
-
-    //MOVE MOTORS IN TELEOP
     public void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
         //double magnitude = Math.sqrt(forwardPower * forwardPower + leftPower*leftPower);
         double magnitude = Math.cbrt(forwardPower * forwardPower + leftPower*leftPower + rotate*rotate);
         if (magnitude > 1) {
-           driveMotors[0].setPower(((-leftPower + forwardPower - rotate) / magnitude) * factor);
-           driveMotors[1].setPower(((forwardPower + leftPower + rotate) / magnitude) * factor);
-           driveMotors[2].setPower(((forwardPower + leftPower - rotate) / magnitude) * factor);
-           driveMotors[3].setPower(((-leftPower + leftPower + rotate) / magnitude) * factor);
+           strafeNeg[0].setPower(((-leftPower + forwardPower - rotate) / magnitude) * factor);
+           strafePos[0].setPower(((forwardPower + leftPower + rotate) / magnitude) * factor);
+           strafePos[1].setPower(((forwardPower + leftPower - rotate) / magnitude) * factor);
+           strafeNeg[1].setPower(((-leftPower + leftPower + rotate) / magnitude) * factor);
         } else {
-          driveMotors[0].setPower((-leftPower + forwardPower - rotate) * factor);
-          driveMotors[1].setPower((forwardPower + leftPower + rotate) * factor);
-          driveMotors[2].setPower((forwardPower + leftPower - rotate) * factor);
-          driveMotors[3].setPower((-leftPower + forwardPower + rotate) * factor);
+          strafeNeg[0].setPower((-leftPower + forwardPower - rotate) * factor);
+          strafePos[0].setPower((forwardPower + leftPower + rotate) * factor);
+          strafePos[1].setPower((forwardPower + leftPower - rotate) * factor);
+          strafeNeg[1].setPower((-leftPower + forwardPower + rotate) * factor);
 
         }
     }
 
-    //THINGS FOR AUTONOMOUS
     public void rotate(double rotate) {
         leftMotors[0].setPower(-rotate);
         leftMotors[1].setPower(-rotate);
         rightMotors[0].setPower(rotate);
         rightMotors[1].setPower(rotate);
-    }
-
-
-    public int convertInchToEncoder(double inches) {
-        double ticksPerRotation = 383.6;
-        double wheelDiameter = 3.937;
-        double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
-        double distanceInWheelRotation = wheelDiameter * Math.PI;
-        double ticksPerInch = distanceInWheelRotation/ticksPerWheelRotation;
-
-        double encoderValue = inches/ticksPerInch;
-        int intEncoderValue = (int) encoderValue;
-        return intEncoderValue;
-
-
-    }
-
-
-    public void setMotorPower(double power) {
-        for(DcMotor motor: driveMotors) {
-            motor.setPower(power);
-        }
-    }
-
-
-
-    public void turnRelative() {
-        //make this at some point soon
-    }
-
-
-
-    public void controlIntakeServos(double power) {
-        intakeServos[0].setPower(power);
-        intakeServos[1].setPower(power);
-    }
-
-    public double getAngleDist(double targetAngle, double currentAngle) {
-
-        double angleDifference = currentAngle - targetAngle;
-        if (Math.abs(angleDifference) > 180) {
-            angleDifference = 360 - Math.abs(angleDifference);
-        } else {
-            angleDifference = Math.abs(angleDifference);
-        }
-
-        return angleDifference;
-    }
-
-    public int getAngleDir(double targetAngle, double currentAngle) {
-
-        double angleDifference = currentAngle - targetAngle;
-        int angleDir = (int) (angleDifference / Math.abs(angleDifference));
-        if (Math.abs(angleDifference) > 180) {
-            angleDir *= -1;
-        }
-        return angleDir;
     }
 
     public void turnAbsolute(double targetAngle) {
@@ -181,7 +117,7 @@ public abstract class CypherMethods extends CypherHardware {
         double error = getAngleDist(targetAngle, currentAngle);
 
         while(opModeIsActive() && error > tolerance) {
-            currentAngle = getRotationinDimension('Z');
+            currentAngle = getHeading();
             error = getAngleDist(targetAngle, currentAngle);
             direction = getAngleDir(targetAngle, currentAngle);
             turnRate = Range.clip(P * error, minSpeed, maxSpeed);
@@ -194,16 +130,31 @@ public abstract class CypherMethods extends CypherHardware {
         }
         setMotorPower(0);
     }
-    public void orientationUpdate() {
-        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XZY, AngleUnit.DEGREES);
-    }
-    String properAngleFormat(AngleUnit angleUnit, double angle) {
-        return properDegreeFormat(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+
+    public void setDriveMotors(double leftPower, double rightPower) {
+        for (DcMotor motor : leftMotors) {
+            motor.setPower(leftPower);
+        }
+        for (DcMotor motor : rightMotors) {
+            motor.setPower(rightPower);
+        }
     }
 
-    String properDegreeFormat(double degrees) {
-        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+
+    public void setMotorPower(double power) {
+        for(DcMotor motor: driveMotors) {
+            motor.setPower(power);
+        }
     }
+
+
+    public void turnRelative() {
+        //make this at some point soon
+    }
+
+
+
+
     public double getHeading() {
         orientationUpdate();
         double heading = Double.parseDouble(properAngleFormat(orientation.angleUnit, orientation.firstAngle)) - startAngle;
@@ -215,6 +166,7 @@ public abstract class CypherMethods extends CypherHardware {
         return heading;
     }
 
+    //INITIALIZE STUFF
     public void initializeIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -239,9 +191,7 @@ public abstract class CypherMethods extends CypherHardware {
         initialHeading = orientation.firstAngle;
         initialRoll = orientation.secondAngle;
         initialPitch = orientation.thirdAngle;
-
     }
-
 
     public void zeroAngle(){
 
@@ -251,39 +201,64 @@ public abstract class CypherMethods extends CypherHardware {
     public double getRotationinDimension(char dimension) {
         switch (Character.toUpperCase(dimension)) {
             case 'X':
-                    return AngleUnit.normalizeDegrees(getRawX() - initialPitch);
+                    return AngleUnit.normalizeDegrees(getRawDimension('X') - initialPitch);
             case 'Y':
-                return AngleUnit.normalizeDegrees(getRawY() - initialRoll);
+                return AngleUnit.normalizeDegrees(getRawDimension('Y') - initialRoll);
             case 'Z':
-                return AngleUnit.normalizeDegrees(getRawZ() - initialHeading);
+                return AngleUnit.normalizeDegrees(getRotationinDimension('Z') - initialHeading);
         }
         return 0;
     }
 
-    public double getRawZ() {
+    //ANGLE-RELATED METHODS
+    public double getRawDimension(char dimension) {
         orientationUpdate();
-        return orientation.firstAngle;
-    }
-
-    public double getRawY() {
-        orientationUpdate();
-        return orientation.thirdAngle;
-    }
-
-    public double getRawX() {
-        orientationUpdate();
-        return orientation.secondAngle;
-    }
-    public void setDriveMotors(double leftPower, double rightPower) {
-        for (DcMotor motor : leftMotors) {
-            motor.setPower(leftPower);
+        switch(dimension) {
+            case 'X':
+                return orientation.secondAngle;
+            case 'Y':
+                return orientation.thirdAngle;
+            case 'Z':
+                return orientation.firstAngle;
         }
-        for (DcMotor motor : rightMotors) {
-            motor.setPower(rightPower);
-        }
-        //GET MOTOR STATUS
-
+        return 0;
     }
+
+    public double getAngleDist(double targetAngle, double currentAngle) {
+
+        double angleDifference = currentAngle - targetAngle;
+        if (Math.abs(angleDifference) > 180) {
+            angleDifference = 360 - Math.abs(angleDifference);
+        } else {
+            angleDifference = Math.abs(angleDifference);
+        }
+
+        return angleDifference;
+    }
+
+    public int getAngleDir(double targetAngle, double currentAngle) {
+
+        double angleDifference = currentAngle - targetAngle;
+        int angleDir = (int) (angleDifference / Math.abs(angleDifference));
+        if (Math.abs(angleDifference) > 180) {
+            angleDir *= -1;
+        }
+        return angleDir;
+    }
+
+
+    public void orientationUpdate() {
+        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XZY, AngleUnit.DEGREES);
+    }
+    String properAngleFormat(AngleUnit angleUnit, double angle) {
+        return properDegreeFormat(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+
+    String properDegreeFormat(double degrees) {
+        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
+
+    //STATUS METHODS
     public void waitForMotors() {
         while(areMotorsBusy() && opModeIsActive()) {
 
@@ -294,7 +269,41 @@ public abstract class CypherMethods extends CypherHardware {
         return leftDown.isBusy() || rightDown.isBusy() || leftUp.isBusy() || rightUp.isBusy();
     }
 
+    //CONVERSION METHODS
+
+    public int convertInchToEncoder(double inches) {
+        double ticksPerRotation = 383.6;
+        double wheelDiameter = 3.937;
+        double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
+        double distanceInWheelRotation = wheelDiameter * Math.PI;
+        double ticksPerInch = distanceInWheelRotation/ticksPerWheelRotation;
+
+        double encoderValue = inches/ticksPerInch;
+        int intEncoderValue = (int) encoderValue;
+        return intEncoderValue;
+    }
+
+    //INTAKE METHODS
+    public void controlIntakeServos(double power) {
+        intakeServos[0].setPower(power);
+        intakeServos[1].setPower(power);
+    }
+
+    public void controlArm() {
+
+    }
+
+    public void grabServo(double power) {
+
+    }
+
+    public void swivelServo(double position) {
+
+    }
+
+
 
 
 }
+
 
