@@ -178,7 +178,6 @@ public abstract class CypherMethods extends CypherHardware {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         telemetry.addData("are you here", true);
         telemetry.update();
-        telemetry.update();
         imu.initialize(parameters);
         while (opModeIsActive() && !imu.isGyroCalibrated()) ;
         try {
