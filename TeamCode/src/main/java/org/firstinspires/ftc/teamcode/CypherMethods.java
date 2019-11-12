@@ -393,6 +393,12 @@ public abstract class CypherMethods extends CypherHardware {
 
     }
 
+    public double calcBetterControls(double stick) {
+        double a = 0.106;
+        double newVal = (a*(Math.pow(stick, 3))) + ((1 - a) * stick);
+        return newVal;
+    }
+
 
 
 
