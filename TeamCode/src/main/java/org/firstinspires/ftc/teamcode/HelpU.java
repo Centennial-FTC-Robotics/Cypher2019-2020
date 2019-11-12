@@ -13,7 +13,7 @@ public class HelpU extends CypherMethods {
     double factor = 1;
     @Override
     public void runOpMode() throws InterruptedException {
-        super.runOpMode();
+            super.runOpMode();
 
         waitForStart();
         while (opModeIsActive()) {
