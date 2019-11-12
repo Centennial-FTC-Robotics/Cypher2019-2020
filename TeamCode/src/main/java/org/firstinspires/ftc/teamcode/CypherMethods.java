@@ -48,10 +48,7 @@ public abstract class CypherMethods extends CypherHardware {
         wheelIntakeServos[0] = leftServo;
         wheelIntakeServos[1] = rightServo;
 
-        initializeIMU();
-        initialHeading = orientation.firstAngle;
-        initialRoll = orientation.secondAngle;
-        initialPitch = orientation.thirdAngle;
+
 
     }
 //MOVEMENT
@@ -139,7 +136,7 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
-       double P = 0.04;
+        double P = 0.04;
         double speed = 0;
         double tolerance = 5;
         int currentPos = averageDriveMotorEncoder();
@@ -162,10 +159,12 @@ public abstract class CypherMethods extends CypherHardware {
 
         negError = strafeNegTarget - currentNegPosition;
         posError = strafeNegTarget + currentPosPosition;
-
         while(opModeIsActive() && (negError > tolerance || posError > tolerance)) {
             currentNegPosition = getNegPos();
             currentPosPosition = getPosPos();
+
+            telemetry.addData("test", "test");
+            telemetry.update();
 
             negError = strafeNegTarget - currentNegPosition;
             posError = strafeNegTarget + currentPosPosition;
@@ -208,8 +207,8 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
-    public void turnRelative() {
-        //make this at some point soon
+    public void turnRelative(double targetAngle) {
+        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + targetAngle));
     }
 
 
@@ -246,15 +245,21 @@ public abstract class CypherMethods extends CypherHardware {
             telemetry.addData("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", "");
             telemetry.update();
         }
+
         orientationUpdate();
         initialHeading = orientation.firstAngle;
         initialRoll = orientation.secondAngle;
         initialPitch = orientation.thirdAngle;
+
+
     }
 
     public void zeroAngle(){
-
+        telemetry.addData("bruhhhhhhhh", true);
+        telemetry.update();
         startAngle = getRotationinDimension('Z');
+        telemetry.addData("brughslkdhlkrejg", true);
+        telemetry.update();
     }
     //METHODS THAT ASSIST WITH AUTONOMOUS IDK
     public double getRotationinDimension(char dimension) {
@@ -391,6 +396,12 @@ public abstract class CypherMethods extends CypherHardware {
 
     public void swivelServo(double position) {
 
+    }
+
+    public double calcBetterControls(double stick) {
+        double a = 0.106;
+        double newVal = (a*(Math.pow(stick, 3))) + ((1 - a)*stick);
+        return newVal;
     }
 
 

@@ -17,14 +17,11 @@ public class encoderTests extends CypherMethods{
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        zeroAngle();
+        initializeIMU();
 
         waitForStart();
 
-        while(opModeIsActive()) {
-           turnAbsolute(90);
-            break;
-        }
+        turnAbsolute(180);
     }
 
 
