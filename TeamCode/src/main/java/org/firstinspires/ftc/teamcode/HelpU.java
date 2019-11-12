@@ -17,11 +17,9 @@ public class HelpU extends CypherMethods {
 
         waitForStart();
         while (opModeIsActive()) {
-            double leftPower = calcBetterControls(gamepad1.left_stick_x);
-            double fowardPower = calcBetterControls(gamepad1.left_stick_y);
-            double rotate =  calcBetterControls(gamepad1.right_stick_x);
-
-
+            double leftPower = gamepad1.left_stick_x * .90;
+            double fowardPower = gamepad1.left_stick_y  * .90;
+            double rotate = gamepad1.right_stick_x * .90;
 
             boolean resetServo = gamepad1.y;
             boolean servoIn = gamepad1.a;
