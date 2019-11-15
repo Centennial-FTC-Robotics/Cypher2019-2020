@@ -103,27 +103,27 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     public void turnAbsolute(double targetAngle) {
-        double currentAngle = getRotationinDimension('Z');
-        int direction;
-        double turnRate = 0;
-        double P = 0.004;
-        double minSpeed = 0;
-        double maxSpeed = 0.3d;
-        double tolerance = 5;
-        double error = getAngleDist(targetAngle, currentAngle);
 
-        while(opModeIsActive() && error > tolerance) {
+        double currentAngle;
+        int direction;
+        double turnRate ;
+        double P = 0.005;
+        double minSpeed = 0.1;
+        double maxSpeed = 0.5;
+        double tolerance = 5;
+        double error;
+
+        do{
             currentAngle = getRotationinDimension('Z');
             error = getAngleDist(targetAngle, currentAngle);
             direction = getAngleDir(targetAngle, currentAngle);
             turnRate = Range.clip(P * error, minSpeed, maxSpeed);
             telemetry.addData("error",error);
-            telemetry.addData("current angle", currentAngle);
             telemetry.addData("turnRate", turnRate);
-            telemetry.addData("speed", turnRate*direction);
             telemetry.update();
-            setDriveMotors(-(direction * turnRate), (direction * turnRate));
+            setDriveMotors((turnRate * direction), -(turnRate * direction));
         }
+        while(opModeIsActive() && error > tolerance);
         setMotorPower(0);
     }
 
@@ -134,6 +134,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         for(DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         double P = 0.04;
@@ -158,14 +159,14 @@ public abstract class CypherMethods extends CypherHardware {
         currentPosPosition = getPosPos();
 
         negError = strafeNegTarget - currentNegPosition;
-        posError = strafeNegTarget + currentPosPosition;
+        posError = strafeNegTarget - currentPosPosition;
 
-        while(opModeIsActive() && (negError > tolerance || posError > tolerance)) {
+        do {
             currentNegPosition = getNegPos();
             currentPosPosition = getPosPos();
 
             negError = strafeNegTarget - currentNegPosition;
-            posError = strafeNegTarget + currentPosPosition;
+            posError = strafeNegTarget - currentPosPosition;
 
             negErrorSum =+ negError;
             posErrorSum =+ posError;
@@ -173,11 +174,11 @@ public abstract class CypherMethods extends CypherHardware {
             negDirection = getDirection(strafeNegTarget, currentNegPosition);
             posDirection = getDirection(strafePosTarget, currentPosPosition);
 
-            negSpeed = Range.clip(P*negError + I*negErrorSum, minSpeed, maxSpeed);
-            posSpeed = Range.clip(P*posError + I*posErrorSum, minSpeed, maxSpeed);
+            negSpeed = Range.clip(P*negError /*+ I*negErrorSum*/, minSpeed, maxSpeed);
+            posSpeed = Range.clip(P*posError /*+ I*posErrorSum*/, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed * negDirection, posSpeed * posDirection);
-        }
+        } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setMotorPower(0);
     }
 
@@ -249,15 +250,17 @@ public abstract class CypherMethods extends CypherHardware {
     }
     //METHODS THAT ASSIST WITH AUTONOMOUS IDK
     public double getRotationinDimension(char dimension) {
+        orientationUpdate();
         switch (Character.toUpperCase(dimension)) {
             case 'X':
-                    return AngleUnit.normalizeDegrees(getRawDimension('X') - initialPitch);
+            return AngleUnit.normalizeDegrees(getRawDimension('X') - initialPitch);
             case 'Y':
-                return AngleUnit.normalizeDegrees(getRawDimension('Y') - initialRoll);
+            return AngleUnit.normalizeDegrees(getRawDimension('Y') - initialRoll);
             case 'Z':
-                return AngleUnit.normalizeDegrees(getRotationinDimension('Z') - initialHeading);
+                return AngleUnit.normalizeDegrees(getRawDimension('Z') - initialHeading);
         }
         return 0;
+
     }
 
     public double getRawDimension(char dimension) {
