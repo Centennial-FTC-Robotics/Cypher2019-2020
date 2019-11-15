@@ -1,21 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 
-@Disabled
-public class HelpU extends CypherMethods {
-    double factor = 1;
+@TeleOp
+public class mainDrive extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
 
         waitForStart();
+        double factor = 1;
         while (opModeIsActive()) {
             double leftPower = acutalControl(gamepad1.left_stick_x);
             double fowardPower = acutalControl(gamepad1.left_stick_y);
@@ -26,38 +21,27 @@ public class HelpU extends CypherMethods {
             boolean servoOut = gamepad1.b;
 
 
-
-            if(servoIn) {
+            if (servoIn) {
                 controlIntakeServos(1);
-            } else if(servoOut) {
+            } else if (servoOut) {
                 controlIntakeServos(-1);
             } else if (resetServo) {
                 controlIntakeServos(0);
             }
 
-            if(gamepad1.right_bumper) {
+            if (gamepad1.right_bumper) {
                 factor = 1;
             }
-            if(gamepad1.left_bumper) {
+            if (gamepad1.left_bumper) {
                 factor = .6;
             }
 
             telemetry.addData("factor", factor);
             telemetry.update();
 
-           // if (rotate == 0) {
-                manDriveMotors(fowardPower, leftPower, rotate, factor);
-           // } else if(rotate != 0) {
-              //  rotate(rotate * factor);
-           // }
+            manDriveMotors(fowardPower, leftPower, rotate, factor);
+
 
         }
     }
 }
-
-
-
-
-
-
-//edit

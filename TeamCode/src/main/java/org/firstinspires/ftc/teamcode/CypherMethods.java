@@ -48,10 +48,6 @@ public abstract class CypherMethods extends CypherHardware {
         wheelIntakeServos[0] = leftServo;
         wheelIntakeServos[1] = rightServo;
 
-        initializeIMU();
-        initialHeading = orientation.firstAngle;
-        initialRoll = orientation.secondAngle;
-        initialPitch = orientation.thirdAngle;
 
     }
 //MOVEMENT
@@ -131,6 +127,7 @@ public abstract class CypherMethods extends CypherHardware {
         setMotorPower(0);
     }
 
+
     public void testAutoMove(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
@@ -139,14 +136,12 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
-       double P = 0.04;
-        double speed = 0;
+        double P = 0.04;
+        double I = 0;
         double tolerance = 5;
         int currentPos = averageDriveMotorEncoder();
-        double error = forwardMovement - currentPos;
         double minSpeed = .1;
         double maxSpeed = .5;
-        int direction;
         int currentNegPosition;
         int currentPosPosition;
         int negDirection;
@@ -157,6 +152,8 @@ public abstract class CypherMethods extends CypherHardware {
         double posSpeed;
         int strafeNegTarget = forwardMovement - leftMovement;
         int strafePosTarget = forwardMovement + leftMovement;
+        int posErrorSum = 0;
+        int negErrorSum = 0;
         currentNegPosition = getNegPos();
         currentPosPosition = getPosPos();
 
@@ -170,11 +167,14 @@ public abstract class CypherMethods extends CypherHardware {
             negError = strafeNegTarget - currentNegPosition;
             posError = strafeNegTarget + currentPosPosition;
 
+            negErrorSum =+ negError;
+            posErrorSum =+ posError;
+
             negDirection = getDirection(strafeNegTarget, currentNegPosition);
             posDirection = getDirection(strafePosTarget, currentPosPosition);
 
-            negSpeed = Range.clip(P*negError, minSpeed, maxSpeed);
-            posSpeed = Range.clip(P*posError, minSpeed, maxSpeed);
+            negSpeed = Range.clip(P*negError + I*negErrorSum, minSpeed, maxSpeed);
+            posSpeed = Range.clip(P*posError + I*posErrorSum, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed * negDirection, posSpeed * posDirection);
         }
@@ -240,16 +240,7 @@ public abstract class CypherMethods extends CypherHardware {
         telemetry.update();
         imu.initialize(parameters);
         while (opModeIsActive() && !imu.isGyroCalibrated()) ;
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            telemetry.addData("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", "");
-            telemetry.update();
-        }
-        orientationUpdate();
-        initialHeading = orientation.firstAngle;
-        initialRoll = orientation.secondAngle;
-        initialPitch = orientation.thirdAngle;
+        resetOrientation();
     }
 
     public void zeroAngle(){
@@ -334,6 +325,12 @@ public abstract class CypherMethods extends CypherHardware {
     public void orientationUpdate() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XZY, AngleUnit.DEGREES);
     }
+    public void resetOrientation() {
+        orientationUpdate();
+        initialHeading = orientation.firstAngle;
+        initialRoll = orientation.secondAngle;
+        initialPitch = orientation.thirdAngle;
+    }
     String properAngleFormat(AngleUnit angleUnit, double angle) {
         return properDegreeFormat(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
@@ -391,6 +388,14 @@ public abstract class CypherMethods extends CypherHardware {
 
     public void swivelServo(double position) {
 
+    }
+
+    public double acutalControl(double controller) {
+        double a = 0.106;
+        double b = controller;
+        //a*b^3+(1-a)*b
+        double output = (a*(Math.pow(b, 3))) + ((1-a)*b);
+        return output;
     }
 
 

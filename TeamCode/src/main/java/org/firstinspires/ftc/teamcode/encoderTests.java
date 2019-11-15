@@ -20,7 +20,6 @@ public class encoderTests extends CypherMethods{
         initializeIMU();
 
         waitForStart();
-
         turnAbsolute(180);
     }
 

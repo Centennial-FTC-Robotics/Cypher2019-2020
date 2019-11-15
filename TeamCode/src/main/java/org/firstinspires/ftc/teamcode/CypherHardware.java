@@ -50,9 +50,6 @@ public abstract class CypherHardware extends LinearOpMode {
 
         leftServo.setDirection(CRServo.Direction.REVERSE);
 
-        initialHeading = orientation.firstAngle;
-        initialPitch = orientation.secondAngle;
-        initialRoll = orientation.thirdAngle;
 
 
 
