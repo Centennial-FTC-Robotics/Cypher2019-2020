@@ -1,40 +1,15 @@
-/* Copyright (c) 2019 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.Range;
+
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -54,12 +29,15 @@ public class tensorFlowTest extends CypherMethods {
     private VuforiaLocalizer vuforia;
 
     private TFObjectDetector tfod;
+    double tolerance = 20; //close enough value
+
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
+        super.runOpMode();
         initVuforia();
-
         initTfod();
+
 
         if (tfod != null) {
             tfod.activate();
@@ -67,11 +45,10 @@ public class tensorFlowTest extends CypherMethods {
 
 
         waitForStart();
-        goForSkystone();
+        findSkystone();
 
     }
-    public void goForSkystone() {
-        if (opModeIsActive()) {
+    public void findSkystone() {
             while (opModeIsActive()) {
                 if (tfod != null) {
 
@@ -79,27 +56,52 @@ public class tensorFlowTest extends CypherMethods {
                     if (updatedRecognitions != null) {
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-                        // step through the list of recognitions and display boundary info.
                         int i = 0;
+
                         for (Recognition recognition : updatedRecognitions) {
-                            if(recognition.getLabel().equals(skystone)) { //if skystone
-                                autoMove(30, 0, .5);
-                            }
+                            if (recognition.getLabel().equals(skystone)) {  //if skystone is detected
+                                double left = recognition.getLeft();
+                                double right = recognition.getRight();
+
+                                if (right == left || Math.abs(left - right) < tolerance) {
+                                    testAutoMove(12, 0);
+                                } else if (left > right) { // it is on the right
+                                    while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
+                                        double newLeft = recognition.getLeft();
+                                        double newRight = recognition.getRight();
+                                        otherMove(newLeft, newRight, 1);
+                                    }
+                                    setMotorPower(0);
+
+                                } else if (right > left) { // it is on the left
+                                    while (right > left && opModeIsActive() && Math.abs(left - right) > tolerance) {
+                                        double newLeft = recognition.getLeft();
+                                        double newRight = recognition.getRight();
+                                        otherMove(newLeft, newRight, -1);
+                                    }
+                                    setMotorPower(0);
+                                }
+
+
+
+                            } else { //not a skystone, move left then go back to the start
+                            testAutoMove(0, 6);
+                        }
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                             telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                     recognition.getLeft(), recognition.getTop());
                             telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                     recognition.getRight(), recognition.getBottom());
+                            telemetry.update();
                         }
-                        telemetry.update();
                     }
                 }
             }
-        }
 
-        if (tfod != null) {
-            tfod.shutdown();
-        }
+            if (tfod != null) {
+                tfod.shutdown();
+            }
+
     }
 
 
@@ -121,5 +123,25 @@ public class tensorFlowTest extends CypherMethods {
         tfodParameters.minimumConfidence = 0.8;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, stone, skystone);
+    }
+
+    public void otherMove(double left, double right, double dir) { //dir = 1 is right, dir = -1 is left
+       double P = 0.02;
+       double error = Math.abs(left - right);
+       double speed;
+       double negSpeed, posSpeed;
+       double minSpeed = 0.01;
+       double maxSpeed = 0.3;
+
+       speed = Range.clip(P*error,minSpeed, maxSpeed);
+       negSpeed = -(speed*dir);
+       posSpeed = speed*dir;
+
+       for(DcMotor motor : strafeNeg) {
+           motor.setPower(negSpeed);
+        }
+       for(DcMotor motor : strafePos) {
+           motor.setPower(posSpeed);
+       }
     }
 }

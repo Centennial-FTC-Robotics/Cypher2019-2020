@@ -10,6 +10,7 @@ public class betterEncoder extends CypherMethods{
 
         waitForStart();
         testAutoMove(60, 60);
+        turnAbsolute(90);
     }
 
 

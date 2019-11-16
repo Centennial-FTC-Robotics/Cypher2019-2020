@@ -13,14 +13,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import java.util.Locale;
 
 public abstract class CypherMethods extends CypherHardware {
-    private double startAngle = 0;
     private DcMotor[] driveMotors = new DcMotor[4];
 
     private DcMotor[] leftMotors = new DcMotor[2];
     private DcMotor[] rightMotors = new DcMotor[2];
 
-    private DcMotor[] strafeNeg = new DcMotor[2];
-    private DcMotor[] strafePos = new DcMotor[2];
+    DcMotor[] strafeNeg = new DcMotor[2];
+    DcMotor[] strafePos = new DcMotor[2];
 
     private CRServo[] wheelIntakeServos = new CRServo[2];
 
@@ -155,11 +154,8 @@ public abstract class CypherMethods extends CypherHardware {
         int strafePosTarget = forwardMovement + leftMovement;
         int posErrorSum = 0;
         int negErrorSum = 0;
-        currentNegPosition = getNegPos();
-        currentPosPosition = getPosPos();
 
-        negError = strafeNegTarget - currentNegPosition;
-        posError = strafeNegTarget - currentPosPosition;
+
 
         do {
             currentNegPosition = getNegPos();
@@ -168,14 +164,14 @@ public abstract class CypherMethods extends CypherHardware {
             negError = strafeNegTarget - currentNegPosition;
             posError = strafeNegTarget - currentPosPosition;
 
-            negErrorSum =+ negError;
-            posErrorSum =+ posError;
+            negErrorSum += negError;
+            posErrorSum += posError;
 
             negDirection = getDirection(strafeNegTarget, currentNegPosition);
             posDirection = getDirection(strafePosTarget, currentPosPosition);
 
-            negSpeed = Range.clip(P*negError /*+ I*negErrorSum*/, minSpeed, maxSpeed);
-            posSpeed = Range.clip(P*posError /*+ I*posErrorSum*/, minSpeed, maxSpeed);
+            negSpeed = Range.clip(P*negError + I*negErrorSum, minSpeed, maxSpeed);
+            posSpeed = Range.clip(P*posError + I*posErrorSum, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed * negDirection, posSpeed * posDirection);
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
@@ -216,38 +212,20 @@ public abstract class CypherMethods extends CypherHardware {
 
 
 
-    public double getHeading() {
-        orientationUpdate();
-        double heading = Double.parseDouble(properAngleFormat(orientation.angleUnit, orientation.firstAngle)) - startAngle;
-        if(heading > 180) {
-            heading -=360;
-        } else if(heading < -180) {
-            heading +=360;
-        }
-        return heading;
-    }
-
     //INITIALIZE STUFF
     public void initializeIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.mode = BNO055IMU.SensorMode.IMU;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-        telemetry.addData("are you here", true);
-        telemetry.update();
         imu.initialize(parameters);
         while (opModeIsActive() && !imu.isGyroCalibrated()) ;
         resetOrientation();
     }
 
-    public void zeroAngle(){
-
-        startAngle = getRotationinDimension('Z');
-    }
     //METHODS THAT ASSIST WITH AUTONOMOUS IDK
     public double getRotationinDimension(char dimension) {
         orientationUpdate();
@@ -276,17 +254,17 @@ public abstract class CypherMethods extends CypherHardware {
         return 0;
     }
 
-    public double getAngleDist(double targetAngle, double currentAngle) {
+        public double getAngleDist(double targetAngle, double currentAngle) {
 
-        double angleDifference = currentAngle - targetAngle;
-        if (Math.abs(angleDifference) > 180) {
-            angleDifference = 360 - Math.abs(angleDifference);
-        } else {
-            angleDifference = Math.abs(angleDifference);
+            double angleDifference = currentAngle - targetAngle;
+            if (Math.abs(angleDifference) > 180) {
+                angleDifference = 360 - Math.abs(angleDifference);
+            } else {
+                angleDifference = Math.abs(angleDifference);
+            }
+
+            return angleDifference;
         }
-
-        return angleDifference;
-    }
 
     public int getAngleDir(double targetAngle, double currentAngle) {
 
@@ -326,7 +304,7 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     public void orientationUpdate() {
-        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XZY, AngleUnit.DEGREES);
+        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }
     public void resetOrientation() {
         orientationUpdate();
