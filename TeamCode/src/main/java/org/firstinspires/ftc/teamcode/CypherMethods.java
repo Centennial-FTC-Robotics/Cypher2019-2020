@@ -102,13 +102,12 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     public void turnAbsolute(double targetAngle) {
-
         double currentAngle;
         int direction;
         double turnRate ;
-        double P = 0.005;
-        double minSpeed = 0.1;
-        double maxSpeed = 0.5;
+        double P = 0.04;
+        double minSpeed = 0.01;
+        double maxSpeed = 0.4;
         double tolerance = 5;
         double error;
 
@@ -119,6 +118,7 @@ public abstract class CypherMethods extends CypherHardware {
             turnRate = Range.clip(P * error, minSpeed, maxSpeed);
             telemetry.addData("error",error);
             telemetry.addData("turnRate", turnRate);
+            telemetry.addData("current", currentAngle);
             telemetry.update();
             setDriveMotors((turnRate * direction), -(turnRate * direction));
         }
@@ -128,8 +128,8 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     public void testAutoMove(double forward, double left) {
-        int forwardMovement = convertInchToEncoder(forward);
-        int leftMovement = convertInchToEncoder(left);
+        int forwardMovement = convertInchToEncoder(left);
+        int leftMovement = convertInchToEncoder(-forward);
 
         for(DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -231,9 +231,9 @@ public abstract class CypherMethods extends CypherHardware {
         orientationUpdate();
         switch (Character.toUpperCase(dimension)) {
             case 'X':
-            return AngleUnit.normalizeDegrees(getRawDimension('X') - initialPitch);
+                return AngleUnit.normalizeDegrees(getRawDimension('X') - initialPitch);
             case 'Y':
-            return AngleUnit.normalizeDegrees(getRawDimension('Y') - initialRoll);
+                return AngleUnit.normalizeDegrees(getRawDimension('Y') - initialRoll);
             case 'Z':
                 return AngleUnit.normalizeDegrees(getRawDimension('Z') - initialHeading);
         }
@@ -254,25 +254,25 @@ public abstract class CypherMethods extends CypherHardware {
         return 0;
     }
 
-        public double getAngleDist(double targetAngle, double currentAngle) {
-
-            double angleDifference = currentAngle - targetAngle;
-            if (Math.abs(angleDifference) > 180) {
-                angleDifference = 360 - Math.abs(angleDifference);
-            } else {
-                angleDifference = Math.abs(angleDifference);
-            }
-
-            return angleDifference;
+    public double getAngleDist(double targetAngle, double currentAngle) {
+        double angleDifference = currentAngle - targetAngle;
+        if (Math.abs(angleDifference) > 180) {
+            angleDifference = 360 - Math.abs(angleDifference);
+        } else {
+            angleDifference = Math.abs(angleDifference);
         }
 
+        return angleDifference;
+    }
     public int getAngleDir(double targetAngle, double currentAngle) {
 
-        double angleDifference = currentAngle - targetAngle;
+        double angleDifference = targetAngle - currentAngle;
         int angleDir = (int) (angleDifference / Math.abs(angleDifference));
+
         if (Math.abs(angleDifference) > 180) {
             angleDir *= -1;
         }
+
         return angleDir;
     }
 

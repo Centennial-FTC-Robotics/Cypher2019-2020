@@ -9,8 +9,8 @@ public class betterEncoder extends CypherMethods{
         initializeIMU();
 
         waitForStart();
-        testAutoMove(60, 60);
-        turnAbsolute(90);
+        turnAbsolute(-90);
+        testAutoMove(60, 0);
     }
 
 
