@@ -18,8 +18,8 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 @Autonomous(name = "Tensor Flow Test", group = "Test")
 public class tensorFlowTest extends CypherMethods {
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
-    private static final String stone = "Stone";
-    private static final String skystone = "Skystone";
+    private static final String LABEL_FIRST_ELEMENT = "Stone";
+    private static final String LABEL_SECOND_ELEMENT = "Skystone";
 
 
     private static final String VUFORIA_KEY =
@@ -59,7 +59,7 @@ public class tensorFlowTest extends CypherMethods {
                         int i = 0;
 
                         for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(skystone)) {  //if skystone is detected
+                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {  //if skystone is detected
                                 double left = recognition.getLeft();
                                 double right = recognition.getRight();
 
@@ -122,7 +122,7 @@ public class tensorFlowTest extends CypherMethods {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minimumConfidence = 0.8;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, stone, skystone);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
     public void otherMove(double left, double right, double dir) { //dir = 1 is right, dir = -1 is left
