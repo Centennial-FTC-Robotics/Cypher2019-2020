@@ -78,7 +78,7 @@ public abstract class CypherMethods extends CypherHardware {
 
 
 
-    public void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
+     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
         double magnitude = Math.cbrt(forwardPower * forwardPower + leftPower*leftPower + rotate*rotate);
         if (magnitude > 1) {
            strafeNeg[0].setPower(((-leftPower + forwardPower - rotate) / magnitude) * factor);
@@ -101,7 +101,7 @@ public abstract class CypherMethods extends CypherHardware {
         rightMotors[1].setPower(rotate);
     }
 
-    public void turnAbsolute(double targetAngle) {
+    void turnAbsolute(double targetAngle) {
         double currentAngle;
         int direction;
         double turnRate ;
@@ -127,9 +127,9 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
-    public void testAutoMove(double forward, double left) {
-        int forwardMovement = convertInchToEncoder(left);
-        int leftMovement = convertInchToEncoder(-forward);
+     void testAutoMove(double forward, double left) {
+        int forwardMovement = convertInchToEncoder(forward);
+        int leftMovement = convertInchToEncoder(left);
 
         for(DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -139,13 +139,12 @@ public abstract class CypherMethods extends CypherHardware {
         double P = 0.04;
         double I = 0;
         double tolerance = 5;
-        int currentPos = averageDriveMotorEncoder();
-        double minSpeed = .1;
+            double minSpeed = .1;
         double maxSpeed = .5;
         int currentNegPosition;
         int currentPosPosition;
-        int negDirection;
-        int posDirection;
+        //int negDirection;
+        //int posDirection;
         int negError;
         int posError;
         double negSpeed;
@@ -167,13 +166,13 @@ public abstract class CypherMethods extends CypherHardware {
             negErrorSum += negError;
             posErrorSum += posError;
 
-            negDirection = getDirection(strafeNegTarget, currentNegPosition);
-            posDirection = getDirection(strafePosTarget, currentPosPosition);
+            //negDirection = getDirection(strafeNegTarget, currentNegPosition);
+            //posDirection = getDirection(strafePosTarget, currentPosPosition);
 
             negSpeed = Range.clip(P*negError + I*negErrorSum, minSpeed, maxSpeed);
             posSpeed = Range.clip(P*posError + I*posErrorSum, minSpeed, maxSpeed);
 
-            setStrafeMotors(negSpeed * negDirection, posSpeed * posDirection);
+            setStrafeMotors(negSpeed /** negDirection*/, posSpeed /** posDirection*/);
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setMotorPower(0);
     }
@@ -188,16 +187,15 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
-
-    public void setMotorPower(double power) {
+    void setMotorPower(double power) {
         for(DcMotor motor: driveMotors) {
             motor.setPower(power);
         }
     }
 
-    public void setStrafeMotors(double neg, double pos) {
+   void setStrafeMotors(double neg, double pos) {
         for(DcMotor motor : strafeNeg) {
-            motor.setPower(-neg);
+            motor.setPower(neg); //try - if it dosent work go back to -neg
         }
         for (DcMotor motor : strafePos) {
             motor.setPower(pos);
