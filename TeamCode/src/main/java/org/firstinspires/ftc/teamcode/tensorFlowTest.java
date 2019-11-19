@@ -48,59 +48,59 @@ public class tensorFlowTest extends CypherMethods {
         findSkystone();
 
     }
+
     public void findSkystone() {
-            while (opModeIsActive()) {
-                if (tfod != null) {
+        while (opModeIsActive()) {
+            if (tfod != null) {
 
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    telemetry.update(); //added to see if its apps fault; it's not(this shows fine but not ones in for loop)
+                    int i = 0;
 
-                        int i = 0;
+                    for (Recognition recognition : updatedRecognitions) {
+                        if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {  //if skystone is detected
+                            double left = recognition.getLeft();
+                            double right = recognition.getRight();
 
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {  //if skystone is detected
-                                double left = recognition.getLeft();
-                                double right = recognition.getRight();
-
-                                if (right == left || Math.abs(left - right) < tolerance) {
-                                    testAutoMove(12, 0);
-                                } else if (left > right) { // it is on the right
-                                    while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
-                                        double newLeft = recognition.getLeft();
-                                        double newRight = recognition.getRight();
-                                        otherMove(newLeft, newRight, 1);
-                                    }
-                                    setMotorPower(0);
-
-                                } else if (right > left) { // it is on the left
-                                    while (right > left && opModeIsActive() && Math.abs(left - right) > tolerance) {
-                                        double newLeft = recognition.getLeft();
-                                        double newRight = recognition.getRight();
-                                        otherMove(newLeft, newRight, -1);
-                                    }
-                                    setMotorPower(0);
+                            if (right == left || Math.abs(left - right) < tolerance) {
+                                testAutoMove(-12, 0); //negative makes it move forward
+                            } else if (left > right) { // it is on the right
+                                while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
+                                    double newLeft = recognition.getLeft();
+                                    double newRight = recognition.getRight();
+                                    otherMove(newLeft, newRight, 1);
                                 }
+                                setMotorPower(0);
+
+                            } else if (right > left) { // it is on the left
+                                while (right > left && opModeIsActive() && Math.abs(left - right) > tolerance) {
+                                    double newLeft = recognition.getLeft();
+                                    double newRight = recognition.getRight();
+                                    otherMove(newLeft, newRight, -1);
+                                }
+                                setMotorPower(0);
+                            }
 
 
-
-                            } else { //not a skystone, move left then go back to the start
+                        } else { //not a skystone, move left then go back to the start
                             testAutoMove(0, 6);
                         }
-                            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                    recognition.getLeft(), recognition.getTop());
-                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                    recognition.getRight(), recognition.getBottom());
-                            telemetry.update();
-                        }
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+                        telemetry.update(); //somehow not updating
                     }
                 }
             }
+        }
 
-            if (tfod != null) {
-                tfod.shutdown();
-            }
+        if (tfod != null) {
+            tfod.shutdown();
+        }
 
     }
 
@@ -126,22 +126,22 @@ public class tensorFlowTest extends CypherMethods {
     }
 
     public void otherMove(double left, double right, double dir) { //dir = 1 is right, dir = -1 is left
-       double P = 0.02;
-       double error = Math.abs(left - right);
-       double speed;
-       double negSpeed, posSpeed;
-       double minSpeed = 0.01;
-       double maxSpeed = 0.3;
+        double P = 0.02;
+        double error = Math.abs(left - right);
+        double speed;
+        double negSpeed, posSpeed;
+        double minSpeed = 0.01;
+        double maxSpeed = 0.3;
 
-       speed = Range.clip(P*error,minSpeed, maxSpeed);
-       negSpeed = -(speed*dir);
-       posSpeed = speed*dir;
+        speed = Range.clip(P * error, minSpeed, maxSpeed);
+        negSpeed = -(speed * dir);
+        posSpeed = speed * dir;
 
-       for(DcMotor motor : strafeNeg) {
-           motor.setPower(negSpeed);
+        for (DcMotor motor : strafeNeg) {
+            motor.setPower(negSpeed);
         }
-       for(DcMotor motor : strafePos) {
-           motor.setPower(posSpeed);
-       }
+        for (DcMotor motor : strafePos) {
+            motor.setPower(posSpeed);
+        }
     }
 }
