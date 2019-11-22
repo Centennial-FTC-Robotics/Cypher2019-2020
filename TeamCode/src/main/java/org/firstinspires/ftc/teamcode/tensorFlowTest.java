@@ -29,7 +29,8 @@ public class tensorFlowTest extends CypherMethods {
     private VuforiaLocalizer vuforia;
 
     private TFObjectDetector tfod;
-    double tolerance = 20; //close enough value
+    double tolerance = 200; //close enough value
+    double newRight, newLeft;
 
 
     @Override
@@ -65,20 +66,29 @@ public class tensorFlowTest extends CypherMethods {
                             double right = recognition.getRight();
 
                             if (right == left || Math.abs(left - right) < tolerance) {
-                                testAutoMove(-12, 0); //negative makes it move forward
+                                testAutoMove(12, 0); //negative makes it move forward
                             } else if (left > right) { // it is on the right
                                 while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
-                                    double newLeft = recognition.getLeft();
-                                    double newRight = recognition.getRight();
+                                    newLeft = recognition.getLeft();
+                                    newRight = recognition.getRight();
                                     otherMove(newLeft, newRight, 1);
+                                    telemetry.addData("left", newLeft);
+                                    telemetry.addData("right", newRight);
+                                    telemetry.addData("skystone is on the", "right");
+                                    telemetry.update();
                                 }
                                 setMotorPower(0);
 
                             } else if (right > left) { // it is on the left
                                 while (right > left && opModeIsActive() && Math.abs(left - right) > tolerance) {
-                                    double newLeft = recognition.getLeft();
-                                    double newRight = recognition.getRight();
+                                    newLeft = recognition.getLeft();
+                                    newRight = recognition.getRight();
                                     otherMove(newLeft, newRight, -1);
+                                    telemetry.addData("left", newLeft);
+                                    telemetry.addData("right", newRight);
+                                    telemetry.addData("skystone is on the", "left");
+                                    telemetry.update();
+
                                 }
                                 setMotorPower(0);
                             }
@@ -86,6 +96,8 @@ public class tensorFlowTest extends CypherMethods {
 
                         } else { //not a skystone, move left then go back to the start
                             testAutoMove(0, 6);
+                            telemetry.addData("not a skystone", null);
+                            telemetry.update();
                         }
                         telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                         telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
