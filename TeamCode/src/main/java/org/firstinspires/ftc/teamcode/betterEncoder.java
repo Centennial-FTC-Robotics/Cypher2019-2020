@@ -11,7 +11,7 @@ public class betterEncoder extends CypherMethods{
         waitForStart();
         //turnAbsolute(-90);
         testAutoMove(60, 0);
-        testAutoMove(0, 60);
+        testAutoMove(0,60);
     }
 
 
