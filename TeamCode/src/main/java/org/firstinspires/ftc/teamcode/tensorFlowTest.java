@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
@@ -29,7 +26,8 @@ public class tensorFlowTest extends CypherMethods {
     private VuforiaLocalizer vuforia;
 
     private TFObjectDetector tfod;
-    double tolerance = 20; //close enough value
+    double tolerance = 200; //close enough value
+    double newRight, newLeft;
 
 
     @Override
@@ -45,9 +43,51 @@ public class tensorFlowTest extends CypherMethods {
 
 
         waitForStart();
-        findSkystone();
+        //findSkystone();
+        goToSkystone();
 
     }
+
+    public void goToSkystone() {
+        while(opModeIsActive()) {
+            if (tfod != null) {
+
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    telemetry.update();
+                    int i = 0;
+
+                    for (Recognition recognition : updatedRecognitions) {
+                        double left = recognition.getLeft();
+                        double right = recognition.getRight();
+                        if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {  //if skystone is detected
+                            if(left - right > tolerance) { //if its not "close enough"
+                                moveToCenter(left, right); //run the thingy that makes it "close enough"
+                            } else {
+                                setMotorPower(0); //when u r close enough stop moving
+                                testAutoMove(60, 0); //if you are close enough move forward and ram into it
+                            }
+
+                    } else { //if not skystone
+                            testAutoMove(0,12); //move to side
+                        }
+                        telemetry.addData("left", left);
+                        telemetry.addData("right", right);
+                        telemetry.addData("type", recognition.getLabel());
+                        telemetry.update();
+                }
+
+            }
+        }
+
+        if (tfod != null) {
+            tfod.shutdown();
+        }
+
+    }
+        }
+
 
     public void findSkystone() {
         while (opModeIsActive()) {
@@ -68,17 +108,25 @@ public class tensorFlowTest extends CypherMethods {
                                 testAutoMove(-12, 0); //negative makes it move forward
                             } else if (left > right) { // it is on the right
                                 while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
-                                    double newLeft = recognition.getLeft();
-                                    double newRight = recognition.getRight();
+                                    newLeft = recognition.getLeft();
+                                    newRight = recognition.getRight();
                                     otherMove(newLeft, newRight, 1);
+                                    telemetry.addData("left", newLeft);
+                                    telemetry.addData("right", newRight);
+                                    telemetry.addData("skystone is on the", "right");
+                                    telemetry.update();
                                 }
                                 setMotorPower(0);
 
                             } else if (right > left) { // it is on the left
                                 while (right > left && opModeIsActive() && Math.abs(left - right) > tolerance) {
-                                    double newLeft = recognition.getLeft();
-                                    double newRight = recognition.getRight();
+                                    newLeft = recognition.getLeft();
+                                    newRight = recognition.getRight();
                                     otherMove(newLeft, newRight, -1);
+                                    telemetry.addData("left", newLeft);
+                                    telemetry.addData("right", newRight);
+                                    telemetry.addData("skystone is on the", "right");
+                                    telemetry.update();
                                 }
                                 setMotorPower(0);
                             }
@@ -86,13 +134,15 @@ public class tensorFlowTest extends CypherMethods {
 
                         } else { //not a skystone, move left then go back to the start
                             testAutoMove(0, 6);
+                            telemetry.addData("not a skystone", null);
+                            telemetry.update();
                         }
                         telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                         telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                 recognition.getLeft(), recognition.getTop());
                         telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                 recognition.getRight(), recognition.getBottom());
-                        telemetry.update(); //somehow not updating
+                        telemetry.update(); //somehow not  updating
                     }
                 }
             }
@@ -143,5 +193,18 @@ public class tensorFlowTest extends CypherMethods {
         for (DcMotor motor : strafePos) {
             motor.setPower(posSpeed);
         }
+    }
+
+    public void moveToCenter(double left, double right) {
+        double P = 0.02;
+        double error = left - right;
+        double negSpeed, posSpeed;
+        double minSpeed = 0.01;
+        double maxSoeed = 0.03;
+
+        negSpeed = Range.clip(-(P*error), minSpeed, maxSoeed);
+        posSpeed = Range.clip(P*error, minSpeed, maxSoeed);
+
+        setStrafeMotors(negSpeed, posSpeed);
     }
 }

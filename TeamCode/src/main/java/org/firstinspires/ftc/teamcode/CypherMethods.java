@@ -136,7 +136,7 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
-        double P = 0.04;
+        /*double P = 0.04;
         double I = 0;
         double tolerance = 5;
             double minSpeed = .1;
@@ -172,9 +172,40 @@ public abstract class CypherMethods extends CypherHardware {
             negSpeed = Range.clip(P*negError + I*negErrorSum, minSpeed, maxSpeed);
             posSpeed = Range.clip(P*posError + I*posErrorSum, minSpeed, maxSpeed);
 
-            setStrafeMotors(negSpeed /** negDirection*/, posSpeed /** posDirection*/);
+            setStrafeMotors(negSpeed , posSpeed);
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
-        setMotorPower(0);
+    setMotorPower(0);
+    */
+
+    double P = 0.04;
+    double I = 0;
+    double tolerance = 5;
+    double minSpeed = 0.01;
+    double maxSpeed = 0.5;
+    double negSpeed, posSpeed;
+    double currentNegPos, currentPosPos;
+    double negError, posError;
+
+    int negTarget = forwardMovement - leftMovement;
+    int posTarget = forwardMovement + leftMovement;
+
+
+    do {
+        currentNegPos = getNegPos();
+        currentPosPos = getPosPos();
+
+        negError  = negTarget - currentNegPos;
+        posError = posTarget - currentPosPos;
+
+        negSpeed = Range.clip(P*negError, minSpeed, maxSpeed);
+        posSpeed = Range.clip(P*posError, minSpeed, maxSpeed);
+
+        setStrafeMotors(negSpeed, posSpeed);
+
+    } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
+    setMotorPower(0);
+
+
     }
 
     public void setDriveMotors(double leftPower, double rightPower) {
