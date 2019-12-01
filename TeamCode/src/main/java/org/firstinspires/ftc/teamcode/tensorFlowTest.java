@@ -105,7 +105,7 @@ public class tensorFlowTest extends CypherMethods {
                             double right = recognition.getRight();
 
                             if (right == left || Math.abs(left - right) < tolerance) {
-                                testAutoMove(-12, 0); //negative makes it move forward
+                                testAutoMove(12, 0); //negative makes it move forward
                             } else if (left > right) { // it is on the right
                                 while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
                                     newLeft = recognition.getLeft();
@@ -125,8 +125,9 @@ public class tensorFlowTest extends CypherMethods {
                                     otherMove(newLeft, newRight, -1);
                                     telemetry.addData("left", newLeft);
                                     telemetry.addData("right", newRight);
-                                    telemetry.addData("skystone is on the", "right");
+                                    telemetry.addData("skystone is on the", "left");
                                     telemetry.update();
+
                                 }
                                 setMotorPower(0);
                             }

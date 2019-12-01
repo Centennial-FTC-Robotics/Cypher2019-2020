@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.drawable.GradientDrawable;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -45,7 +44,6 @@ public abstract class CypherHardware extends LinearOpMode {
         HSlide = hardwareMap.crservo.get("hslide");
         swivel = hardwareMap.crservo.get("swivelservo");
         arm = hardwareMap.crservo.get("armservo");
-
 
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
