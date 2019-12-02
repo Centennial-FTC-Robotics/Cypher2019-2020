@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
 public class mainDrive extends CypherMethods {
-    boolean inOutToggle = false;
-    boolean resetToggle = true;
-    boolean armToggle;
+    private boolean inOutToggle = false;
+    private boolean resetToggle = true;
+    private boolean armToggle = false;
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -24,7 +24,7 @@ public class mainDrive extends CypherMethods {
             double hSlide = gamepad2.right_stick_x;
             boolean arm = gamepad2.a;
             double swivelRight = gamepad2.right_trigger;
-            double swivelLeft = gamepad1.left_trigger;
+            double swivelLeft = -gamepad1.left_trigger;
             //Servo Intake Control------------------------------------------------------------------
             if(b) {
                 resetToggle = !resetToggle;
@@ -74,6 +74,8 @@ public class mainDrive extends CypherMethods {
 
             controlArm(hSlide);
             controlSlides(vSlide);
+
+            swivelServo(swivelLeft + swivelRight);
 
 
 
