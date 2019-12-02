@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.Range;
 
 
 @TeleOp
@@ -76,7 +75,7 @@ public class mainDrive extends CypherMethods {
             controlArm(hSlide);
             controlSlides(vSlide);
 
-            swivelServo(Range.clip(swivelLeft + swivelRight, -1, 1));
+            swivelServo(swivelLeft + swivelRight);
 
 
 
