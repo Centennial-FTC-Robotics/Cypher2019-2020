@@ -45,7 +45,34 @@ public class tensorFlowTest extends CypherMethods {
         waitForStart();
         //findSkystone();
         goToSkystone();
+        //skystoneFindPls();
 
+    }
+
+    public void skystoneFindPls() {
+        if (opModeIsActive()) {
+            while (opModeIsActive()) {
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+
+                        // step through the list of recognitions and display boundary info.
+                        int i = 0;
+                        for (Recognition recognition : updatedRecognitions) {
+                            if(recognition.getLabel() == LABEL_SECOND_ELEMENT) {
+                                telemetry.addData("SKYSTONE", true);
+                            } else {
+                                telemetry.addData("not skystone", true);
+                            }
+                        }
+                        telemetry.update();
+                    }
+                }
+            }
+        }
     }
 
     public void goToSkystone() {
@@ -56,21 +83,29 @@ public class tensorFlowTest extends CypherMethods {
                 if (updatedRecognitions != null) {
                     telemetry.addData("# Object Detected", updatedRecognitions.size());
                     telemetry.update();
-                    int i = 0;
 
                     for (Recognition recognition : updatedRecognitions) {
                         double left = recognition.getLeft();
                         double right = recognition.getRight();
-                        if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {  //if skystone is detected
+                        if (recognition.getLabel() == LABEL_SECOND_ELEMENT) {  //if skystone is detected
                             if(left - right > tolerance) { //if its not "close enough"
                                 moveToCenter(left, right); //run the thingy that makes it "close enough"
+                                telemetry.addData("left", left);
+                                telemetry.addData("right", right);
+                                telemetry.update();
                             } else {
                                 setMotorPower(0); //when u r close enough stop moving
                                 testAutoMove(60, 0); //if you are close enough move forward and ram into it
+                                telemetry.addData("left", left);
+                                telemetry.addData("right", right);
+                                telemetry.update();
                             }
 
                     } else { //if not skystone
                             testAutoMove(0,12); //move to side
+                            telemetry.addData("left", left);
+                            telemetry.addData("right", right);
+                            telemetry.update();
                         }
                         telemetry.addData("left", left);
                         telemetry.addData("right", right);
@@ -114,6 +149,11 @@ public class tensorFlowTest extends CypherMethods {
                                     telemetry.addData("left", newLeft);
                                     telemetry.addData("right", newRight);
                                     telemetry.addData("skystone is on the", "right");
+                                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                            recognition.getLeft(), recognition.getTop());
+                                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                            recognition.getRight(), recognition.getBottom());
                                     telemetry.update();
                                 }
                                 setMotorPower(0);
@@ -126,6 +166,11 @@ public class tensorFlowTest extends CypherMethods {
                                     telemetry.addData("left", newLeft);
                                     telemetry.addData("right", newRight);
                                     telemetry.addData("skystone is on the", "left");
+                                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                            recognition.getLeft(), recognition.getTop());
+                                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                            recognition.getRight(), recognition.getBottom());
                                     telemetry.update();
 
                                 }
@@ -136,14 +181,13 @@ public class tensorFlowTest extends CypherMethods {
                         } else { //not a skystone, move left then go back to the start
                             testAutoMove(0, 6);
                             telemetry.addData("not a skystone", null);
+                            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                    recognition.getLeft(), recognition.getTop());
+                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                    recognition.getRight(), recognition.getBottom());
                             telemetry.update();
                         }
-                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                recognition.getLeft(), recognition.getTop());
-                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                recognition.getRight(), recognition.getBottom());
-                        telemetry.update(); //somehow not  updating
                     }
                 }
             }

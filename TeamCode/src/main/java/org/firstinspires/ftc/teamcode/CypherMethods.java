@@ -135,11 +135,11 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
-        /*double P = 0.04;
+        /*
+        double P = 0.04;
         double I = 0;
         double tolerance = 5;
-            double minSpeed = .1;
+        double minSpeed = .1;
         double maxSpeed = .5;
         int currentNegPosition;
         int currentPosPosition;
@@ -153,30 +153,25 @@ public abstract class CypherMethods extends CypherHardware {
         int strafePosTarget = forwardMovement + leftMovement;
         int posErrorSum = 0;
         int negErrorSum = 0;
-
-
-
         do {
+
             currentNegPosition = getNegPos();
             currentPosPosition = getPosPos();
-
             negError = strafeNegTarget - currentNegPosition;
-            posError = strafeNegTarget - currentPosPosition;
+            posError = strafePosTarget - currentPosPosition;
+
 
             negErrorSum += negError;
             posErrorSum += posError;
-
-            //negDirection = getDirection(strafeNegTarget, currentNegPosition);
-            //posDirection = getDirection(strafePosTarget, currentPosPosition);
 
             negSpeed = Range.clip(P*negError + I*negErrorSum, minSpeed, maxSpeed);
             posSpeed = Range.clip(P*posError + I*posErrorSum, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed , posSpeed);
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
-    setMotorPower(0);
-    */
+        setMotorPower(0);
 
+    */
         double P = 0.04;
         double I = 0;
         double tolerance = 5;
@@ -202,8 +197,20 @@ public abstract class CypherMethods extends CypherHardware {
 
             setStrafeMotors(negSpeed, posSpeed);
 
+            telemetry.addData("neg current", currentNegPos);
+            telemetry.addData("pos current", currentPosPos);
+            telemetry.addData("neg error", negError);
+            telemetry.addData("pos error", posError);
+            telemetry.addData("neg speed", negSpeed);
+            telemetry.addData("pos speed", posSpeed);
+            telemetry.addData("forward", forwardMovement);
+            telemetry.addData("left", leftMovement);
+            telemetry.update();
+
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setMotorPower(0);
+
+
 
 
     }
@@ -226,7 +233,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     void setStrafeMotors(double neg, double pos) {
         for(DcMotor motor : strafeNeg) {
-            motor.setPower(neg); //try - if it dosent work go back to -neg
+            motor.setPower(neg);
         }
         for (DcMotor motor : strafePos) {
             motor.setPower(pos);
