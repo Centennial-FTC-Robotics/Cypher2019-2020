@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="servoTest", group="TeleOp")
+@TeleOp(name="servoTest", group="Test")
 public class servoTest extends LinearOpMode {
     CRServo leftServo;
     CRServo rightServo;

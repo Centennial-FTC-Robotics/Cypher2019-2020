@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-@Autonomous
+@Autonomous(name="Encoder Test", group = "Test")
 public class betterEncoder extends CypherMethods{
     @Override
     public void runOpMode() throws InterruptedException {
@@ -9,7 +9,9 @@ public class betterEncoder extends CypherMethods{
         initializeIMU();
 
         waitForStart();
-        turnAbsolute(90);
+        turnAbsolute(-90);
+        testAutoMove(60, 0);
+        testAutoMove(0,60);
     }
 
 
