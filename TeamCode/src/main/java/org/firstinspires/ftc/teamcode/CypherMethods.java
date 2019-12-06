@@ -205,8 +205,10 @@ public abstract class CypherMethods extends CypherHardware {
             telemetry.addData("pos speed", posSpeed);
             telemetry.addData("forward", forwardMovement);
             telemetry.addData("left", leftMovement);
+            telemetry.addData("aaaaaaaaaaa","aaaaaaaaaaaaaaaaa");
+            telemetry.addData("egfdg", Range.clip(-1, minSpeed, maxSpeed));
             telemetry.update();
-
+            //range.clip makes it positive if the value is negative, fix this somehow 
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setMotorPower(0);
 
@@ -233,10 +235,10 @@ public abstract class CypherMethods extends CypherHardware {
 
     void setStrafeMotors(double neg, double pos) {
         for(DcMotor motor : strafeNeg) {
-            motor.setPower(neg);
+            motor.setPower(-neg);
         }
         for (DcMotor motor : strafePos) {
-            motor.setPower(pos);
+            motor.setPower(-pos);
         }
     }
 
@@ -328,6 +330,7 @@ public abstract class CypherMethods extends CypherHardware {
         for(DcMotor motor : strafeNeg) {
             average += motor.getCurrentPosition();
         }
+        average *= -1;
         return average / 2;
     }
     public int getPosPos() {
@@ -335,6 +338,7 @@ public abstract class CypherMethods extends CypherHardware {
         for(DcMotor motor : strafePos) {
             average += motor.getCurrentPosition();
         }
+        average *= -1;
         return average /2;
     }
 
