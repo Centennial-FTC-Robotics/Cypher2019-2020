@@ -192,8 +192,8 @@ public abstract class CypherMethods extends CypherHardware {
             negError  = negTarget - currentNegPos;
             posError = posTarget - currentPosPos;
 
-            negSpeed = Range.clip(P*negError, minSpeed, maxSpeed);
-            posSpeed = Range.clip(P*posError, minSpeed, maxSpeed);
+            negSpeed = clip(P*negError, minSpeed, maxSpeed);
+            posSpeed = clip(P*posError, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed, posSpeed);
 
@@ -243,8 +243,8 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
-    public void turnRelative() {
-        //make this at some point soon
+    public void turnRelative(double target) {
+        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + target));
     }
 
 
@@ -421,6 +421,19 @@ public abstract class CypherMethods extends CypherHardware {
         //a*b^3+(1-a)*b
         double output = (a*(Math.pow(b, 3))) + ((1-a)*b);
         return output;
+    }
+
+    public double clip(double num, double min, double max) {
+        int sign;
+        if(num < 0) {
+            sign = -1;
+        } else {
+            sign = 1;
+        }
+        if(Math.abs(num) < min) return min*sign;
+        if(Math.abs(num) > max) return max*sign;
+
+        return num;
     }
 
 

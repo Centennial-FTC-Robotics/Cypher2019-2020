@@ -44,8 +44,8 @@ public class tensorFlowTest extends CypherMethods {
 
         waitForStart();
         //findSkystone();
-        goToSkystone();
-        //skystoneFindPls();
+        //goToSkystone();
+        skystoneFindPls();
 
     }
 
@@ -62,8 +62,15 @@ public class tensorFlowTest extends CypherMethods {
                         // step through the list of recognitions and display boundary info.
                         int i = 0;
                         for (Recognition recognition : updatedRecognitions) {
-                            if(recognition.getLabel() == LABEL_SECOND_ELEMENT) {
+                            if(recognition.getLabel() == LABEL_SECOND_ELEMENT) { //ik it says use .equals() but that didnt work and this did
                                 telemetry.addData("SKYSTONE", true);
+                                telemetry.addData("left", recognition.getLeft());
+                                telemetry.addData("right", recognition.getRight());
+                                if(Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
+                                    moveToCenter(recognition.getLeft(), recognition.getRight());
+                                } else {
+                                    testAutoMove(12, 0);
+                                }
                             } else {
                                 telemetry.addData("not skystone", true);
                             }
