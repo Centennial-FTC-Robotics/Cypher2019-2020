@@ -56,7 +56,7 @@ public abstract class CypherHardware extends LinearOpMode {
         rightDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftServo.setDirection(CRServo.Direction.REVERSE);
+        rightServo.setDirection(CRServo.Direction.REVERSE);
 
 
 

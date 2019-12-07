@@ -235,10 +235,10 @@ public abstract class CypherMethods extends CypherHardware {
 
     void setStrafeMotors(double neg, double pos) {
         for(DcMotor motor : strafeNeg) {
-            motor.setPower(-neg);
+            motor.setPower(neg);
         }
         for (DcMotor motor : strafePos) {
-            motor.setPower(-pos);
+            motor.setPower(pos);
         }
     }
 
@@ -330,7 +330,6 @@ public abstract class CypherMethods extends CypherHardware {
         for(DcMotor motor : strafeNeg) {
             average += motor.getCurrentPosition();
         }
-        average *= -1;
         return average / 2;
     }
     public int getPosPos() {
@@ -338,7 +337,6 @@ public abstract class CypherMethods extends CypherHardware {
         for(DcMotor motor : strafePos) {
             average += motor.getCurrentPosition();
         }
-        average *= -1;
         return average /2;
     }
 
