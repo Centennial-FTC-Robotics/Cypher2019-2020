@@ -48,8 +48,8 @@ public abstract class CypherHardware extends LinearOpMode {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
-        leftDown.setDirection(DcMotor.Direction.REVERSE);
-        leftUp.setDirection(DcMotor.Direction.REVERSE);
+        rightDown.setDirection(DcMotor.Direction.REVERSE);
+        rightUp.setDirection(DcMotor.Direction.REVERSE);
 
         leftDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
