@@ -95,7 +95,7 @@ public class tensorFlowTest extends CypherMethods {
                         double left = recognition.getLeft();
                         double right = recognition.getRight();
                         if (recognition.getLabel() == LABEL_SECOND_ELEMENT) {  //if skystone is detected
-                            if(left - right > tolerance) { //if its not "close enough"
+                            if(Math.abs(left - right) > tolerance) { //if its not "close enough"
                                 moveToCenter(left, right); //run the thingy that makes it "close enough"
                                 telemetry.addData("left", left);
                                 telemetry.addData("right", right);
@@ -148,7 +148,24 @@ public class tensorFlowTest extends CypherMethods {
 
                             if (right == left || Math.abs(left - right) < tolerance) {
                                 testAutoMove(12, 0); //negative makes it move forward
-                            } else if (left > right) { // it is on the right
+                            }
+
+                           /* else if ((left > right) || (right > left)) {
+                                double surpassLevel;
+                                double behindLevel;
+                                if ((left > right)) {
+                                    surpassLevel = left;
+                                    behindLevel = right;
+                                }
+                                else {
+                                    surpassLevel = right;
+                                    behindLevel = left;
+                                }
+
+                                while (surpassLevel > behindLevel)
+                            }*/
+
+                            else if (left > right) { // it is on the right
                                 while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
                                     newLeft = recognition.getLeft();
                                     newRight = recognition.getRight();
