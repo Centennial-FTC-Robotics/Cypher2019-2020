@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import java.util.Locale;
 
 public abstract class CypherMethods extends CypherHardware {
-    private DcMotor[] driveMotors = new DcMotor[4];
+    DcMotor[] driveMotors = new DcMotor[4];
 
     private DcMotor[] leftMotors = new DcMotor[2];
     private DcMotor[] rightMotors = new DcMotor[2];
@@ -22,6 +23,12 @@ public abstract class CypherMethods extends CypherHardware {
     DcMotor[] strafePos = new DcMotor[2];
 
     private CRServo[] wheelIntakeServos = new CRServo[2];
+    private final double ticksPerRotation = 383.6;
+    private final double wheelDiameter = 3.937;
+    private final double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
+    private final double distanceInWheelRotation = wheelDiameter * Math.PI;
+    private final double ticksPerInch = distanceInWheelRotation/ticksPerWheelRotation;
+
 
 
     @Override
@@ -135,11 +142,11 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
-        /*double P = 0.04;
+        /*
+        double P = 0.04;
         double I = 0;
         double tolerance = 5;
-            double minSpeed = .1;
+        double minSpeed = .1;
         double maxSpeed = .5;
         int currentNegPosition;
         int currentPosPosition;
@@ -153,30 +160,25 @@ public abstract class CypherMethods extends CypherHardware {
         int strafePosTarget = forwardMovement + leftMovement;
         int posErrorSum = 0;
         int negErrorSum = 0;
-
-
-
         do {
+
             currentNegPosition = getNegPos();
             currentPosPosition = getPosPos();
-
             negError = strafeNegTarget - currentNegPosition;
-            posError = strafeNegTarget - currentPosPosition;
+            posError = strafePosTarget - currentPosPosition;
+
 
             negErrorSum += negError;
             posErrorSum += posError;
-
-            //negDirection = getDirection(strafeNegTarget, currentNegPosition);
-            //posDirection = getDirection(strafePosTarget, currentPosPosition);
 
             negSpeed = Range.clip(P*negError + I*negErrorSum, minSpeed, maxSpeed);
             posSpeed = Range.clip(P*posError + I*posErrorSum, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed , posSpeed);
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
-    setMotorPower(0);
-    */
+        setMotorPower(0);
 
+    */
         double P = 0.04;
         double I = 0;
         double tolerance = 5;
@@ -197,13 +199,27 @@ public abstract class CypherMethods extends CypherHardware {
             negError  = negTarget - currentNegPos;
             posError = posTarget - currentPosPos;
 
-            negSpeed = Range.clip(P*negError, minSpeed, maxSpeed);
-            posSpeed = Range.clip(P*posError, minSpeed, maxSpeed);
+            negSpeed = clip(P*negError, minSpeed, maxSpeed);
+            posSpeed = clip(P*posError, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed, posSpeed);
 
+            telemetry.addData("neg current", currentNegPos);
+            telemetry.addData("pos current", currentPosPos);
+            telemetry.addData("neg error", negError);
+            telemetry.addData("pos error", posError);
+            telemetry.addData("neg speed", negSpeed);
+            telemetry.addData("pos speed", posSpeed);
+            telemetry.addData("forward", forwardMovement);
+            telemetry.addData("left", leftMovement);
+            telemetry.addData("aaaaaaaaaaa","aaaaaaaaaaaaaaaaa");
+            telemetry.addData("egfdg", Range.clip(-1, minSpeed, maxSpeed));
+            telemetry.update();
+            //range.clip makes it positive if the value is negative, fix this somehow 
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setMotorPower(0);
+
+
 
 
     }
@@ -226,7 +242,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     void setStrafeMotors(double neg, double pos) {
         for(DcMotor motor : strafeNeg) {
-            motor.setPower(neg); //try - if it dosent work go back to -neg
+            motor.setPower(neg);
         }
         for (DcMotor motor : strafePos) {
             motor.setPower(pos);
@@ -234,8 +250,8 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
-    public void turnRelative() {
-        //make this at some point soon
+    public void turnRelative(double target) {
+        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + target));
     }
 
 
@@ -371,15 +387,15 @@ public abstract class CypherMethods extends CypherHardware {
     //CONVERSION METHODS
 
     public int convertInchToEncoder(double inches) {
-        double ticksPerRotation = 383.6;
-        double wheelDiameter = 3.937;
-        double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
-        double distanceInWheelRotation = wheelDiameter * Math.PI;
-        double ticksPerInch = distanceInWheelRotation/ticksPerWheelRotation;
-
         double encoderValue = inches/ticksPerInch;
         int intEncoderValue = (int) encoderValue;
         return intEncoderValue;
+    }
+
+    public int convertEncoderToInch(int encoder) {
+        double inchValue = ticksPerInch/encoder;
+        int intInchValue = (int) inchValue;
+        return intInchValue;
     }
 
     //INTAKE METHODS
@@ -411,6 +427,20 @@ public abstract class CypherMethods extends CypherHardware {
         double output = (a*(Math.pow(b, 3))) + ((1-a)*b);
         return output;
     }
+
+    public double clip(double num, double min, double max) {
+        int sign;
+        if(num < 0) {
+            sign = -1;
+        } else {
+            sign = 1;
+        }
+        if(Math.abs(num) < min) return min*sign;
+        if(Math.abs(num) > max) return max*sign;
+
+        return num;
+    }
+
 
 
 

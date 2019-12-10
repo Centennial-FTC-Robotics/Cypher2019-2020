@@ -1,18 +1,30 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
 public class mainDrive extends CypherMethods {
     private boolean inOutToggle = false;
     private boolean resetToggle = true;
     private boolean armToggle = false;
+    private int prevPosition;
+
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
 
         waitForStart();
+
+        ElapsedTime speedTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        final int checkInterval = 200;
+
+        for(DcMotor motor : driveMotors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            prevPosition = convertEncoderToInch(motor.getCurrentPosition());
+        }
         double factor = 1;
         while (opModeIsActive()) {
             double leftPower = acutalControl(gamepad1.left_stick_x);
@@ -57,8 +69,6 @@ public class mainDrive extends CypherMethods {
             }
 
             telemetry.addData("factor", factor);
-            telemetry.update();
-
             //Driving-------------------------------------------------------------------------------
             manDriveMotors(fowardPower, leftPower, rotate, factor);
 
@@ -77,9 +87,25 @@ public class mainDrive extends CypherMethods {
 
             swivelServo(swivelLeft + swivelRight);
 
+            //Better Braking------------------------------------------------------------------------
 
+                // if(fowardPower == 0 && leftPower == 0 && rotate == 0) {
+                for(DcMotor motor : driveMotors) {
+                    if (speedTimer.time() > checkInterval) {
+                        double speed = (double) (convertEncoderToInch(motor.getCurrentPosition()) - prevPosition) / speedTimer.time();
+                        // This will print out the inches per millisecond of the motor.
+                        telemetry.addData(motor.toString(), speed);
+                        speedTimer.reset();
+                        prevPosition = convertEncoderToInch(motor.getCurrentPosition());
+                    }
+                }
+                // }
 
-
+            telemetry.update();
         }
+
+
+
+
     }
 }
