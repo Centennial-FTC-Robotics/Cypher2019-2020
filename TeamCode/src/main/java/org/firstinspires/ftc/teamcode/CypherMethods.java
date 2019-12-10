@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import java.util.Locale;
 
 public abstract class CypherMethods extends CypherHardware {
-    private DcMotor[] driveMotors = new DcMotor[4];
+    DcMotor[] driveMotors = new DcMotor[4];
 
     private DcMotor[] leftMotors = new DcMotor[2];
     private DcMotor[] rightMotors = new DcMotor[2];
@@ -22,6 +23,12 @@ public abstract class CypherMethods extends CypherHardware {
     DcMotor[] strafePos = new DcMotor[2];
 
     private CRServo[] wheelIntakeServos = new CRServo[2];
+    private final double ticksPerRotation = 383.6;
+    private final double wheelDiameter = 3.937;
+    private final double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
+    private final double distanceInWheelRotation = wheelDiameter * Math.PI;
+    private final double ticksPerInch = distanceInWheelRotation/ticksPerWheelRotation;
+
 
 
     @Override
@@ -380,15 +387,15 @@ public abstract class CypherMethods extends CypherHardware {
     //CONVERSION METHODS
 
     public int convertInchToEncoder(double inches) {
-        double ticksPerRotation = 383.6;
-        double wheelDiameter = 3.937;
-        double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
-        double distanceInWheelRotation = wheelDiameter * Math.PI;
-        double ticksPerInch = distanceInWheelRotation/ticksPerWheelRotation;
-
         double encoderValue = inches/ticksPerInch;
         int intEncoderValue = (int) encoderValue;
         return intEncoderValue;
+    }
+
+    public int convertEncoderToInch(int encoder) {
+        double inchValue = ticksPerInch/encoder;
+        int intInchValue = (int) inchValue;
+        return intInchValue;
     }
 
     //INTAKE METHODS
@@ -433,6 +440,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         return num;
     }
+
 
 
 
