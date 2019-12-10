@@ -5,11 +5,17 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Arm Test", group="Test")
 public class ArmTest extends CypherMethods {
+
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
         while(opModeIsActive()) {
+
+
+
+
+
             double HSlidePower = gamepad2.left_stick_y;
             double swivelPower = gamepad2.right_stick_x;
             boolean in = gamepad2.a;

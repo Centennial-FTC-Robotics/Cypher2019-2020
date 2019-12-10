@@ -11,12 +11,12 @@ public class servoTest extends LinearOpMode {
     CRServo leftServo;
     CRServo rightServo;
 
+
     @Override
     public void runOpMode() throws InterruptedException {
 
 
     waitForStart();
-
     while(opModeIsActive()) {
         boolean in = gamepad1.a;
         boolean out = gamepad1.b;
