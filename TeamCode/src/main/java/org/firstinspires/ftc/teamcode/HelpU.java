@@ -7,14 +7,14 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-
 @Disabled
-public class HelpU extends CypherMethods {
+public class HelpU extends CypherMethods
+{
     double factor = 1;
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() throws InterruptedException
+    {
         super.runOpMode();
-
         waitForStart();
         while (opModeIsActive()) {
             double leftPower = acutalControl(gamepad1.left_stick_x);
@@ -24,8 +24,6 @@ public class HelpU extends CypherMethods {
             boolean resetServo = gamepad1.y;
             boolean servoIn = gamepad1.a;
             boolean servoOut = gamepad1.b;
-
-
 
             if(servoIn) {
                 controlIntakeServos(1);
@@ -45,19 +43,12 @@ public class HelpU extends CypherMethods {
             telemetry.addData("factor", factor);
             telemetry.update();
 
-           // if (rotate == 0) {
-                manDriveMotors(fowardPower, leftPower, rotate, factor);
-           // } else if(rotate != 0) {
-              //  rotate(rotate * factor);
-           // }
-
+            // if (rotate == 0) {
+            manDriveMotors(fowardPower, leftPower, rotate, factor);
+            // } else if(rotate != 0) {
+            //  rotate(rotate * factor);
+            // }
         }
     }
 }
-
-
-
-
-
-
 //edit

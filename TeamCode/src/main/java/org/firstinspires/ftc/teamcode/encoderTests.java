@@ -24,6 +24,5 @@ public class encoderTests extends CypherMethods{
         turnAbsolute(90);
     }
 
-
 }
 
