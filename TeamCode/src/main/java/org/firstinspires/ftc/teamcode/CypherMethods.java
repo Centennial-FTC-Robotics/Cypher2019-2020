@@ -196,8 +196,8 @@ public abstract class CypherMethods extends CypherHardware {
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
 
-            negError  = negTarget - currentNegPos;
-            posError = posTarget - currentPosPos;
+            negError  =currentNegPos - negTarget;
+            posError = currentPosPos - posTarget;
 
             negSpeed = clip(P*negError, minSpeed, maxSpeed);
             posSpeed = clip(P*posError, minSpeed, maxSpeed);
@@ -215,7 +215,6 @@ public abstract class CypherMethods extends CypherHardware {
             telemetry.addData("aaaaaaaaaaa","aaaaaaaaaaaaaaaaa");
             telemetry.addData("egfdg", Range.clip(-1, minSpeed, maxSpeed));
             telemetry.update();
-            //range.clip makes it positive if the value is negative, fix this somehow 
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setMotorPower(0);
 

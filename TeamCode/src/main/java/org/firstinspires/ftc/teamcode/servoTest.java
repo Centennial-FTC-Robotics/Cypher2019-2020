@@ -7,11 +7,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="servoTest", group="Test")
-public class servoTest extends LinearOpMode {
-    CRServo leftServo;
-    CRServo rightServo;
-
-
+public class servoTest extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -20,7 +16,7 @@ public class servoTest extends LinearOpMode {
     while(opModeIsActive()) {
         controlIntakeServos(1);
         Thread.sleep  (5000);
-        controlIntakeServos(-1)
+        controlIntakeServos(-1);
 
     }
 

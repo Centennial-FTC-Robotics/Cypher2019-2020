@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -47,9 +48,9 @@ public abstract class CypherHardware extends LinearOpMode {
 
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-
-        rightDown.setDirection(DcMotor.Direction.REVERSE);
-        rightUp.setDirection(DcMotor.Direction.REVERSE);
+        leftDown.setDirection(DcMotor.Direction.REVERSE);
+        leftUp.setDirection(DcMotor.Direction.REVERSE);
+        rightDown.setDirection(DcMotorSimple.Direction.REVERSE);
 
         leftDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

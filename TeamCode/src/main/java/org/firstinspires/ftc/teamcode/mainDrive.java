@@ -18,7 +18,7 @@ public class mainDrive extends CypherMethods {
         waitForStart();
 
         ElapsedTime speedTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        final int checkInterval = 200;
+      final int checkInterval = 200;
 
         for(DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

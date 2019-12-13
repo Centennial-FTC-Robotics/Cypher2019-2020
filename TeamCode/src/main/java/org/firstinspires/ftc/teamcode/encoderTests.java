@@ -27,4 +27,3 @@ public class encoderTests extends CypherMethods{
 
 }
 
-z

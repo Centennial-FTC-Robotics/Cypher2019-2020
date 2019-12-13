@@ -130,7 +130,7 @@ public class tensorFlowTest extends CypherMethods {
     }
         }
 
-
+/*
     public void findSkystone() {
         while (opModeIsActive()) {
             if (tfod != null) {
@@ -230,12 +230,12 @@ public class tensorFlowTest extends CypherMethods {
 
                                 }
                                 setMotorPower(0);
-                            }*/
+                            }
 
 
                         } else { //not a skystone, move left then go back to the start
                             testAutoMove(0, 6);
-                            telemetry.addData("not a skystone", null);
+                             telemetry.addData("not a skystone", null);
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                             telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                     recognition.getLeft(), recognition.getTop());
@@ -253,7 +253,7 @@ public class tensorFlowTest extends CypherMethods {
         }
 
     }
-
+*/
 
     private void initVuforia() {
 
