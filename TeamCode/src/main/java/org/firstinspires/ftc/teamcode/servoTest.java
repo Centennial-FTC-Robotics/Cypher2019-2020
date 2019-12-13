@@ -10,13 +10,20 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class servoTest extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {
-
-
+    super.runOpMode();
     waitForStart();
+    ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+    boolean toggle = true;
     while(opModeIsActive()) {
-        controlIntakeServos(1);
-        Thread.sleep  (5000);
-        controlIntakeServos(-1);
+        if(time.seconds() == 5) {
+            time.reset();
+            toggle = !toggle;
+        }
+       if(toggle) {
+           controlIntakeServos(1);
+       } else {
+           controlIntakeServos(-1);
+       }
 
     }
 
