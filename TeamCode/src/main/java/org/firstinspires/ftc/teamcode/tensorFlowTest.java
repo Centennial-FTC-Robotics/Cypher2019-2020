@@ -150,22 +150,53 @@ public class tensorFlowTest extends CypherMethods {
                                 testAutoMove(12, 0); //negative makes it move forward
                             }
 
-                           /* else if ((left > right) || (right > left)) {
+                           else if ((left > right) || (right > left)) {
                                 double surpassLevel;
                                 double behindLevel;
+                                boolean differentiate;
+                                int direction;
                                 if ((left > right)) {
                                     surpassLevel = left;
                                     behindLevel = right;
-                                }
-                                else {
+                                    differentiate = false;
+                                } else {
                                     surpassLevel = right;
                                     behindLevel = left;
+                                    differentiate = true;
                                 }
 
-                                while (surpassLevel > behindLevel)
-                            }*/
+                                while (surpassLevel > behindLevel && opModeIsActive() && Math.abs(left - right) > tolerance) {
+                                    newLeft = recognition.getLeft();
+                                    newRight = recognition.getRight();
+                                    if (differentiate) {
+                                        direction = 1;
+                                    }
+                                    else {
+                                        direction = -1;
+                                    }
 
-                            else if (left > right) { // it is on the right
+                                    otherMove(newLeft, newRight, direction);
+                                    telemetry.addData("left", newLeft);
+                                    telemetry.addData("right", newRight);
+                                    if (differentiate) {
+                                        telemetry.addData("skystone is on the", "right");
+                                    }
+                                    else {
+                                        telemetry.addData("skystone is on the", "left");
+                                    }
+
+                                    telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                                    telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                            recognition.getLeft(), recognition.getTop());
+                                    telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                            recognition.getRight(), recognition.getBottom());
+                                    telemetry.update();
+                                }
+                                setMotorPower(0);
+
+                                }
+                            }
+                            /*else if (left > right) { // it is on the right
                                 while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
                                     newLeft = recognition.getLeft();
                                     newRight = recognition.getRight();
@@ -199,7 +230,7 @@ public class tensorFlowTest extends CypherMethods {
 
                                 }
                                 setMotorPower(0);
-                            }
+                            }*/
 
 
                         } else { //not a skystone, move left then go back to the start
