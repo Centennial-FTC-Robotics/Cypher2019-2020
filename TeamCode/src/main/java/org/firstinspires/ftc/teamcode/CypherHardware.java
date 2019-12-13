@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -11,7 +10,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-public abstract class CypherHardware extends LinearOpMode {
+public abstract class CypherHardware extends LinearOpMode
+{
     DcMotor leftUp;
     DcMotor leftDown;
     DcMotor rightUp;
@@ -32,7 +32,8 @@ public abstract class CypherHardware extends LinearOpMode {
     double initialRoll;
 
     @Override
-    public void runOpMode() throws InterruptedException  {
+    public void runOpMode() throws InterruptedException
+    {
         leftUp =  hardwareMap.dcMotor.get("upleft");
         rightUp = hardwareMap.dcMotor.get("upright");
         rightDown = hardwareMap.dcMotor.get("backright");
@@ -45,10 +46,9 @@ public abstract class CypherHardware extends LinearOpMode {
         swivel = hardwareMap.crservo.get("swivelservo");
         arm = hardwareMap.crservo.get("armservo");
 
-
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
-        rightDown.setDirection(DcMotor.Direction.REVERSE);
+        //rightDown.setDirection(DcMotor.Direction.REVERSE);
         rightUp.setDirection(DcMotor.Direction.REVERSE);
 
         leftDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -57,16 +57,5 @@ public abstract class CypherHardware extends LinearOpMode {
         rightUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         rightServo.setDirection(CRServo.Direction.REVERSE);
-
-
-
-
-
-
-
-
-
-
     }
-
 }

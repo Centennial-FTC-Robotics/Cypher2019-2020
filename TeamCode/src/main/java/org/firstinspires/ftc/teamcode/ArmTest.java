@@ -12,10 +12,6 @@ public class ArmTest extends CypherMethods {
         waitForStart();
         while(opModeIsActive()) {
 
-
-
-
-
             double HSlidePower = gamepad2.left_stick_y;
             double swivelPower = gamepad2.right_stick_x;
             boolean in = gamepad2.a;

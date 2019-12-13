@@ -13,7 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 import java.util.Locale;
 
-public abstract class CypherMethods extends CypherHardware {
+public abstract class CypherMethods extends CypherHardware
+{
     DcMotor[] driveMotors = new DcMotor[4];
 
     private DcMotor[] leftMotors = new DcMotor[2];
@@ -28,8 +29,6 @@ public abstract class CypherMethods extends CypherHardware {
     private final double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
     private final double distanceInWheelRotation = wheelDiameter * Math.PI;
     private final double ticksPerInch = distanceInWheelRotation/ticksPerWheelRotation;
-
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -53,11 +52,11 @@ public abstract class CypherMethods extends CypherHardware {
 
         wheelIntakeServos[0] = leftServo;
         wheelIntakeServos[1] = rightServo;
-
-
     }
+
     //MOVEMENT
-    public void autoMove(double forward, double left, double power) {
+    public void autoMove(double forward, double left, double power)
+    {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
 
@@ -80,12 +79,10 @@ public abstract class CypherMethods extends CypherHardware {
         for(DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
     }
 
-
-
-    void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
+    void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor)
+    {
         double magnitude = Math.cbrt(forwardPower * forwardPower + leftPower*leftPower + rotate*rotate);
         if (magnitude > 1) {
             strafeNeg[0].setPower(((-leftPower + forwardPower - rotate) / magnitude) * factor);
@@ -97,7 +94,6 @@ public abstract class CypherMethods extends CypherHardware {
             strafePos[0].setPower((forwardPower + leftPower + rotate) * factor);
             strafePos[1].setPower((forwardPower + leftPower - rotate) * factor);
             strafeNeg[1].setPower((-leftPower + forwardPower + rotate) * factor);
-
         }
     }
 
@@ -108,7 +104,8 @@ public abstract class CypherMethods extends CypherHardware {
         rightMotors[1].setPower(rotate);
     }
 
-    void turnAbsolute(double targetAngle) {
+    void turnAbsolute(double targetAngle)
+    {
         double currentAngle;
         int direction;
         double turnRate ;
@@ -132,7 +129,6 @@ public abstract class CypherMethods extends CypherHardware {
         while(opModeIsActive() && error > tolerance);
         setMotorPower(0);
     }
-
 
     void testAutoMove(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
@@ -161,12 +157,10 @@ public abstract class CypherMethods extends CypherHardware {
         int posErrorSum = 0;
         int negErrorSum = 0;
         do {
-
             currentNegPosition = getNegPos();
             currentPosPosition = getPosPos();
             negError = strafeNegTarget - currentNegPosition;
             posError = strafePosTarget - currentPosPosition;
-
 
             negErrorSum += negError;
             posErrorSum += posError;
@@ -177,7 +171,6 @@ public abstract class CypherMethods extends CypherHardware {
             setStrafeMotors(negSpeed , posSpeed);
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setMotorPower(0);
-
     */
         double P = 0.04;
         double I = 0;
@@ -190,7 +183,6 @@ public abstract class CypherMethods extends CypherHardware {
 
         int negTarget = forwardMovement - leftMovement;
         int posTarget = forwardMovement + leftMovement;
-
 
         do {
             currentNegPos = getNegPos();
@@ -218,13 +210,10 @@ public abstract class CypherMethods extends CypherHardware {
             //range.clip makes it positive if the value is negative, fix this somehow 
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setMotorPower(0);
-
-
-
-
     }
 
-    public void setDriveMotors(double leftPower, double rightPower) {
+    public void setDriveMotors(double leftPower, double rightPower)
+    {
         for (DcMotor motor : leftMotors) {
             motor.setPower(leftPower);
         }
@@ -232,7 +221,6 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setPower(rightPower);
         }
     }
-
 
     void setMotorPower(double power) {
         for(DcMotor motor: driveMotors) {
@@ -249,16 +237,13 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-
     public void turnRelative(double target) {
         turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + target));
     }
 
-
-
-
     //INITIALIZE STUFF
-    public void initializeIMU() {
+    public void initializeIMU()
+    {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -274,7 +259,8 @@ public abstract class CypherMethods extends CypherHardware {
     //METHODS THAT ASSIST WITH AUTONOMOUS IDK
     public double getRotationinDimension(char dimension) {
         orientationUpdate();
-        switch (Character.toUpperCase(dimension)) {
+        switch (Character.toUpperCase(dimension))
+        {
             case 'X':
                 return AngleUnit.normalizeDegrees(getRawDimension('X') - initialPitch);
             case 'Y':
@@ -283,10 +269,10 @@ public abstract class CypherMethods extends CypherHardware {
                 return AngleUnit.normalizeDegrees(getRawDimension('Z') - initialHeading);
         }
         return 0;
-
     }
 
-    public double getRawDimension(char dimension) {
+    public double getRawDimension(char dimension)
+    {
         orientationUpdate();
         switch(dimension) {
             case 'X':
@@ -299,8 +285,10 @@ public abstract class CypherMethods extends CypherHardware {
         return 0;
     }
 
-    public double getAngleDist(double targetAngle, double currentAngle) {
+    public double getAngleDist(double targetAngle, double currentAngle)
+    {
         double angleDifference = currentAngle - targetAngle;
+
         if (Math.abs(angleDifference) > 180) {
             angleDifference = 360 - Math.abs(angleDifference);
         } else {
@@ -309,8 +297,8 @@ public abstract class CypherMethods extends CypherHardware {
 
         return angleDifference;
     }
-    public int getAngleDir(double targetAngle, double currentAngle) {
-
+    public int getAngleDir(double targetAngle, double currentAngle)
+    {
         double angleDifference = targetAngle - currentAngle;
         int angleDir = (int) (angleDifference / Math.abs(angleDifference));
 
@@ -321,14 +309,17 @@ public abstract class CypherMethods extends CypherHardware {
         return angleDir;
     }
 
-    public int getDirection(int target, int current) {
+    public int getDirection(int target, int current)
+    {
         int direction;
         int difference  = target - current;
+
         if(difference > 1) {
             direction  = 1;
         } else {
             direction = -1;
         }
+
         return direction;
     }
 
@@ -347,7 +338,6 @@ public abstract class CypherMethods extends CypherHardware {
         return average /2;
     }
 
-
     public void orientationUpdate() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }
@@ -357,10 +347,10 @@ public abstract class CypherMethods extends CypherHardware {
         initialRoll = orientation.secondAngle;
         initialPitch = orientation.thirdAngle;
     }
+
     String properAngleFormat(AngleUnit angleUnit, double angle) {
         return properDegreeFormat(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
-
     String properDegreeFormat(double degrees) {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
@@ -376,7 +366,8 @@ public abstract class CypherMethods extends CypherHardware {
         return leftDown.isBusy() || rightDown.isBusy() || leftUp.isBusy() || rightUp.isBusy();
     }
 
-    public int averageDriveMotorEncoder() {
+    public int averageDriveMotorEncoder()
+    {
         int average = 0;
         for(DcMotor motor : driveMotors) {
             average += motor.getCurrentPosition();
@@ -385,13 +376,11 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //CONVERSION METHODS
-
     public int convertInchToEncoder(double inches) {
         double encoderValue = inches/ticksPerInch;
         int intEncoderValue = (int) encoderValue;
         return intEncoderValue;
     }
-
     public int convertEncoderToInch(int encoder) {
         double inchValue = ticksPerInch/encoder;
         int intInchValue = (int) inchValue;
@@ -420,7 +409,8 @@ public abstract class CypherMethods extends CypherHardware {
 
     }
 
-    public double acutalControl(double controller) {
+    public double acutalControl(double controller)
+    {
         double a = 0.106;
         double b = controller;
         //a*b^3+(1-a)*b
@@ -428,7 +418,8 @@ public abstract class CypherMethods extends CypherHardware {
         return output;
     }
 
-    public double clip(double num, double min, double max) {
+    public double clip(double num, double min, double max)
+    {
         int sign;
         if(num < 0) {
             sign = -1;
@@ -440,11 +431,6 @@ public abstract class CypherMethods extends CypherHardware {
 
         return num;
     }
-
-
-
-
-
 }
 
 

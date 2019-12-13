@@ -18,10 +18,8 @@ public class tensorFlowTest extends CypherMethods {
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
 
-
     private static final String VUFORIA_KEY =
             " AU4rZ23/////AAABmQabsAT5w0XtilSncDA5KR0mTpDy+NwTupFf3UHJK5uNazyphbkBUROQQ2ZmBNd5GDwgLEOA5XgeSxjo+pUUbNa85M03eRdF7I/O0083+YEIEORW45bjU4jNszzo5ASNn2Irz3QROUIg3T+1D8+H0n3AAt4ZL3f4P/zs+NsXPhaAhsE0lVn8EMEuXZm0jMoNhwp/cHISVhb0c4ZMywtCwMYR61l2oJLEvxIQmMC6AzKi2W8Ce+W8a2daBITha+t4FCLQgKCGTZG65/I24bdwW6aNt+Yd3HltnWnl13IKdZ5xJ0DDdM5i6x/8oMoqQfPxbOVnQez4dio31wAi7B23d42Ef2yJzTTRh1YFCRoy2aJY";
-
 
     private VuforiaLocalizer vuforia;
 
@@ -29,24 +27,20 @@ public class tensorFlowTest extends CypherMethods {
     double tolerance = 200; //close enough value
     double newRight, newLeft;
 
-
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         initVuforia();
         initTfod();
 
-
         if (tfod != null) {
             tfod.activate();
         }
-
 
         waitForStart();
         //findSkystone();
         //goToSkystone();
         skystoneFindPls();
-
     }
 
     public void skystoneFindPls() {
@@ -87,11 +81,13 @@ public class tensorFlowTest extends CypherMethods {
             if (tfod != null) {
 
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
+                if (updatedRecognitions != null)
+                {
                     telemetry.addData("# Object Detected", updatedRecognitions.size());
                     telemetry.update();
 
-                    for (Recognition recognition : updatedRecognitions) {
+                    for (Recognition recognition : updatedRecognitions)
+                    {
                         double left = recognition.getLeft();
                         double right = recognition.getRight();
                         if (recognition.getLabel() == LABEL_SECOND_ELEMENT) {  //if skystone is detected
@@ -108,7 +104,7 @@ public class tensorFlowTest extends CypherMethods {
                                 telemetry.update();
                             }
 
-                    } else { //if not skystone
+                        } else { //if not skystone
                             testAutoMove(0,12); //move to side
                             telemetry.addData("left", left);
                             telemetry.addData("right", right);
@@ -118,18 +114,14 @@ public class tensorFlowTest extends CypherMethods {
                         telemetry.addData("right", right);
                         telemetry.addData("type", recognition.getLabel());
                         telemetry.update();
+                    }
                 }
-
+            }
+            if (tfod != null) {
+                tfod.shutdown();
             }
         }
-
-        if (tfod != null) {
-            tfod.shutdown();
-        }
-
     }
-        }
-
 
     public void findSkystone() {
         while (opModeIsActive()) {
@@ -150,7 +142,7 @@ public class tensorFlowTest extends CypherMethods {
                                 testAutoMove(12, 0); //negative makes it move forward
                             }
 
-                           else if ((left > right) || (right > left)) {
+                            else if ((left > right) || (right > left)) {
                                 double surpassLevel;
                                 double behindLevel;
                                 boolean differentiate;
@@ -194,8 +186,8 @@ public class tensorFlowTest extends CypherMethods {
                                 }
                                 setMotorPower(0);
 
-                                }
                             }
+                        }
                             /*else if (left > right) { // it is on the right
                                 while (left > right && opModeIsActive() && Math.abs(left - right) > tolerance) {
                                     newLeft = recognition.getLeft();
@@ -227,33 +219,28 @@ public class tensorFlowTest extends CypherMethods {
                                     telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                             recognition.getRight(), recognition.getBottom());
                                     telemetry.update();
-
                                 }
                                 setMotorPower(0);
                             }*/
 
-
-                        } else { //not a skystone, move left then go back to the start
-                            testAutoMove(0, 6);
-                            telemetry.addData("not a skystone", null);
-                            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                    recognition.getLeft(), recognition.getTop());
-                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                    recognition.getRight(), recognition.getBottom());
-                            telemetry.update();
-                        }
+                    } else { //not a skystone, move left then go back to the start
+                        testAutoMove(0, 6);
+                        telemetry.addData("not a skystone", null);
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+                        telemetry.update();
                     }
                 }
             }
         }
-
-        if (tfod != null) {
-            tfod.shutdown();
-        }
-
     }
-
+        if (tfod != null) {
+        tfod.shutdown();
+    }
+}
 
     private void initVuforia() {
 
@@ -263,7 +250,6 @@ public class tensorFlowTest extends CypherMethods {
         parameters.cameraDirection = CameraDirection.BACK;
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
     }
 
     private void initTfod() {
@@ -301,16 +287,6 @@ public class tensorFlowTest extends CypherMethods {
         double negSpeed, posSpeed;
         double minSpeed = 0.01;
         double maxSoeed = 0.03;
-
-
-
-
-
-
-
-
-
-
 
         negSpeed = Range.clip(-(P*error), minSpeed, maxSoeed);
         posSpeed = Range.clip(P*error, minSpeed, maxSoeed);

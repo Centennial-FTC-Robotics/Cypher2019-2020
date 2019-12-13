@@ -25,6 +25,7 @@ public class mainDrive extends CypherMethods {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             prevPosition = convertEncoderToInch(motor.getCurrentPosition());
         }
+
         double factor = 1;
         while (opModeIsActive()) {
             double leftPower = acutalControl(gamepad1.left_stick_x);
@@ -37,8 +38,9 @@ public class mainDrive extends CypherMethods {
             boolean arm = gamepad2.a;
             double swivelRight = gamepad2.right_trigger;
             double swivelLeft = -gamepad1.left_trigger;
+
             //Servo Intake Control------------------------------------------------------------------
-            if(b) {
+            if (b) {
                 resetToggle = !resetToggle;
             }
 
@@ -47,7 +49,7 @@ public class mainDrive extends CypherMethods {
                 resetToggle = false;
             }
 
-            if(!resetToggle) {
+            if (!resetToggle) {
                 if (inOutToggle) {
                     controlIntakeServos(1);
                 } else if (!inOutToggle) {
@@ -58,7 +60,6 @@ public class mainDrive extends CypherMethods {
             } else {
                 controlIntakeServos(0);
             }
-
 
             //Speed Control-------------------------------------------------------------------------
             if (gamepad1.right_bumper) {
@@ -73,10 +74,10 @@ public class mainDrive extends CypherMethods {
             manDriveMotors(fowardPower, leftPower, rotate, factor);
 
             //Arm Control---------------------------------------------------------------------------
-            if(arm) {
+            if (arm) {
                 armToggle = !armToggle;
             }
-            if(armToggle) {
+            if (armToggle) {
                 grabServo(1);
             } else {
                 grabServo(-1);
@@ -89,23 +90,18 @@ public class mainDrive extends CypherMethods {
 
             //Better Braking------------------------------------------------------------------------
 
-                // if(fowardPower == 0 && leftPower == 0 && rotate == 0) {
-                for(DcMotor motor : driveMotors) {
-                    if (speedTimer.time() > checkInterval) {
-                        double speed = (double) (convertEncoderToInch(motor.getCurrentPosition()) - prevPosition) / speedTimer.time();
-                        // This will print out the inches per millisecond of the motor.
-                        telemetry.addData(motor.toString(), speed);
-                        speedTimer.reset();
-                        prevPosition = convertEncoderToInch(motor.getCurrentPosition());
-                    }
+            // if(fowardPower == 0 && leftPower == 0 && rotate == 0) {
+            for (DcMotor motor : driveMotors) {
+                if (speedTimer.time() > checkInterval) {
+                    double speed = (double) (convertEncoderToInch(motor.getCurrentPosition()) - prevPosition) / speedTimer.time();
+                    // This will print out the inches per millisecond of the motor.
+                    telemetry.addData(motor.toString(), speed);
+                    speedTimer.reset();
+                    prevPosition = convertEncoderToInch(motor.getCurrentPosition());
                 }
-                // }
-
+            }
+            // }
             telemetry.update();
         }
-
-
-
-
     }
 }

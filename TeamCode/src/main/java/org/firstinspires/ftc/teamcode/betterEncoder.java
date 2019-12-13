@@ -19,7 +19,6 @@ public class betterEncoder extends CypherMethods{
         Thread.sleep(1000);
 
         moveToCenter(100, 10); //should move to the right but /shrug
-
     }
 
     private void moveToCenter(double left, double right) {
@@ -34,7 +33,4 @@ public class betterEncoder extends CypherMethods{
 
         setStrafeMotors(negSpeed, posSpeed);
     }
-
-
-
 }
