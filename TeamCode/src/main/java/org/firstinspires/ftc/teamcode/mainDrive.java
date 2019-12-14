@@ -4,29 +4,35 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.lang.reflect.Array;
+
 @TeleOp
 public class mainDrive extends CypherMethods {
     private boolean inOutToggle = false;
     private boolean resetToggle = true;
     private boolean armToggle = false;
-    private int prevPosition;
+    private int[] prevPosition = new int[4];
+
+
+
 
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
 
         waitForStart();
-
-        ElapsedTime speedTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-      final int checkInterval = 200;
-
+        ElapsedTime speedTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        final int checkInterval = 1;
+        int i = 0;
         for(DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            prevPosition = convertEncoderToInch(motor.getCurrentPosition());
+            prevPosition[i] = convertEncoderToInch(motor.getCurrentPosition());
+            i++;
         }
 
         double factor = 1;
+        IntakeState state = IntakeState.STOP;
         while (opModeIsActive()) {
             double leftPower = acutalControl(gamepad1.left_stick_x);
             double fowardPower = acutalControl(gamepad1.left_stick_y);
@@ -40,27 +46,28 @@ public class mainDrive extends CypherMethods {
             double swivelLeft = -gamepad1.left_trigger;
 
             //Servo Intake Control------------------------------------------------------------------
+
             if (b) {
-                resetToggle = !resetToggle;
-            }
-
-            if (a) {
-                inOutToggle = !inOutToggle;
-                resetToggle = false;
-            }
-
-            if (!resetToggle) {
-                if (inOutToggle) {
-                    controlIntakeServos(1);
-                } else if (!inOutToggle) {
-                    controlIntakeServos(-1);
+                state = IntakeState.STOP;
+            } else if (a) {
+                if (state.equals(IntakeState.IN)) {
+                    state = IntakeState.OUT;
                 } else {
-                    controlIntakeServos(0);
+                    state = IntakeState.IN;
                 }
-            } else {
-                controlIntakeServos(0);
             }
 
+            switch (state) {
+                case IN:
+                    controlIntakeServos(1);
+                    break;
+                case OUT:
+                    controlIntakeServos(-1);
+                    break;
+                case STOP:
+                    controlIntakeServos(0);
+                    break;
+            }
             //Speed Control-------------------------------------------------------------------------
             if (gamepad1.right_bumper) {
                 factor = 1;
@@ -88,19 +95,20 @@ public class mainDrive extends CypherMethods {
 
             swivelServo(swivelLeft + swivelRight);
 
-            //Better Braking------------------------------------------------------------------------
 
-            // if(fowardPower == 0 && leftPower == 0 && rotate == 0) {
+            i = 0;
             for (DcMotor motor : driveMotors) {
                 if (speedTimer.time() > checkInterval) {
-                    double speed = (double) (convertEncoderToInch(motor.getCurrentPosition()) - prevPosition) / speedTimer.time();
+                    double[] speed = new double[4];
+                    speed[i] = (double) (convertEncoderToInch(motor.getCurrentPosition()) - prevPosition[i]) / speedTimer.time();
                     // This will print out the inches per millisecond of the motor.
-                    telemetry.addData(motor.toString(), speed);
+                    telemetry.addData((String) Array.get(driveMotors, i), speed);
                     speedTimer.reset();
-                    prevPosition = convertEncoderToInch(motor.getCurrentPosition());
+                    prevPosition[i] = convertEncoderToInch(motor.getCurrentPosition());
+                    i++;
                 }
             }
-            // }
+
             telemetry.update();
         }
     }

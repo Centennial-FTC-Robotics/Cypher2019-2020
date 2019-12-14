@@ -300,20 +300,9 @@ public class tensorFlowTest extends CypherMethods {
         double error = left - right;
         double negSpeed, posSpeed;
         double minSpeed = 0.01;
-        double maxSoeed = 0.03;
-
-
-
-
-
-
-
-
-
-
-
-        negSpeed = Range.clip(-(P*error), minSpeed, maxSoeed);
-        posSpeed = Range.clip(P*error, minSpeed, maxSoeed);
+        double maxSpeed = 0.03;
+        negSpeed = clip(-(P*error), minSpeed, maxSpeed);
+        posSpeed = clip(P*error, minSpeed, maxSpeed);
 
         setStrafeMotors(negSpeed, posSpeed);
     }

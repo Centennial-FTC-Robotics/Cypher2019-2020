@@ -30,6 +30,10 @@ public abstract class CypherMethods extends CypherHardware
     private final double distanceInWheelRotation = wheelDiameter * Math.PI;
     private final double ticksPerInch = distanceInWheelRotation/ticksPerWheelRotation;
 
+    public enum IntakeState {
+        IN, OUT, STOP
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
