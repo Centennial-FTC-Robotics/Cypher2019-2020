@@ -8,13 +8,9 @@ import java.lang.reflect.Array;
 
 @TeleOp
 public class mainDrive extends CypherMethods {
-    private boolean inOutToggle = false;
-    private boolean resetToggle = true;
     private boolean armToggle = false;
-    private int[] prevPosition = new int[4];
-
-
-
+    private boolean foundationToggle = false;
+    final int miliTillReady = 400;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -23,13 +19,9 @@ public class mainDrive extends CypherMethods {
         waitForStart();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        final int checkInterval = 1;
-        int i = 0;
         for(DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            prevPosition[i] = convertEncoderToInch(motor.getCurrentPosition());
-            i++;
         }
 
         double factor = 1;
@@ -38,27 +30,34 @@ public class mainDrive extends CypherMethods {
             double leftPower = acutalControl(gamepad1.left_stick_x);
             double fowardPower = acutalControl(gamepad1.left_stick_y);
             double rotate = acutalControl(gamepad1.right_stick_x);
-            boolean a = gamepad1.a && (!gamepad1.start || !gamepad2.start);
-            boolean b = gamepad1.b && (!gamepad1.start || !gamepad2.start);
+            boolean a = gamepad1.a && !(gamepad1.start || gamepad2.start);
+            boolean b = gamepad1.b && !(gamepad1.start || gamepad2.start);
             double vSlide = gamepad2.left_stick_y;
             double hSlide = gamepad2.right_stick_x;
-            boolean arm = gamepad2.a && (!gamepad1.start || !gamepad2.start);
+            boolean arm = gamepad2.a && !(gamepad1.start || gamepad2.start);
             double swivelRight = gamepad2.right_trigger;
             double swivelLeft = -gamepad1.left_trigger;
+            boolean y = gamepad2.y;
+
 
             //Servo Intake Control------------------------------------------------------------------
-            if(controller1Timer.time() > 450) {
-                controller1Timer.reset();
                 if (b) {
                     state = IntakeState.STOP;
-                } else if (a) {
-                    if (state.equals(IntakeState.IN)) {
-                        state = IntakeState.OUT;
-                    } else {
+                } else if (a && controller1Timer.milliseconds() >  miliTillReady) {
+                    if (state.equals(IntakeState.OUT)) {
                         state = IntakeState.IN;
+                    } else {
+                        state = IntakeState.OUT;
                     }
                 }
-            }
+
+                if(controller1Timer.milliseconds() > miliTillReady
+                ) {
+                    telemetry.addData("ready", true);
+                } else {
+                    telemetry.addData("not ready", false);
+                }
+
 
             switch (state) {
                 case IN:
@@ -100,6 +99,14 @@ public class mainDrive extends CypherMethods {
             swivelServo(swivelLeft + swivelRight);
 
             telemetry.update();
+            if(y) {
+                foundationToggle = !foundationToggle;
+            }
+            if(foundationToggle) {
+                moveFoundation(1);
+            } else {
+                moveFoundation(-1);
+            }
         }
     }
 }

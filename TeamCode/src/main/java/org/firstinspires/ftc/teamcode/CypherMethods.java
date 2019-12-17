@@ -417,28 +417,32 @@ public abstract class CypherMethods extends CypherHardware
     }
 
     //INTAKE METHODS
-    public void controlIntakeServos(double power) {
+     void controlIntakeServos(double power) {
         wheelIntakeServos[0].setPower(power);
         wheelIntakeServos[1].setPower(power);
     }
 
-    public void controlArm(double power) {
+     void controlArm(double power) {
         HSlide.setPower(power);
     }
 
-    public void grabServo(double power) {
+     void grabServo(double power) {
         arm.setPower(power);
     }
 
-    public void swivelServo(double power) {
+     void swivelServo(double power) {
         swivel.setPower(power);
     }
 
-    public void controlSlides(double power) {
+     void controlSlides(double power) {
 
     }
 
-    public double acutalControl(double controller)
+    void moveFoundation(double power) {
+        foundation.setPower(power);
+    }
+
+     double acutalControl(double controller)
     {
         double a = 0.106;
         double b = controller;
@@ -447,7 +451,7 @@ public abstract class CypherMethods extends CypherHardware
         return output;
     }
 
-    public double clip(double num, double min, double max)
+     double clip(double num, double min, double max)
     {
         int sign;
         if(num < 0) {
@@ -460,6 +464,7 @@ public abstract class CypherMethods extends CypherHardware
 
         return num;
     }
+
 }
 
 
