@@ -21,7 +21,8 @@ public class mainDrive extends CypherMethods {
         super.runOpMode();
 
         waitForStart();
-        ElapsedTime speedTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         final int checkInterval = 1;
         int i = 0;
         for(DcMotor motor : driveMotors) {
@@ -37,23 +38,25 @@ public class mainDrive extends CypherMethods {
             double leftPower = acutalControl(gamepad1.left_stick_x);
             double fowardPower = acutalControl(gamepad1.left_stick_y);
             double rotate = acutalControl(gamepad1.right_stick_x);
-            boolean a = gamepad1.a;
-            boolean b = gamepad1.b;
+            boolean a = gamepad1.a && (!gamepad1.start || !gamepad2.start);
+            boolean b = gamepad1.b && (!gamepad1.start || !gamepad2.start);
             double vSlide = gamepad2.left_stick_y;
             double hSlide = gamepad2.right_stick_x;
-            boolean arm = gamepad2.a;
+            boolean arm = gamepad2.a && (!gamepad1.start || !gamepad2.start);
             double swivelRight = gamepad2.right_trigger;
             double swivelLeft = -gamepad1.left_trigger;
 
             //Servo Intake Control------------------------------------------------------------------
-
-            if (b) {
-                state = IntakeState.STOP;
-            } else if (a) {
-                if (state.equals(IntakeState.IN)) {
-                    state = IntakeState.OUT;
-                } else {
-                    state = IntakeState.IN;
+            if(controller1Timer.time() > 450) {
+                controller1Timer.reset();
+                if (b) {
+                    state = IntakeState.STOP;
+                } else if (a) {
+                    if (state.equals(IntakeState.IN)) {
+                        state = IntakeState.OUT;
+                    } else {
+                        state = IntakeState.IN;
+                    }
                 }
             }
 
@@ -81,7 +84,8 @@ public class mainDrive extends CypherMethods {
             manDriveMotors(fowardPower, leftPower, rotate, factor);
 
             //Arm Control---------------------------------------------------------------------------
-            if (arm) {
+            if (arm && controller2Timer.time() < 450) {
+                controller2Timer.reset();
                 armToggle = !armToggle;
             }
             if (armToggle) {
@@ -94,20 +98,6 @@ public class mainDrive extends CypherMethods {
             controlSlides(vSlide);
 
             swivelServo(swivelLeft + swivelRight);
-
-
-            i = 0;
-            for (DcMotor motor : driveMotors) {
-                if (speedTimer.time() > checkInterval) {
-                    double[] speed = new double[4];
-                    speed[i] = (double) (convertEncoderToInch(motor.getCurrentPosition()) - prevPosition[i]) / speedTimer.time();
-                    // This will print out the inches per millisecond of the motor.
-                    telemetry.addData((String) Array.get(driveMotors, i), speed);
-                    speedTimer.reset();
-                    prevPosition[i] = convertEncoderToInch(motor.getCurrentPosition());
-                    i++;
-                }
-            }
 
             telemetry.update();
         }

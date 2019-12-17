@@ -25,6 +25,8 @@ public abstract class CypherHardware extends LinearOpMode {
     CRServo swivel;
     CRServo arm;
 
+    CRServo foundation;
+
     Orientation orientation = new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES,0,0,0,0);
     BNO055IMU imu;
 
