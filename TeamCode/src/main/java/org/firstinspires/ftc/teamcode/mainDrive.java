@@ -10,13 +10,14 @@ import java.lang.reflect.Array;
 public class mainDrive extends CypherMethods {
     private boolean armToggle = false;
     private boolean foundationToggle = false;
-    final int miliTillReady = 400;
+    final int miliTillReady = 250  ;
 
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
 
         waitForStart();
+        ElapsedTime debugTimer = new ElapsedTime();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         for(DcMotor motor : driveMotors) {
@@ -27,6 +28,7 @@ public class mainDrive extends CypherMethods {
         double factor = 1;
         IntakeState state = IntakeState.STOP;
         while (opModeIsActive()) {
+            telemetry.addData("control timer", controller1Timer.milliseconds());
             double leftPower = acutalControl(gamepad1.left_stick_x);
             double fowardPower = acutalControl(gamepad1.left_stick_y);
             double rotate = acutalControl(gamepad1.right_stick_x);
@@ -44,6 +46,7 @@ public class mainDrive extends CypherMethods {
                 if (b) {
                     state = IntakeState.STOP;
                 } else if (a && controller1Timer.milliseconds() >  miliTillReady) {
+                    controller1Timer.reset();
                     if (state.equals(IntakeState.OUT)) {
                         state = IntakeState.IN;
                     } else {
@@ -98,7 +101,6 @@ public class mainDrive extends CypherMethods {
 
             swivelServo(swivelLeft + swivelRight);
 
-            telemetry.update();
             if(y) {
                 foundationToggle = !foundationToggle;
             }
@@ -107,6 +109,25 @@ public class mainDrive extends CypherMethods {
             } else {
                 moveFoundation(-1);
             }
+
+            //test stuff
+            if(a && controller1Timer.milliseconds() < miliTillReady) {
+                telemetry.addData("a pressed but not ready", true);
+            }
+            if (!a){
+                telemetry.addData("not a", false);
+            } else {
+                telemetry.addData("a", true);
+            }
+
+            if(controller1Timer.milliseconds() > miliTillReady) {
+                telemetry.addData("ready for A", true);
+            } else {
+                telemetry.addData("not ready for A", false);
+            }
+            telemetry.addData("state", state);
+
+            telemetry.update();
         }
     }
 }

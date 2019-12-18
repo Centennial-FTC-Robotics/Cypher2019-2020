@@ -435,7 +435,6 @@ public abstract class CypherMethods extends CypherHardware
     }
 
      void controlSlides(double power) {
-
     }
 
     void moveFoundation(double power) {
@@ -444,7 +443,7 @@ public abstract class CypherMethods extends CypherHardware
 
      double acutalControl(double controller)
     {
-        double a = 0.106;
+        double a = 0.206;
         double b = controller;
         //a*b^3+(1-a)*b
         double output = (a*(Math.pow(b, 3))) + ((1-a)*b);
