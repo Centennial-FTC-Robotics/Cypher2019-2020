@@ -69,6 +69,8 @@ public class tensorFlowTest extends CypherMethods {
                                 if(Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
                                     moveToCenter(recognition.getLeft(), recognition.getRight());
                                 } else {
+                                    testAutoMove(0, 6);
+                                    controlIntakeServos(1);
                                     testAutoMove(12, 0);
                                 }
                             } else {
@@ -101,7 +103,7 @@ public class tensorFlowTest extends CypherMethods {
                                 telemetry.addData("right", right);
                                 telemetry.update();
                             } else {
-                                setMotorPower(0); //when u r close enough stop moving
+                                setDriveMotors(0); //when u r close enough stop moving
                                 testAutoMove(60, 0); //if you are close enough move forward and ram into it
                                 telemetry.addData("left", left);
                                 telemetry.addData("right", right);
@@ -298,12 +300,12 @@ public class tensorFlowTest extends CypherMethods {
     public void moveToCenter(double left, double right) {
         double P = 0.02;
         double error = left - right;
-        double negSpeed, posSpeed;
+        double speed;
         double minSpeed = 0.01;
         double maxSpeed = 0.03;
-        negSpeed = clip(-(P*error), minSpeed, maxSpeed);
-        posSpeed = clip(P*error, minSpeed, maxSpeed);
+        speed = clip(P*error, minSpeed, maxSpeed);
 
-        setStrafeMotors(negSpeed, posSpeed);
+        setDriveMotors(speed);
+
     }
 }

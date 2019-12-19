@@ -10,7 +10,11 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import java.util.List;
 import java.util.Locale;
 
 public abstract class CypherMethods extends CypherHardware
@@ -33,6 +37,21 @@ public abstract class CypherMethods extends CypherHardware
     public enum IntakeState {
         IN, OUT, STOP
     }
+    private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
+    private static final String LABEL_FIRST_ELEMENT = "Stone";
+    private static final String LABEL_SECOND_ELEMENT = "Skystone";
+
+
+    private static final String VUFORIA_KEY =
+            " AU4rZ23/////AAABmQabsAT5w0XtilSncDA5KR0mTpDy+NwTupFf3UHJK5uNazyphbkBUROQQ2ZmBNd5GDwgLEOA5XgeSxjo+pUUbNa85M03eRdF7I/O0083+YEIEORW45bjU4jNszzo5ASNn2Irz3QROUIg3T+1D8+H0n3AAt4ZL3f4P/zs+NsXPhaAhsE0lVn8EMEuXZm0jMoNhwp/cHISVhb0c4ZMywtCwMYR61l2oJLEvxIQmMC6AzKi2W8Ce+W8a2daBITha+t4FCLQgKCGTZG65/I24bdwW6aNt+Yd3HltnWnl13IKdZ5xJ0DDdM5i6x/8oMoqQfPxbOVnQez4dio31wAi7B23d42Ef2yJzTTRh1YFCRoy2aJY";
+
+
+    private VuforiaLocalizer vuforia;
+
+    private TFObjectDetector tfod;
+    double tolerance = 200; //close enough value
+
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -132,7 +151,7 @@ public abstract class CypherMethods extends CypherHardware
             setDriveMotors((turnRate * direction), -(turnRate * direction));
         }
         while(opModeIsActive() && error > tolerance);
-        setMotorPower(0);
+        setDriveMotors(0);
     }
 
     void testAutoMove(double forward, double left) {
@@ -179,7 +198,7 @@ public abstract class CypherMethods extends CypherHardware
             telemetry.addData("egfdg", Range.clip(-1, minSpeed, maxSpeed));
             telemetry.update();
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
-        setMotorPower(0);
+        setDriveMotors(0);
     }
 
     void selfCorrectStrafe(double forward, double left) {
@@ -236,7 +255,7 @@ public abstract class CypherMethods extends CypherHardware
             telemetry.addData("left", leftMovement);
             telemetry.update();
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
-        setMotorPower(0);
+        setDriveMotors(0);
     }
 
 
@@ -250,7 +269,7 @@ public abstract class CypherMethods extends CypherHardware
         }
     }
 
-    void setMotorPower(double power) {
+    void setDriveMotors(double power) {
         for(DcMotor motor: driveMotors) {
             motor.setPower(power);
         }
@@ -463,6 +482,53 @@ public abstract class CypherMethods extends CypherHardware
 
         return num;
     }
+    public void skystoneFindPls(int factor) { //1 for red, -1 for blue
+        if (opModeIsActive()) {
+            while (opModeIsActive()) {
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+
+                        // step through the list of recognitions and display boundary info.
+                        int i = 0;
+                        for (Recognition recognition : updatedRecognitions) {
+                            if(recognition.getLabel() == LABEL_SECOND_ELEMENT) { //ik it says use .equals() but that didnt work and this did
+                                telemetry.addData("SKYSTONE", true);
+                                telemetry.addData("left", recognition.getLeft());
+                                telemetry.addData("right", recognition.getRight());
+                                if(Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
+                                    moveToCenter(recognition.getLeft(), recognition.getRight());
+                                } else {
+                                    testAutoMove(0, 6*factor);
+                                    controlIntakeServos(1);
+                                    testAutoMove(12, 0);
+                                }
+                            } else {
+                                telemetry.addData("not skystone", true);
+                            }
+                        }
+                        telemetry.update();
+                    }
+                }
+            }
+        }
+    }
+
+    public void moveToCenter(double left, double right) {
+        double P = 0.02;
+        double error = left - right;
+        double speed;
+        double minSpeed = 0.01;
+        double maxSpeed = 0.03;
+        speed = clip(P*error, minSpeed, maxSpeed);
+
+        setDriveMotors(speed);
+
+    }
+
 
 }
 
