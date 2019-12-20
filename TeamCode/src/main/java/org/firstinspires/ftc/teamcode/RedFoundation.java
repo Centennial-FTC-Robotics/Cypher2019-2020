@@ -10,20 +10,7 @@ public class RedFoundation extends CypherMethods {
         super.runOpMode();
 
         waitForStart();
-        ElapsedTime time = new ElapsedTime();
-        testAutoMove(6, 0);
-        turnRelative(180);
-        testAutoMove(-59,17);
-        moveFoundation(1);
-        time.reset();
-        while(time.milliseconds() < 200);
-        testAutoMove(59, 0);
-        moveFoundation(-1);
-        time.reset();
-        while(time.milliseconds() < 200);
-
-        testAutoMove(0,129);
-        skystoneFindPls(1);
+        Tile currentPos = new Tile(6, 5);
 
 
 
