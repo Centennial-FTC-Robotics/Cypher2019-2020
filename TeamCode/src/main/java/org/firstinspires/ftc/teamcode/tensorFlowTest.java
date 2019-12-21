@@ -33,8 +33,8 @@ public class tensorFlowTest extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        initVuforia();
-        initTfod();
+            initVuforia();
+            initTfod();
 
 
         if (tfod != null) {
@@ -45,44 +45,11 @@ public class tensorFlowTest extends CypherMethods {
         waitForStart();
         //findSkystone();
         //goToSkystone();
-        skystoneFindPls();
+        skystoneFindPls(1);
 
     }
 
-    public void skystoneFindPls() {
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-                        // step through the list of recognitions and display boundary info.
-                        int i = 0;
-                        for (Recognition recognition : updatedRecognitions) {
-                            if(recognition.getLabel() == LABEL_SECOND_ELEMENT) { //ik it says use .equals() but that didnt work and this did
-                                telemetry.addData("SKYSTONE", true);
-                                telemetry.addData("left", recognition.getLeft());
-                                telemetry.addData("right", recognition.getRight());
-                                if(Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
-                                    moveToCenter(recognition.getLeft(), recognition.getRight());
-                                } else {
-                                    testAutoMove(0, 6);
-                                    controlIntakeServos(1);
-                                    testAutoMove(12, 0);
-                                }
-                            } else {
-                                telemetry.addData("not skystone", true);
-                            }
-                        }
-                        telemetry.update();
-                    }
-                }
-            }
-        }
-    }
 
     public void goToSkystone() {
         while(opModeIsActive()) {
@@ -104,10 +71,7 @@ public class tensorFlowTest extends CypherMethods {
                                 telemetry.update();
                             } else {
                                 setDriveMotors(0); //when u r close enough stop moving
-                                testAutoMove(60, 0); //if you are close enough move forward and ram into it
-                                telemetry.addData("left", left);
-                                telemetry.addData("right", right);
-                                telemetry.update();
+
                             }
 
                     } else { //if not skystone
@@ -257,25 +221,7 @@ public class tensorFlowTest extends CypherMethods {
     }
 */
 
-    private void initVuforia() {
 
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
-
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-    }
-
-    private void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minimumConfidence = 0.8;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-    }
 
     public void otherMove(double left, double right, double dir) { //dir = 1 is right, dir = -1 is left
         double P = 0.02;

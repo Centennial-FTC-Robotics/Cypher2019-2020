@@ -8,15 +8,10 @@ public class Tile {
         setLocation(x, y);
     }
 
-    static double[] getDist(Tile start, Tile end) {
-        double forward = end.getY() - start.getY();
-        double left = end.getX() - start.getX();
-        return new double[]{forward, left};
+    Tile(Tile tile) {
+        setLocation(tile);
     }
 
-    static double tilesToInch(double tiles) {
-        return tiles*24;
-    }
 
     double getX() {
         return x;
@@ -28,6 +23,16 @@ public class Tile {
     void setLocation(double x, double y) {
         this.x = x;
         this.y = y;
+    }
+
+    void setLocation(Tile tile) {
+        this.x = tile.getX();
+        this.y = tile.getY();
+    }
+
+    void add(double x, double y) {
+        this.x += x;
+        this.y += y;
     }
 
 

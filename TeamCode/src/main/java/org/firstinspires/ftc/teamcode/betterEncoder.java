@@ -28,18 +28,7 @@ public class betterEncoder extends CypherMethods{
         //turnRelative(-90);
     }
 
-    private void moveToCenter(double left, double right) {
-        double P = 0.02;
-        double error = left - right;
-        double negSpeed, posSpeed;
-        double minSpeed = 0.01;
-        double maxSoeed = 0.03;
 
-        negSpeed = Range.clip(-(P*error), minSpeed, maxSoeed);
-        posSpeed = Range.clip(P*error, minSpeed, maxSoeed);
-
-        setStrafeMotors(negSpeed, posSpeed);
-    }
 
 
 

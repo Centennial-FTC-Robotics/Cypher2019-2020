@@ -7,12 +7,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
+
 
 import java.util.List;
 import java.util.Locale;
@@ -49,8 +52,20 @@ public abstract class CypherMethods extends CypherHardware
     private VuforiaLocalizer vuforia;
 
     private TFObjectDetector tfod;
-    double tolerance = 200; //close enough value
 
+    final Tile redFoundation  = new Tile(5,5.5);
+    final Tile redBuildSite = new Tile(6,5.5);
+    final Tile redQuarry = new Tile(5.5,2);
+    final Tile redBridge = new Tile(5.5, 3.5);
+
+    final Tile blueFoundation = new Tile(2, 5.5);
+    final Tile blueBuildSite = new Tile(1,5.5);
+    final Tile blueQuarry = new Tile(1.5,2);
+    final Tile blueBridge = new Tile(1.5,3.5);
+    Tile currentPos = new Tile(0, 0); //always start here
+
+    double tolerance = 200; //close enough value
+    int dir;
 
 
     @Override
@@ -158,10 +173,8 @@ public abstract class CypherMethods extends CypherHardware
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
 
-        for(DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+        resetEncoders();
+
         double P = 0.04;
         double I = 0;
         double tolerance = 5;
@@ -205,10 +218,7 @@ public abstract class CypherMethods extends CypherHardware
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
 
-        for(DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+        resetEncoders();
         double P = 0.04;
         double I = 0;
         double tolerance = 5;
@@ -257,6 +267,8 @@ public abstract class CypherMethods extends CypherHardware
         } while(opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance) );
         setDriveMotors(0);
     }
+
+
 
 
     void setDriveMotors(double leftPower, double rightPower)
@@ -371,19 +383,31 @@ public abstract class CypherMethods extends CypherHardware
         return direction;
     }
 
-    public int getNegPos() {
+    int getNegPos() {
         int average = 0;
         for(DcMotor motor : strafeNeg) {
             average += motor.getCurrentPosition();
         }
         return average / 2;
     }
-    public int getPosPos() {
+    int getPosPos() {
         int average = 0;
         for(DcMotor motor : strafePos) {
             average += motor.getCurrentPosition();
         }
         return average /2;
+    }
+    int getPos() {
+        return (getNegPos()+getPosPos())/2;
+    }
+
+
+
+    void resetEncoders() {
+        for(DcMotor motor : driveMotors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 
     public void orientationUpdate() {
@@ -435,32 +459,40 @@ public abstract class CypherMethods extends CypherHardware
         return intInchValue;
     }
 
+    private double tilesToInch(double tiles) {
+        return tiles*24;
+    }
+
+    double convertInchToTile(double tiles) {
+        return tiles/24;
+    }
+
     //INTAKE METHODS
-     void controlIntakeServos(double power) {
+    void controlIntakeServos(double power) {
         wheelIntakeServos[0].setPower(power);
         wheelIntakeServos[1].setPower(power);
     }
 
-     void controlArm(double power) {
+    void controlArm(double power) {
         HSlide.setPower(power);
     }
 
-     void grabServo(double power) {
+    void grabServo(double power) {
         arm.setPower(power);
     }
 
-     void swivelServo(double power) {
+    void swivelServo(double power) {
         swivel.setPower(power);
     }
 
-     void controlSlides(double power) {
+    void controlSlides(double power) {
     }
 
     void moveFoundation(double power) {
         foundation.setPower(power);
     }
 
-     double acutalControl(double controller)
+    double acutalControl(double controller)
     {
         double a = 0.206;
         double b = controller;
@@ -469,7 +501,7 @@ public abstract class CypherMethods extends CypherHardware
         return output;
     }
 
-     double clip(double num, double min, double max)
+    double clip(double num, double min, double max)
     {
         int sign;
         if(num < 0) {
@@ -482,7 +514,8 @@ public abstract class CypherMethods extends CypherHardware
 
         return num;
     }
-    public void skystoneFindPls(int factor) { //1 for red, -1 for blue
+    void skystoneFindPls(int factor) {
+        resetEncoders();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 if (tfod != null) {
@@ -503,8 +536,6 @@ public abstract class CypherMethods extends CypherHardware
                                     moveToCenter(recognition.getLeft(), recognition.getRight());
                                 } else {
                                     testAutoMove(0, 6*factor);
-                                    controlIntakeServos(1);
-                                    testAutoMove(12, 0);
                                 }
                             } else {
                                 telemetry.addData("not skystone", true);
@@ -526,10 +557,210 @@ public abstract class CypherMethods extends CypherHardware
         speed = clip(P*error, minSpeed, maxSpeed);
 
         setDriveMotors(speed);
+    }
+
+    double[] getDist(Tile start, Tile end, int dir) {
+        double forward, left;
+        switch(dir) {
+            case 90:
+                forward = end.getX() - start.getX();
+                left = end.getY() - start.getY();
+                break;
+            case 180:
+                forward = start.getY() - end.getY();
+                left = end.getX() - start.getX();
+                break;
+            case -90:
+                forward = start.getX() - end.getX();
+                left = end.getY() - start.getY();
+                return new double[]{tilesToInch(forward), tilesToInch(left)};
+            default:
+                forward = end.getY() - start.getY();
+                left = end.getX() - start.getX();
+                break;
+        }
+        return new double[]{tilesToInch(forward), tilesToInch(left)};
+    }
+
+
+    void moveToPos(double x2, double y2, int dir) {
+        moveToPos(new Tile(x2,y2), dir);
+
+    }
+    void moveToPos(Tile current, double x, double y, int dir) {
+        moveToPos(new Tile(x,y),dir);
+    }
+
+    void moveToPos(Tile end, int dir) {
+        double[] move = getDist(currentPos, end, dir);
+        testAutoMove(move[0], move[1]);
+        currentPos.setLocation(end);
+    }
+
+    void initVuforia() {
+
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = CameraDirection.BACK;
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+    }
+
+    void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minimumConfidence = 0.8;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+    }
+
+    void initEverything() {
+        initializeIMU();
+        initTfod();
+        initVuforia();
+    }
+
+    void waitControlIntake(double power) {
+        ElapsedTime time = new ElapsedTime();
+        controlIntakeServos(power);
+        while(time.milliseconds() < 200);
+    }
+
+    void waitMoveFoundation(double power) {
+        ElapsedTime time = new ElapsedTime();
+        moveFoundation(power);
+        while(time.milliseconds() < 200);
+    }
+
+
+    //AUTO STUFF
+    void buildingAuto(String side) {
+        int factor = 1;
+        switch(side) {
+            case "red":
+                factor = 1;
+                break;
+            case "blue":
+                factor = -1;
+        }
+        Tile oldPos;
+        moveToPos(currentPos.getX() - .5*factor, currentPos.getY(),dir); //move forward a small bit
+        turnRelative(180); //turn around so we can pick up foundation
+        dir = 90*factor;
+        if(factor == 1)
+            moveToPos(redFoundation, dir); //go to foundation
+        else
+            moveToPos(blueFoundation, dir);
+        waitMoveFoundation(1);
+
+        if(factor == 1)
+            moveToPos(redBuildSite, dir);
+        else
+            moveToPos(blueBuildSite, dir);
+        waitMoveFoundation(-1);
+        moveFoundation(0);
+        if(factor == 1)
+            moveToPos(redQuarry, dir); //go to red quarry
+        else
+            moveToPos(blueQuarry,dir);
+        turnRelative(-90*factor);
+        dir = 180;
+
+        for(int i = 0; i < 2; i++) { //repeat twice for 2 skystones
+
+            skystoneFindPls(factor); //center with skystone
+            currentPos.add(0,-convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
+            oldPos = new Tile(currentPos);
+            moveToPos(currentPos.getX() - convertInchToTile(1*factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
+
+            //pick up skystone and move into it
+            controlIntakeServos(1);
+            testAutoMove(2, 0);
+            currentPos.add(0, convertInchToTile(-2));
+
+            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+            moveToPos(currentPos.getX(), currentPos.getY() + 2, dir); //move to other side
+
+            turnRelative(-90*factor); //turn to release skystone and not have it in the way
+            dir = -90*factor;
+            waitControlIntake(-1); //release skystone
+            controlIntakeServos(0);
+            turnRelative(90*factor); //turn back
+            dir = 180;
+            if(i == 0) //if that was the first skystone move back to where we got the first one to look for second ome
+                moveToPos(oldPos, dir);
+        }
+        if(factor == 1)
+            moveToPos(redBridge, dir); //go to red bridge
+        else
+            moveToPos(blueBridge, dir); //or blue bridge
+    }
+
+    void loadingAuto(String side) {
+        int factor = 1;
+        switch (side) {
+            case "red":
+                factor = 1;
+                break;
+            case "blue":
+                factor = -1;
+                break;
+        }
+
+        testAutoMove(.5,0);
+        currentPos.add(convertInchToTile(.5)*factor,0);
+        turnRelative(-90*factor);
+        dir = 180;
+        for(int i = 0; i < 2; i++) {
+            skystoneFindPls(factor);
+            currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
+            Tile oldPos = new Tile(currentPos);
+            moveToPos(currentPos.getX() - convertInchToTile(1*factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
+
+            waitControlIntake(1);
+            testAutoMove(2,0);
+            currentPos.add(convertInchToTile(2), 0);
+
+            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+            moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
+
+            turnRelative(-90*factor); //turn to spit out block w/o it getting in way
+            dir = -90*factor; //change dir
+            waitControlIntake(-1); //spit it out
+
+            turnRelative(180);
+            dir *= -1;
+            if(i == 0) { //if its the first skystone move foundation
+                if (factor == 1) {
+                    moveToPos(redFoundation, dir);
+
+                } else {
+                    moveToPos(blueFoundation, dir);
+                }
+                waitMoveFoundation(1);
+                if(factor == 1) {
+                    moveToPos(redBuildSite, dir);
+                } else {
+                    moveToPos(blueBuildSite, dir);
+                }
+                waitMoveFoundation(-1);
+                moveFoundation(0);
+            }
+
+            turnRelative(90*factor);
+            dir = 180;
+        }
+        if(factor == 1) {
+            moveToPos(redBridge, dir);
+        } else {
+            moveToPos(blueBridge, dir);
+        }
 
     }
 
 
 }
-
 
