@@ -30,6 +30,8 @@ public abstract class CypherMethods extends CypherHardware
     DcMotor[] strafeNeg = new DcMotor[2];
     DcMotor[] strafePos = new DcMotor[2];
 
+    private DcMotor[] vSlides = new DcMotor[2];
+
     private CRServo[] wheelIntakeServos = new CRServo[2];
     private final double ticksPerRotation = 383.6;
     private final double wheelDiameter = 3.937;
@@ -40,18 +42,10 @@ public abstract class CypherMethods extends CypherHardware
     public enum IntakeState {
         IN, OUT, STOP
     }
-    private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
-    private static final String LABEL_FIRST_ELEMENT = "Stone";
-    private static final String LABEL_SECOND_ELEMENT = "Skystone";
 
-
-    private static final String VUFORIA_KEY =
-            " AU4rZ23/////AAABmQabsAT5w0XtilSncDA5KR0mTpDy+NwTupFf3UHJK5uNazyphbkBUROQQ2ZmBNd5GDwgLEOA5XgeSxjo+pUUbNa85M03eRdF7I/O0083+YEIEORW45bjU4jNszzo5ASNn2Irz3QROUIg3T+1D8+H0n3AAt4ZL3f4P/zs+NsXPhaAhsE0lVn8EMEuXZm0jMoNhwp/cHISVhb0c4ZMywtCwMYR61l2oJLEvxIQmMC6AzKi2W8Ce+W8a2daBITha+t4FCLQgKCGTZG65/I24bdwW6aNt+Yd3HltnWnl13IKdZ5xJ0DDdM5i6x/8oMoqQfPxbOVnQez4dio31wAi7B23d42Ef2yJzTTRh1YFCRoy2aJY";
-
-
-    private VuforiaLocalizer vuforia;
-
-    private TFObjectDetector tfod;
+    public enum FoundationState {
+            DRAG, RELASE, REST
+    }
 
     final Tile redFoundation  = new Tile(5,5.5);
     final Tile redBuildSite = new Tile(6,5.5);
@@ -90,6 +84,9 @@ public abstract class CypherMethods extends CypherHardware
 
         wheelIntakeServos[0] = leftServo;
         wheelIntakeServos[1] = rightServo;
+
+        vSlides[0] = vLeft;
+        vSlides[1] = vRight;
     }
 
     //MOVEMENT
@@ -486,19 +483,39 @@ public abstract class CypherMethods extends CypherHardware
     }
 
     void controlSlides(double power) {
+        for(DcMotor motor : vSlides) {
+            motor.setPower(clip(power, 0, .4));
+        }
+
     }
 
     void moveFoundation(double power) {
         foundation.setPower(power);
     }
 
+    void controlFoundation(FoundationState state) {
+        ElapsedTime time = new ElapsedTime();
+        if(state.equals(FoundationState.RELASE)) {
+            time.reset();
+            moveFoundation(-1);
+            while(time.milliseconds() < 650  );
+            moveFoundation(0);
+            time.reset();
+        } else {
+
+            time.reset();
+            moveFoundation(1);
+            while(time.milliseconds() < 350);
+            moveFoundation(0.3);
+            time.reset();
+        }
+    }
+
     double acutalControl(double controller)
     {
-        double a = 0.206;
-        double b = controller;
+        double a = 0.3;
         //a*b^3+(1-a)*b
-        double output = (a*(Math.pow(b, 3))) + ((1-a)*b);
-        return output;
+        return (a*(Math.pow(controller, 3))) + ((1-a)* controller);
     }
 
     double clip(double num, double min, double max)
@@ -618,9 +635,18 @@ public abstract class CypherMethods extends CypherHardware
     }
 
     void initEverything() {
+        ElapsedTime timer = new ElapsedTime();
         initializeIMU();
-        initTfod();
         initVuforia();
+        initTfod();
+
+        if (tfod != null) {
+            tfod.activate();
+        }
+
+        telemetry.addData("time", timer.milliseconds());
+        telemetry.update();
+
     }
 
     void waitControlIntake(double power) {
