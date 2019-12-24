@@ -3,14 +3,14 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="Arm Test", group="Test")
+@TeleOp(name = "Arm Test", group = "Test")
 public class ArmTest extends CypherMethods {
 
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
 
             double HSlidePower = gamepad2.left_stick_y;
             double swivelPower = gamepad2.right_stick_x;
@@ -21,19 +21,16 @@ public class ArmTest extends CypherMethods {
             HSlide.setPower(HSlidePower);
             swivel.setPower(swivelPower);
 
-            if(in) {
+            if (in) {
                 arm.setPower(1);
             }
-            if(out) {
+            if (out) {
                 arm.setPower(-1);
             }
-            if(reset) {
+            if (reset) {
                 arm.setPower(0);
             }
         }
-
-
-
 
 
     }

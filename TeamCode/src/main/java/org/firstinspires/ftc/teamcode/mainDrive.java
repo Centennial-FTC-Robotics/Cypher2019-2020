@@ -4,13 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.lang.reflect.Array;
-
 @TeleOp
 public class mainDrive extends CypherMethods {
+    private final int miliTillReady = 250;
     private boolean armToggle = false;
     private boolean foundationToggle = false;
-    final int miliTillReady = 250  ;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -20,7 +18,7 @@ public class mainDrive extends CypherMethods {
         ElapsedTime debugTimer = new ElapsedTime();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        for(DcMotor motor : driveMotors) {
+        for (DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
@@ -43,23 +41,23 @@ public class mainDrive extends CypherMethods {
 
 
             //Servo Intake Control------------------------------------------------------------------
-                if (b) {
-                    state = IntakeState.STOP;
-                } else if (a && controller1Timer.milliseconds() >  miliTillReady) {
-                    controller1Timer.reset();
-                    if (state.equals(IntakeState.OUT)) {
-                        state = IntakeState.IN;
-                    } else {
-                        state = IntakeState.OUT;
-                    }
-                }
-
-                if(controller1Timer.milliseconds() > miliTillReady
-                ) {
-                    telemetry.addData("ready", true);
+            if (b) {
+                state = IntakeState.STOP;
+            } else if (a && controller1Timer.milliseconds() > miliTillReady) {
+                controller1Timer.reset();
+                if (state.equals(IntakeState.OUT)) {
+                    state = IntakeState.IN;
                 } else {
-                    telemetry.addData("not ready", false);
+                    state = IntakeState.OUT;
                 }
+            }
+
+            if (controller1Timer.milliseconds() > miliTillReady
+            ) {
+                telemetry.addData("ready", true);
+            } else {
+                telemetry.addData("not ready", false);
+            }
 
 
             switch (state) {
@@ -101,26 +99,26 @@ public class mainDrive extends CypherMethods {
 
             swivelServo(swivelLeft + swivelRight);
 
-            if(y) {
+            if (y) {
                 foundationToggle = !foundationToggle;
             }
-            if(foundationToggle) {
+            if (foundationToggle) {
                 moveFoundation(1);
             } else {
                 moveFoundation(-1);
             }
 
             //test stuff
-            if(a && controller1Timer.milliseconds() < miliTillReady) {
+            if (a && controller1Timer.milliseconds() < miliTillReady) {
                 telemetry.addData("a pressed but not ready", true);
             }
-            if (!a){
+            if (!a) {
                 telemetry.addData("not a", false);
             } else {
                 telemetry.addData("a", true);
             }
 
-            if(controller1Timer.milliseconds() > miliTillReady) {
+            if (controller1Timer.milliseconds() > miliTillReady) {
                 telemetry.addData("ready for A", true);
             } else {
                 telemetry.addData("not ready for A", false);

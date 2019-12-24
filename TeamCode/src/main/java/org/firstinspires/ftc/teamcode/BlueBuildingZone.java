@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="Blue Team Foundation", group = "Auto")
+@Autonomous(name = "Blue Team Foundation", group = "Auto")
 public class BlueBuildingZone extends CypherMethods {
 
     public void runOpMode() throws InterruptedException {
@@ -10,7 +10,7 @@ public class BlueBuildingZone extends CypherMethods {
         initEverything();
 
         waitForStart();
-        currentPos.setLocation(6,5); // set start point
+        currentPos.setLocation(6, 5); // set start point
         dir = 90;
         buildingAuto("blue");
     }

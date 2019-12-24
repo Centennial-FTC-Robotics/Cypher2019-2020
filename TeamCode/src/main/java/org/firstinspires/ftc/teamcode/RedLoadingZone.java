@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="Red Team Loading Zone", group = "Auto")
+@Autonomous(name = "Red Team Loading Zone", group = "Auto")
 public class RedLoadingZone extends CypherMethods {
 
     public void runOpMode() throws InterruptedException {
@@ -11,7 +11,7 @@ public class RedLoadingZone extends CypherMethods {
 
         waitForStart();
 
-        currentPos.setLocation(6,2);
+        currentPos.setLocation(6, 2);
         dir = -90;
         loadingAuto("red");
     }

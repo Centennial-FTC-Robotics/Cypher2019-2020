@@ -27,7 +27,7 @@ public abstract class CypherHardware extends LinearOpMode {
 
     CRServo foundation;
 
-    Orientation orientation = new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES,0,0,0,0);
+    Orientation orientation = new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0, 0, 0, 0);
     BNO055IMU imu;
 
     double initialHeading;
@@ -35,8 +35,8 @@ public abstract class CypherHardware extends LinearOpMode {
     double initialRoll;
 
     @Override
-    public void runOpMode() throws InterruptedException  {
-        leftUp =  hardwareMap.dcMotor.get("upleft");
+    public void runOpMode() throws InterruptedException {
+        leftUp = hardwareMap.dcMotor.get("upleft");
         rightUp = hardwareMap.dcMotor.get("upright");
         rightDown = hardwareMap.dcMotor.get("backright");
         leftDown = hardwareMap.dcMotor.get("backleft");
@@ -62,15 +62,6 @@ public abstract class CypherHardware extends LinearOpMode {
         rightUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         rightServo.setDirection(CRServo.Direction.REVERSE);
-
-
-
-
-
-
-
-
-
 
 
     }

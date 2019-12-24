@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Red Team Build Zone", group = "Auto")
+@Autonomous(name = "Red Team Build Zone", group = "Auto")
 public class RedBuildingZone extends CypherMethods {
 
     public void runOpMode() throws InterruptedException {
@@ -12,7 +11,7 @@ public class RedBuildingZone extends CypherMethods {
 
         waitForStart();
 
-        currentPos.setLocation(6,5); // set start point
+        currentPos.setLocation(6, 5); // set start point
         dir = -90;
 
         buildingAuto("red");

@@ -1,22 +1,28 @@
 package org.firstinspires.ftc.teamcode;
 
-public class Tile {
-    double x,y;
+class Tile {
+    private double x, y;
 
 
     Tile(double x, double y) {
+
         setLocation(x, y);
+
     }
 
     Tile(Tile tile) {
+
         setLocation(tile);
     }
 
 
     double getX() {
+
         return x;
     }
+
     double getY() {
+
         return y;
     }
 
@@ -34,8 +40,6 @@ public class Tile {
         this.x += x;
         this.y += y;
     }
-
-
 
 
 }
