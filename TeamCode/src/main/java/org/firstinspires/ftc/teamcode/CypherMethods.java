@@ -20,11 +20,7 @@ import java.util.List;
 import java.util.Locale;
 
 public abstract class CypherMethods extends CypherHardware {
-    private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
-    private static final String LABEL_FIRST_ELEMENT = "Stone";
-    private static final String LABEL_SECOND_ELEMENT = "Skystone";
-    private static final String VUFORIA_KEY =
-            " AU4rZ23/////AAABmQabsAT5w0XtilSncDA5KR0mTpDy+NwTupFf3UHJK5uNazyphbkBUROQQ2ZmBNd5GDwgLEOA5XgeSxjo+pUUbNa85M03eRdF7I/O0083+YEIEORW45bjU4jNszzo5ASNn2Irz3QROUIg3T+1D8+H0n3AAt4ZL3f4P/zs+NsXPhaAhsE0lVn8EMEuXZm0jMoNhwp/cHISVhb0c4ZMywtCwMYR61l2oJLEvxIQmMC6AzKi2W8Ce+W8a2daBITha+t4FCLQgKCGTZG65/I24bdwW6aNt+Yd3HltnWnl13IKdZ5xJ0DDdM5i6x/8oMoqQfPxbOVnQez4dio31wAi7B23d42Ef2yJzTTRh1YFCRoy2aJY";
+    Tile currentPos = new Tile(0, 0); //always start here
     private final Tile redFoundation = new Tile(5, 5.5);
     private final Tile redBuildSite = new Tile(6, 5.5);
     private final Tile redQuarry = new Tile(5.5, 2);
@@ -33,23 +29,22 @@ public abstract class CypherMethods extends CypherHardware {
     private final Tile blueBuildSite = new Tile(1, 5.5);
     private final Tile blueQuarry = new Tile(1.5, 2);
     private final Tile blueBridge = new Tile(1.5, 3.5);
+
     private final double ticksPerRotation = 383.6;
     private final double wheelDiameter = 3.937;
     private final double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
     private final double distanceInWheelRotation = wheelDiameter * Math.PI;
     private final double ticksPerInch = distanceInWheelRotation / ticksPerWheelRotation;
+
     DcMotor[] driveMotors = new DcMotor[4];
     DcMotor[] strafeNeg = new DcMotor[2];
     DcMotor[] strafePos = new DcMotor[2];
-    Tile currentPos = new Tile(0, 0); //always start here
-    private double tolerance = 200; //close enough value
-    int dir;
     private DcMotor[] leftMotors = new DcMotor[2];
     private DcMotor[] rightMotors = new DcMotor[2];
+    private DcMotor[] vSlides = new DcMotor[2];
     private CRServo[] wheelIntakeServos = new CRServo[2];
-    private VuforiaLocalizer vuforia;
-    private TFObjectDetector tfod;
 
+    int dir;
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -72,6 +67,9 @@ public abstract class CypherMethods extends CypherHardware {
 
         wheelIntakeServos[0] = leftServo;
         wheelIntakeServos[1] = rightServo;
+
+        vSlides[0] = vLeft;
+        vSlides[1] = vRight;
     }
 
     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
@@ -90,33 +88,6 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //MOVEMENT
-    /*public void autoMove(double forward, double left, double power)
-    {
-        int forwardMovement = convertInchToEncoder(forward);
-        int leftMovement = convertInchToEncoder(left);
-
-        for (DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-
-        leftUp.setTargetPosition(forwardMovement - leftMovement);
-        rightUp.setTargetPosition(forwardMovement + leftMovement);
-        leftDown.setTargetPosition(forwardMovement + leftMovement);
-        rightDown.setTargetPosition(forwardMovement - leftMovement);
-
-        for(DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
-        setMotorPower(power);
-        waitForMotors();
-        setMotorPower(0);
-        for(DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-    }
-     */
-
     public void rotate(double rotate) {
         leftMotors[0].setPower(-rotate);
         leftMotors[1].setPower(-rotate);
@@ -436,17 +407,38 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void controlSlides(double power) {
+        for(DcMotor motor : vSlides) {
+            motor.setPower(clip(power, 0, .4));
+        }
+
     }
 
-    void moveFoundation(double power) {
+    private void moveFoundation(double power) {
         foundation.setPower(power);
     }
 
-    double acutalControl(double b) {
-        //b = controller value
-        double a = 0.206;
+
+    void controlFoundation(FoundationState state) {
+        ElapsedTime time = new ElapsedTime();
+        if(state.equals(FoundationState.RELASE)) {
+            time.reset();
+            moveFoundation(-1);
+            while(time.milliseconds() < 650  );
+            moveFoundation(0);
+            time.reset();
+        } else {
+            time.reset();
+            moveFoundation(1);
+            while(time.milliseconds() < 350);
+            moveFoundation(0.3);
+            time.reset();
+        }
+    }
+
+    double acutalControl(double controller) {
+        double a = 0.3;
         //a*b^3+(1-a)*b
-        return (a * (Math.pow(b, 3))) + ((1 - a) * b);
+        return (a*(Math.pow(controller, 3))) + ((1-a)* controller);
     }
 
     double clip(double num, double min, double max) {
@@ -463,6 +455,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void skystoneFindPls(int factor) {
+        final double tolerance = 200;
         resetEncoders();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -565,9 +558,18 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void initEverything() {
+        ElapsedTime timer = new ElapsedTime();
         initializeIMU();
-        initTfod();
         initVuforia();
+        initTfod();
+
+        if (tfod != null) {
+            tfod.activate();
+        }
+
+        telemetry.addData("time", timer.milliseconds());
+        telemetry.update();
+
     }
 
     private void waitControlIntake(double power) {
@@ -664,7 +666,7 @@ public abstract class CypherMethods extends CypherHardware {
             skystoneFindPls(factor);
             currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
             Tile oldPos = new Tile(currentPos);
-            moveToPos1(currentPos.getX() - convertInchToTile(1 * factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
+            moveToPos1(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
 
             waitControlIntake(1);
             testAutoMove(2, 0);
@@ -709,6 +711,10 @@ public abstract class CypherMethods extends CypherHardware {
 
     public enum IntakeState {
         IN, OUT, STOP
+    }
+
+    public enum FoundationState {
+            DRAG, RELASE, REST
     }
 
 
