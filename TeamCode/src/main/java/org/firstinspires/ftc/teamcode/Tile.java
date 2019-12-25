@@ -5,24 +5,19 @@ class Tile {
 
 
     Tile(double x, double y) {
-
         setLocation(x, y);
 
     }
 
     Tile(Tile tile) {
-
         setLocation(tile);
     }
-
-
+    
     double getX() {
-
         return x;
     }
 
     double getY() {
-
         return y;
     }
 

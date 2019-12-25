@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
 public class mainDrive extends CypherMethods {
-    private boolean armToggle = false;
-    private boolean foundationToggle = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -15,7 +13,6 @@ public class mainDrive extends CypherMethods {
         super.runOpMode();
         waitForStart();
 
-        ElapsedTime debugTimer = new ElapsedTime();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         for (DcMotor motor : driveMotors) {
@@ -26,6 +23,7 @@ public class mainDrive extends CypherMethods {
         double factor = 1;
         IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELASE;
+        ArmState armState = ArmState.REST;
         while (opModeIsActive()) {
             telemetry.addData("control timer", controller1Timer.milliseconds());
             double leftPower = acutalControl(gamepad1.left_stick_x) * .7;
@@ -37,9 +35,12 @@ public class mainDrive extends CypherMethods {
             double hSlide = gamepad2.right_stick_x;
             boolean arm = gamepad2.a && !(gamepad1.start || gamepad2.start);
             double swivelRight = gamepad2.right_trigger;
-            double swivelLeft = -gamepad1.left_trigger;
+            double swivelLeft = -gamepad2.left_trigger;
             boolean toggleFoundation = gamepad2.y;
 
+            telemetry.addData("swivelRight", swivelRight);
+            telemetry.addData("swivelLeft", swivelLeft);
+            telemetry.addData("ok", swivelLeft + swivelRight);
 
             //Servo Intake Control------------------------------------------------------------------
             if (stopIntake) {
@@ -89,15 +90,24 @@ public class mainDrive extends CypherMethods {
             manDriveMotors(fowardPower, leftPower, rotate, factor);
 
             //Arm Control---------------------------------------------------------------------------
-            if (arm && controller2Timer.time() < 450) {
+
+            if (arm && controller2Timer.milliseconds() >=  miliTillReady) {
                 controller2Timer.reset();
-                armToggle = !armToggle;
+                if (armState.equals(ArmState.PICK)) {
+                    armState = ArmState.DROP;
+                } else {
+                    armState = ArmState.PICK;
+                }
             }
 
-            if (armToggle) {
-                grabServo(1);
-            } else {
-                grabServo(-1);
+
+            switch (armState) {
+                case DROP:
+                    grabServo(-1);
+                    break;
+                case PICK:
+                    grabServo(1);
+                    break;
             }
 
             controlArm(hSlide);
@@ -108,13 +118,12 @@ public class mainDrive extends CypherMethods {
                 if(foundationState.equals(FoundationState.RELASE)) {
                     foundationState = FoundationState.DRAG;
                     controlFoundation(foundationState);
-                    telemetry.addData("in", true);
-                } else {
+                } else{
                     foundationState = FoundationState.RELASE;
                     controlFoundation(foundationState);
-                    telemetry.addData("out", true);
                 }
             }
         }
+        telemetry.update();
     }
 }

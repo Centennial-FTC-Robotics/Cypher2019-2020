@@ -9,19 +9,27 @@ public class servoTest extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
-        ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-        boolean toggle = true;
+
+        ElapsedTime time = new ElapsedTime();
+        ArmState re = ArmState.DROP;
         while (opModeIsActive()) {
-            if (time.seconds() == 5) {
-                time.reset();
-                toggle = !toggle;
-            }
-            if (toggle) {
-                controlIntakeServos(1);
-            } else {
-                controlIntakeServos(-1);
+            if(time.seconds() >= 2) {
+                if(re.equals(ArmState.DROP)) {
+                    re = ArmState.PICK;
+                } else {
+                    re = ArmState.DROP;
+                }
             }
 
+            switch(re) {
+                case DROP:
+                    grabServo(1);
+                    break;
+                case PICK:
+                    grabServo(-1);
+                    break;
+            }
+            telemetry.update();
         }
 
 

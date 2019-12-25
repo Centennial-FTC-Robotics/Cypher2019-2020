@@ -1,11 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-
-import java.util.List;
 
 @Autonomous(name = "Tensor Flow Test", group = "Test")
 public class tensorFlowTest extends CypherMethods {
@@ -27,6 +22,7 @@ public class tensorFlowTest extends CypherMethods {
 
     }
 
+/*
     public void goToSkystone() {
         double tolerance = 200; //close enough value
         while (opModeIsActive()) {
@@ -72,6 +68,7 @@ public class tensorFlowTest extends CypherMethods {
 
         }
     }
+*/
 
 /*
     public void findSkystone() {
@@ -198,26 +195,6 @@ public class tensorFlowTest extends CypherMethods {
     }
 */
 
-
-    public void otherMove(double left, double right, double dir) { //dir = 1 is right, dir = -1 is left
-        double P = 0.02;
-        double error = Math.abs(left - right);
-        double speed;
-        double negSpeed, posSpeed;
-        double minSpeed = 0.01;
-        double maxSpeed = 0.3;
-
-        speed = Range.clip(P * error, minSpeed, maxSpeed);
-        negSpeed = -(speed * dir);
-        posSpeed = speed * dir;
-
-        for (DcMotor motor : strafeNeg) {
-            motor.setPower(negSpeed);
-        }
-        for (DcMotor motor : strafePos) {
-            motor.setPower(posSpeed);
-        }
-    }
 
     public void moveToCenter(double left, double right) {
         double P = 0.02;

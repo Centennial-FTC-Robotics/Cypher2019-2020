@@ -17,10 +17,9 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.List;
-import java.util.Locale;
 
 public abstract class CypherMethods extends CypherHardware {
-    Tile currentPos = new Tile(0, 0); //always start here
+    final Tile currentPos = new Tile(0, 0); //always start here
     private final Tile redFoundation = new Tile(5, 5.5);
     private final Tile redBuildSite = new Tile(6, 5.5);
     private final Tile redQuarry = new Tile(5.5, 2);
@@ -36,13 +35,13 @@ public abstract class CypherMethods extends CypherHardware {
     private final double distanceInWheelRotation = wheelDiameter * Math.PI;
     private final double ticksPerInch = distanceInWheelRotation / ticksPerWheelRotation;
 
-    DcMotor[] driveMotors = new DcMotor[4];
-    DcMotor[] strafeNeg = new DcMotor[2];
-    DcMotor[] strafePos = new DcMotor[2];
-    private DcMotor[] leftMotors = new DcMotor[2];
-    private DcMotor[] rightMotors = new DcMotor[2];
-    private DcMotor[] vSlides = new DcMotor[2];
-    private CRServo[] wheelIntakeServos = new CRServo[2];
+    final DcMotor[] driveMotors = new DcMotor[4];
+    final DcMotor[] strafeNeg = new DcMotor[2];
+    final DcMotor[] strafePos = new DcMotor[2];
+    private final DcMotor[] leftMotors = new DcMotor[2];
+    private final DcMotor[] rightMotors = new DcMotor[2];
+    private final DcMotor[] vSlides = new DcMotor[2];
+    private final CRServo[] wheelIntakeServos = new CRServo[2];
 
     int dir;
     @Override
@@ -88,13 +87,6 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //MOVEMENT
-    public void rotate(double rotate) {
-        leftMotors[0].setPower(-rotate);
-        leftMotors[1].setPower(-rotate);
-        rightMotors[0].setPower(rotate);
-        rightMotors[1].setPower(rotate);
-    }
-
     private void turnAbsolute(double targetAngle) {
         double currentAngle;
         int direction;
@@ -134,6 +126,7 @@ public abstract class CypherMethods extends CypherHardware {
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double negError, posError;
+        double negSum = 0, posSum = 0;
 
         int negTarget = forwardMovement - leftMovement;
         int posTarget = forwardMovement + leftMovement;
@@ -145,8 +138,12 @@ public abstract class CypherMethods extends CypherHardware {
             negError = currentNegPos - negTarget;
             posError = currentPosPos - posTarget;
 
-            negSpeed = clip(P * negError, minSpeed, maxSpeed);
-            posSpeed = clip(P * posError, minSpeed, maxSpeed);
+            negSum += negError;
+            posSum += posError;
+
+            negSpeed = clip(P * negError + I * negSum, minSpeed, maxSpeed);
+            posSpeed = clip(P * posError + I * posSum, minSpeed, maxSpeed);
+
 
             setStrafeMotors(negSpeed, posSpeed);
 
@@ -179,8 +176,8 @@ public abstract class CypherMethods extends CypherHardware {
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double currentAngle;
-        double angleDir;
         double negError, posError;
+        double negSum = 0, posSum = 0;
         double angleError;
         double startAngle = dimensionRotation();
 
@@ -201,8 +198,11 @@ public abstract class CypherMethods extends CypherHardware {
             negError = currentNegPos - negTarget;
             posError = currentPosPos - posTarget;
 
-            negSpeed = clip(P * negError, minSpeed, maxSpeed);
-            posSpeed = clip(P * posError, minSpeed, maxSpeed);
+            negSum += negError;
+            posSum += posError;
+
+            negSpeed = clip(P * negError + I * negSum, minSpeed, maxSpeed);
+            posSpeed = clip(P * posError + I * posSum, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed, posSpeed);
 
@@ -293,19 +293,6 @@ public abstract class CypherMethods extends CypherHardware {
         return angleDir;
     }
 
-    private int getDirection(int target, int current) {
-        int direction;
-        int difference = target - current;
-
-        if (difference > 1) {
-            direction = 1;
-        } else {
-            direction = -1;
-        }
-
-        return direction;
-    }
-
     private int getNegPos() {
         int average = 0;
         for (DcMotor motor : strafeNeg) {
@@ -344,30 +331,6 @@ public abstract class CypherMethods extends CypherHardware {
         initialPitch = orientation.thirdAngle;
     }
 
-    String properAngleFormat(AngleUnit angleUnit, double angle) {
-        return properDegreeFormat(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
-    }
-
-    private String properDegreeFormat(double degrees) {
-        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
-    }
-
-    //STATUS METHODS
-    public void waitForMotors() {
-        while (areMotorsBusy() && opModeIsActive());
-    }
-
-    private boolean areMotorsBusy() {
-        return leftDown.isBusy() || rightDown.isBusy() || leftUp.isBusy() || rightUp.isBusy();
-    }
-
-    public int averageDriveMotorEncoder() {
-        int average = 0;
-        for (DcMotor motor : driveMotors) {
-            average += motor.getCurrentPosition();
-        }
-        return average / 4;
-    }
 
     //CONVERSION METHODS
     private int convertInchToEncoder(double inches) {
@@ -467,9 +430,8 @@ public abstract class CypherMethods extends CypherHardware {
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
 
                         // step through the list of recognitions and display boundary info.
-                        int i = 0;
                         for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel() == LABEL_SECOND_ELEMENT) { //ik it says use .equals() but that didnt work and this did
+                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
                                 telemetry.addData("SKYSTONE", true);
                                 telemetry.addData("left", recognition.getLeft());
                                 telemetry.addData("right", recognition.getRight());
@@ -489,7 +451,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    public void moveToCenter(double left, double right) {
+   void moveToCenter(double left, double right) {
         double P = 0.02;
         double error = left - right;
         double speed;
@@ -523,15 +485,11 @@ public abstract class CypherMethods extends CypherHardware {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 
-    private void moveToPos1(double x2, double y2, int dir) {
-        moveToPos3(new Tile(x2, y2), dir);
+    private void moveToPos(double x2, double y2, int dir) {
+        moveToPos(new Tile(x2, y2), dir);
     }
 
-    private void moveToPos2(Tile current, double x, double y, int dir) {
-        moveToPos3(new Tile(x, y), dir);
-    }
-
-    private void moveToPos3(Tile end, int dir) {
+    private void moveToPos(Tile end, int dir) {
         double[] move = getDist(currentPos, end, dir);
         testAutoMove(move[0], move[1]);
         currentPos.setLocation(end);
@@ -595,25 +553,25 @@ public abstract class CypherMethods extends CypherHardware {
                 factor = -1;
         }
         Tile oldPos;
-        moveToPos1(currentPos.getX() - .5 * factor, currentPos.getY(), dir); //move forward a small bit
+        moveToPos(currentPos.getX() - .5 * factor, currentPos.getY(), dir); //move forward a small bit
         turnRelative(180); //turn around so we can pick up foundation
         dir = 90 * factor;
         if (factor == 1)
-            moveToPos3(redFoundation, dir); //go to foundation
+            moveToPos(redFoundation, dir); //go to foundation
         else
-            moveToPos3(blueFoundation, dir);
+            moveToPos(blueFoundation, dir);
         waitMoveFoundation(1);
 
         if (factor == 1)
-            moveToPos3(redBuildSite, dir);
+            moveToPos(redBuildSite, dir);
         else
-            moveToPos3(blueBuildSite, dir);
+            moveToPos(blueBuildSite, dir);
         waitMoveFoundation(-1);
         moveFoundation(0);
         if (factor == 1)
-            moveToPos3(redQuarry, dir); //go to red quarry
+            moveToPos(redQuarry, dir); //go to red quarry
         else
-            moveToPos3(blueQuarry, dir);
+            moveToPos(blueQuarry, dir);
         turnRelative(-90 * factor);
         dir = 180;
 
@@ -622,15 +580,15 @@ public abstract class CypherMethods extends CypherHardware {
             skystoneFindPls(factor); //center with skystone
             currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
             oldPos = new Tile(currentPos);
-            moveToPos1(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
+            moveToPos(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
 
             //pick up skystone and move into it
             controlIntakeServos(1);
             testAutoMove(2, 0);
             currentPos.add(0, convertInchToTile(-2));
 
-            moveToPos1(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
-            moveToPos1(currentPos.getX(), currentPos.getY() + 2, dir); //move to other side
+            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+            moveToPos(currentPos.getX(), currentPos.getY() + 2, dir); //move to other side
 
             turnRelative(-90 * factor); //turn to release skystone and not have it in the way
             dir = -90 * factor;
@@ -639,12 +597,12 @@ public abstract class CypherMethods extends CypherHardware {
             turnRelative(90 * factor); //turn back
             dir = 180;
             if (i == 0) //if that was the first skystone move back to where we got the first one to look for second ome
-                moveToPos3(oldPos, dir);
+                moveToPos(oldPos, dir);
         }
         if (factor == 1)
-            moveToPos3(redBridge, dir); //go to red bridge
+            moveToPos(redBridge, dir); //go to red bridge
         else
-            moveToPos3(blueBridge, dir); //or blue bridge
+            moveToPos(blueBridge, dir); //or blue bridge
     }
 
     void loadingAuto(String side) {
@@ -658,22 +616,22 @@ public abstract class CypherMethods extends CypherHardware {
                 break;
         }
 
-        testAutoMove(.5, 0);
-        currentPos.add(convertInchToTile(.5) * factor, 0);
+        testAutoMove(2, 0);
+        currentPos.add(convertInchToTile(2) * factor, 0);
         turnRelative(-90 * factor);
         dir = 180;
         for (int i = 0; i < 2; i++) {
             skystoneFindPls(factor);
             currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
             Tile oldPos = new Tile(currentPos);
-            moveToPos1(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
+            moveToPos(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
 
             waitControlIntake(1);
             testAutoMove(2, 0);
             currentPos.add(convertInchToTile(2), 0);
 
-            moveToPos1(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
-            moveToPos1(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
+            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+            moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
 
             turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
             dir = -90 * factor; //change dir
@@ -683,39 +641,49 @@ public abstract class CypherMethods extends CypherHardware {
             dir *= -1;
             if (i == 0) { //if its the first skystone move foundation
                 if (factor == 1) {
-                    moveToPos3(redFoundation, dir);
+                    moveToPos(redFoundation, dir);
 
                 } else {
-                    moveToPos3(blueFoundation, dir);
+                    moveToPos(blueFoundation, dir);
                 }
                 waitMoveFoundation(1);
                 if (factor == 1) {
-                    moveToPos3(redBuildSite, dir);
+                    moveToPos(redBuildSite, dir);
                 } else {
-                    moveToPos3(blueBuildSite, dir);
+                    moveToPos(blueBuildSite, dir);
                 }
                 waitMoveFoundation(-1);
                 moveFoundation(0);
+            }
+
+            if(i == 0) {
+                moveToPos(oldPos, dir);
             }
 
             turnRelative(90 * factor);
             dir = 180;
         }
         if (factor == 1) {
-            moveToPos3(redBridge, dir);
+            moveToPos(redBridge, dir);
         } else {
-            moveToPos3(blueBridge, dir);
+            moveToPos(blueBridge, dir);
         }
 
     }
 
-    public enum IntakeState {
+    enum IntakeState {
         IN, OUT, STOP
     }
 
-    public enum FoundationState {
-            DRAG, RELASE, REST
+    enum FoundationState {
+            DRAG, RELASE
     }
+
+    enum ArmState {
+        PICK, DROP, REST
+    }
+
+
 
 
 }
