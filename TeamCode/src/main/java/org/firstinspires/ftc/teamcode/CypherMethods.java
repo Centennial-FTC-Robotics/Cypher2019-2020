@@ -356,7 +356,6 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void controlArm(double power) {
-
         HSlide.setPower(power);
     }
 

@@ -38,10 +38,6 @@ public class mainDrive extends CypherMethods {
             double swivelLeft = -gamepad2.left_trigger;
             boolean toggleFoundation = gamepad2.y;
 
-            telemetry.addData("swivelRight", swivelRight);
-            telemetry.addData("swivelLeft", swivelLeft);
-            telemetry.addData("ok", swivelLeft + swivelRight);
-
             //Servo Intake Control------------------------------------------------------------------
             if (stopIntake) {
                 inState = IntakeState.STOP;
@@ -55,11 +51,6 @@ public class mainDrive extends CypherMethods {
             }
 
             if(controller1Timer.milliseconds() > miliTillReady) {
-                telemetry.addData("ready", true);
-            }
-
-            if (controller1Timer.milliseconds() > miliTillReady
-            ) {
                 telemetry.addData("ready", true);
             } else {
                 telemetry.addData("not ready", false);
@@ -123,7 +114,7 @@ public class mainDrive extends CypherMethods {
                     controlFoundation(foundationState);
                 }
             }
+            telemetry.update();
         }
-        telemetry.update();
     }
 }

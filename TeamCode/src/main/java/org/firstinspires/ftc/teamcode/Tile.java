@@ -12,7 +12,7 @@ class Tile {
     Tile(Tile tile) {
         setLocation(tile);
     }
-    
+
     double getX() {
         return x;
     }
