@@ -15,19 +15,17 @@ public class mainDrive extends CypherMethods {
 
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        for (DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+
+        resetEncoders();
 
         double factor = 1;
         IntakeState inState = IntakeState.STOP;
-        FoundationState foundationState = FoundationState.RELASE;
+        FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
         while (opModeIsActive()) {
             telemetry.addData("control timer", controller1Timer.milliseconds());
             double leftPower = acutalControl(gamepad1.left_stick_x) * .7;
-            double fowardPower = acutalControl(gamepad1.left_stick_y) * .7;
+            double forwardPower = acutalControl(gamepad1.left_stick_y) * .7;
             double rotate = acutalControl(gamepad1.right_stick_x);
             boolean toggleIntake = gamepad1.a && !(gamepad1.start || gamepad2.start);
             boolean stopIntake = gamepad1.b && !(gamepad1.start || gamepad2.start);
@@ -78,7 +76,7 @@ public class mainDrive extends CypherMethods {
 
             telemetry.addData("factor", factor);
             //Driving-------------------------------------------------------------------------------
-            manDriveMotors(fowardPower, leftPower, rotate, factor);
+            manDriveMotors(forwardPower, leftPower, rotate, factor);
 
             //Arm Control---------------------------------------------------------------------------
 
@@ -106,11 +104,11 @@ public class mainDrive extends CypherMethods {
             swivelServo(swivelLeft + swivelRight);
 
             if(toggleFoundation && controller2Timer.milliseconds() >= miliTillReady) {
-                if(foundationState.equals(FoundationState.RELASE)) {
+                if(foundationState.equals(FoundationState.RELEASE)) {
                     foundationState = FoundationState.DRAG;
                     controlFoundation(foundationState);
                 } else{
-                    foundationState = FoundationState.RELASE;
+                    foundationState = FoundationState.RELEASE;
                     controlFoundation(foundationState);
                 }
             }

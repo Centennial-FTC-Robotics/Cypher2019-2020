@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Point;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -42,6 +44,10 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotor[] rightMotors = new DcMotor[2];
     private final DcMotor[] vSlides = new DcMotor[2];
     private final CRServo[] wheelIntakeServos = new CRServo[2];
+
+    private final int VSlideMax = 0;
+    private final int VSlideMin = 0;
+
 
     int dir;
     @Override
@@ -228,6 +234,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
+
     void setDriveMotors(double power) {
         for (DcMotor motor : driveMotors) {
             motor.setPower(power);
@@ -313,7 +320,7 @@ public abstract class CypherMethods extends CypherHardware {
         return (getNegPos() + getPosPos()) / 2;
     }
 
-    private void resetEncoders() {
+    void resetEncoders() {
         for (DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -370,7 +377,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     void controlSlides(double power) {
         for(DcMotor motor : vSlides) {
-            motor.setPower(clip(power, 0, .4));
+            motor.setPower(clip(power, 0, .2));
         }
 
     }
@@ -382,7 +389,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     void controlFoundation(FoundationState state) {
         ElapsedTime time = new ElapsedTime();
-        if(state.equals(FoundationState.RELASE)) {
+        if(state.equals(FoundationState.RELEASE)) {
             time.reset();
             moveFoundation(-1);
             while(time.milliseconds() < 650  );
@@ -418,8 +425,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     void skystoneFindPls(int factor) {
         final double tolerance = 200;
-        resetEncoders();
-        if (opModeIsActive()) {
+        resetEncoders();if (opModeIsActive()) {
             while (opModeIsActive()) {
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
@@ -427,20 +433,24 @@ public abstract class CypherMethods extends CypherHardware {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
-
                         // step through the list of recognitions and display boundary info.
                         for (Recognition recognition : updatedRecognitions) {
                             if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                                setDriveMotors(0);
                                 telemetry.addData("SKYSTONE", true);
                                 telemetry.addData("left", recognition.getLeft());
                                 telemetry.addData("right", recognition.getRight());
                                 if (Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
                                     moveToCenter(recognition.getLeft(), recognition.getRight());
+                                    telemetry.addData("moving", "to skystone.........");
                                 } else {
                                     testAutoMove(0, 6 * factor);
+                                    telemetry.addData("moving", "to the side.........");
                                 }
                             } else {
                                 telemetry.addData("not skystone", true);
+                                testAutoMove(10,0);
+                                telemetry.addData("moving", "forward.........");
                             }
                         }
                         telemetry.update();
@@ -515,7 +525,6 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void initEverything() {
-        ElapsedTime timer = new ElapsedTime();
         initializeIMU();
         initVuforia();
         initTfod();
@@ -523,10 +532,6 @@ public abstract class CypherMethods extends CypherHardware {
         if (tfod != null) {
             tfod.activate();
         }
-
-        telemetry.addData("time", timer.milliseconds());
-        telemetry.update();
-
     }
 
     private void waitControlIntake(double power) {
@@ -675,7 +680,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     enum FoundationState {
-            DRAG, RELASE
+            DRAG, RELEASE
     }
 
     enum ArmState {

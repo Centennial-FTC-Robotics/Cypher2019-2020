@@ -8,8 +8,7 @@ public class tensorFlowTest extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        initVuforia();
-        initTfod();
+        initEverything();
 
 
         if (tfod != null) {
@@ -23,7 +22,7 @@ public class tensorFlowTest extends CypherMethods {
     }
 
 /*
-    public void goToSkystone() {
+    private void goToSkystone() {
         double tolerance = 200; //close enough value
         while (opModeIsActive()) {
             if (tfod != null) {
