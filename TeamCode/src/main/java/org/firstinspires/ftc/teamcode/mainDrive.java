@@ -34,7 +34,7 @@ public class mainDrive extends CypherMethods {
             boolean arm = gamepad2.a && !(gamepad1.start || gamepad2.start);
             double swivelRight = gamepad2.right_trigger;
             double swivelLeft = -gamepad2.left_trigger;
-            boolean toggleFoundation = gamepad2.y;
+            boolean toggleFoundation = gamepad1.y;
 
             //Servo Intake Control------------------------------------------------------------------
             if (stopIntake) {

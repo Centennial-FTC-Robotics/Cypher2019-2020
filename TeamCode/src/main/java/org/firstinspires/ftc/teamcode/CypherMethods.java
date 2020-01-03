@@ -338,7 +338,7 @@ public abstract class CypherMethods extends CypherHardware {
         initialPitch = orientation.thirdAngle;
     }
 
-
+ 
     //CONVERSION METHODS
     private int convertInchToEncoder(double inches) {
         return (int)(inches / ticksPerInch);
