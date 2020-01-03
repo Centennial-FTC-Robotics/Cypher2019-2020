@@ -473,8 +473,13 @@ public abstract class CypherMethods extends CypherHardware {
 
     private double[] getDist(Tile start, Tile end, int dir) {
         double forward, left;
-        /* Note: Code to appply for any given angle. Not sure if it works, so it's commented. Let's tets.
-        int directionNew = 360 - dir;
+        /* Note: Code to apply for any given angle. Not sure if it works, so it's commented. Let's tests.
+        if (dir >= 0) {
+            directionNew = 360 - (dir - 90);
+        }
+        else {
+            directionNew = -dir + 90;
+        }
         int startHorizontalAdjust = start.getX()*Math.cos(directionNew) + start.getY()*Math.sin(directionNew);
         int startVerticalAdjust = -start.getX()*Math.sin(directionNew) + start.getY()*Math.cos(directionNew);
         int finalHorizontalAdjust = end.getX()*Math.cos(directionNew) + end.getY()*Math.sin(directionNew);
