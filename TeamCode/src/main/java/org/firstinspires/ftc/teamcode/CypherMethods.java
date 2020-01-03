@@ -682,8 +682,24 @@ public abstract class CypherMethods extends CypherHardware {
         PICK, DROP, REST
     }
 
+    void emergencyMove(int time) {
+        //no encoders, loading zone, building zone, red, blue
+        /* calculate distance to wall, then move until it meets this line through color sensor, then */
+        ElapsedTime time = new ElapsedTime();
+        telemetry.addData("EMERGENCY:", "ROBOT DOES NOT WORK NORMALLY");
+        telemetry.update();
+        while (time.seconds() > 0) {
+            if (getDist()) {
+                setStrafeMotors(-1, 1); //strafe left or right depending on
+            } else if (getDist()) {
+                setStrafeMotors(1, -1); //strafe left or right depending on
+            } else {
+                setDriveMotors(1); //full speed
+            }
 
+        }
 
+    }
 
 }
 
