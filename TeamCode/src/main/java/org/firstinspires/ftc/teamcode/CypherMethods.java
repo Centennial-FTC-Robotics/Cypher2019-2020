@@ -50,6 +50,7 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     int dir;
+
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -255,7 +256,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //INITIALIZE STUFF
-   void initializeIMU() {
+    void initializeIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -275,7 +276,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     private double rawDimension() {
         return orientation.firstAngle;
-        }
+    }
 
     private double getAngleDist(double targetAngle, double currentAngle) {
         double angleDifference = currentAngle - targetAngle;
@@ -338,18 +339,18 @@ public abstract class CypherMethods extends CypherHardware {
         initialPitch = orientation.thirdAngle;
     }
 
- 
+
     //CONVERSION METHODS
     private int convertInchToEncoder(double inches) {
-        return (int)(inches / ticksPerInch);
-      }
+        return (int) (inches / ticksPerInch);
+    }
 
     private int convertEncoderToInch(int encoder) {
-        return (int)(ticksPerInch / encoder);
+        return (int) (ticksPerInch / encoder);
     }
 
     private double tilesToInch(double tiles) {
-        return tiles * 24;
+        return tiles * 22.75;
     }
 
     private double convertInchToTile(double tiles) {
@@ -376,7 +377,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void controlSlides(double power) {
-        for(DcMotor motor : vSlides) {
+        for (DcMotor motor : vSlides) {
             motor.setPower(clip(power, 0, .2));
         }
 
@@ -389,16 +390,16 @@ public abstract class CypherMethods extends CypherHardware {
 
     void controlFoundation(FoundationState state) {
         ElapsedTime time = new ElapsedTime();
-        if(state.equals(FoundationState.RELEASE)) {
+        if (state.equals(FoundationState.RELEASE)) {
             time.reset();
             moveFoundation(-1);
-            while(time.milliseconds() < 650  );
+            while (time.milliseconds() < 650) ;
             moveFoundation(0);
             time.reset();
         } else {
             time.reset();
             moveFoundation(1);
-            while(time.milliseconds() < 350);
+            while (time.milliseconds() < 350) ;
             moveFoundation(0.3);
             time.reset();
         }
@@ -407,7 +408,7 @@ public abstract class CypherMethods extends CypherHardware {
     double acutalControl(double controller) {
         double a = 0.3;
         //a*b^3+(1-a)*b
-        return (a*(Math.pow(controller, 3))) + ((1-a)* controller);
+        return (a * (Math.pow(controller, 3))) + ((1 - a) * controller);
     }
 
     double clip(double num, double min, double max) {
@@ -423,44 +424,45 @@ public abstract class CypherMethods extends CypherHardware {
         return num;
     }
 
-    void skystoneFindPls(int factor) {
-        final double tolerance = 200;
-        resetEncoders();if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        // step through the list of recognitions and display boundary info.
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                                setDriveMotors(0);
-                                telemetry.addData("SKYSTONE", true);
-                                telemetry.addData("left", recognition.getLeft());
-                                telemetry.addData("right", recognition.getRight());
-                                if (Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
-                                    moveToCenter(recognition.getLeft(), recognition.getRight());
-                                    telemetry.addData("moving", "to skystone.........");
+        void skystoneFindPls(int factor) {
+            final double tolerance = 200;
+            resetEncoders();
+            if (opModeIsActive()) {
+                while (opModeIsActive()) {
+                    if (tfod != null) {
+                        // getUpdatedRecognitions() will return null if no new information is available since
+                        // the last time that call was made.
+                        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                        if (updatedRecognitions != null) {
+                            telemetry.addData("# Object Detected", updatedRecognitions.size());
+                            // step through the list of recognitions and display boundary info.
+                            for (Recognition recognition : updatedRecognitions) {
+                                if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                                    setDriveMotors(0);
+                                    telemetry.addData("SKYSTONE", true);
+                                    telemetry.addData("left", recognition.getLeft());
+                                    telemetry.addData("right", recognition.getRight());
+                                    if (Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
+                                        moveToCenter(recognition.getLeft(), recognition.getRight());
+                                        telemetry.addData("moving", "to skystone.........");
+                                    } else {
+                                        testAutoMove(0, 6 * factor);
+                                        telemetry.addData("moving", "to the side.........");
+                                    }
                                 } else {
-                                    testAutoMove(0, 6 * factor);
-                                    telemetry.addData("moving", "to the side.........");
+                                    telemetry.addData("not skystone", true);
+                                    testAutoMove(10, 0);
+                                    telemetry.addData("moving", "forward.........");
                                 }
-                            } else {
-                                telemetry.addData("not skystone", true);
-                                testAutoMove(10,0);
-                                telemetry.addData("moving", "forward.........");
                             }
+                            telemetry.update();
                         }
-                        telemetry.update();
                     }
                 }
             }
         }
-    }
 
-   void moveToCenter(double left, double right) {
+    void moveToCenter(double left, double right) {
         double P = 0.02;
         double error = left - right;
         double speed;
@@ -675,7 +677,7 @@ public abstract class CypherMethods extends CypherHardware {
                 moveFoundation(0);
             }
 
-            if(i == 0) {
+            if (i == 0) {
                 moveToPos(oldPos, dir);
             }
 
@@ -695,30 +697,33 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     enum FoundationState {
-            DRAG, RELEASE
+        DRAG, RELEASE
     }
 
     enum ArmState {
         PICK, DROP, REST
     }
 
-    void emergencyMove(int time) {
+    void emergencyMove(String side, String color) {
         //no encoders, loading zone, building zone, red, blue
-        /* calculate distance to wall, then move until it meets this line through color sensor, then */
-        ElapsedTime time = new ElapsedTime();
-        telemetry.addData("EMERGENCY:", "ROBOT DOES NOT WORK NORMALLY");
-        telemetry.update();
-        while (time.seconds() > 0) {
-            if (getDist()) {
-                setStrafeMotors(-1, 1); //strafe left or right depending on
-            } else if (getDist()) {
-                setStrafeMotors(1, -1); //strafe left or right depending on
-            } else {
-                setDriveMotors(1); //full speed
-            }
+        ElapsedTime timer = new ElapsedTime();
+        double factor;
+
+        if (side.equals("loading")) {
+            if(color.equals("red")) factor = 1;
+            else factor = -1;
+        }  else {
+            if(color.equals("red")) factor = -1;
+            else factor = 1;
 
         }
-
+        telemetry.addData("EMERGENCY", "ROBOT DOES NOT WORK NORMALLY");
+        telemetry.update();
+        timer.reset();
+        do {
+            setStrafeMotors(-0.4*factor, 0.4*factor);
+        } while (timer.seconds() < 2);
+        setDriveMotors(0);
     }
 
 }
