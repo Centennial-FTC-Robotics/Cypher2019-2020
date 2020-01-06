@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.Point;
-
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -45,8 +43,8 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotor[] vSlides = new DcMotor[2];
     private final CRServo[] wheelIntakeServos = new CRServo[2];
 
-    private final int VSlideMax = 0;
-    private final int VSlideMin = 0;
+    private final int VSlideMax = 740;
+    private final int VSlideMin = 10;
 
 
     int dir;
@@ -76,6 +74,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         vSlides[0] = vLeft;
         vSlides[1] = vRight;
+        resetEncoders();
     }
 
     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
@@ -162,8 +161,6 @@ public abstract class CypherMethods extends CypherHardware {
             telemetry.addData("pos speed", posSpeed);
             telemetry.addData("forward", forwardMovement);
             telemetry.addData("left", leftMovement);
-            telemetry.addData("aaaaaaaaaaa", "aaaaaaaaaaaaaaaaa");
-            telemetry.addData("egfdg", Range.clip(-1, minSpeed, maxSpeed));
             telemetry.update();
         } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance));
         setDriveMotors(0);
@@ -242,7 +239,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    private void setStrafeMotors(double neg, double pos) {
+    void setStrafeMotors(double neg, double pos) {
         for (DcMotor motor : strafeNeg) {
             motor.setPower(neg);
         }
@@ -301,7 +298,7 @@ public abstract class CypherMethods extends CypherHardware {
         return angleDir;
     }
 
-    private int getNegPos() {
+    int getNegPos() {
         int average = 0;
         for (DcMotor motor : strafeNeg) {
             average += motor.getCurrentPosition();
@@ -309,12 +306,20 @@ public abstract class CypherMethods extends CypherHardware {
         return average / 2;
     }
 
-    private int getPosPos() {
+    int getPosPos() {
         int average = 0;
         for (DcMotor motor : strafePos) {
             average += motor.getCurrentPosition();
         }
         return average / 2;
+    }
+
+    int getVSlidePos() {
+        int average = 0;
+        for(DcMotor motor : vSlides) {
+            average += motor.getCurrentPosition();
+        }
+        return average /2;
     }
 
     private int getPos() {
@@ -323,6 +328,11 @@ public abstract class CypherMethods extends CypherHardware {
 
     void resetEncoders() {
         for (DcMotor motor : driveMotors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        for(DcMotor motor : vSlides) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
@@ -341,7 +351,7 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     //CONVERSION METHODS
-    private int convertInchToEncoder(double inches) {
+     int convertInchToEncoder(double inches) {
         return (int) (inches / ticksPerInch);
     }
 
@@ -367,8 +377,8 @@ public abstract class CypherMethods extends CypherHardware {
         HSlide.setPower(power);
     }
 
-    void grabServo(double power) {
-        arm.setPower(power);
+    void grabServo(int pos) {
+        arm.setPosition(pos);
     }
 
     void swivelServo(double power) {
@@ -378,7 +388,11 @@ public abstract class CypherMethods extends CypherHardware {
 
     void controlSlides(double power) {
         for (DcMotor motor : vSlides) {
-            motor.setPower(clip(power, 0, .2));
+            if((getVSlidePos() >=  VSlideMax && power < 0)|| (getVSlidePos() <= VSlideMin && power >0)) {
+                motor.setPower(0);
+            } else {
+                motor.setPower(clip(power, 0, .2));
+            }
         }
 
     }
@@ -405,8 +419,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    double acutalControl(double controller) {
-        double a = 0.3;
+    double acutalControl(double controller, double a) {
         //a*b^3+(1-a)*b
         return (a * (Math.pow(controller, 3))) + ((1 - a) * controller);
     }
@@ -446,12 +459,10 @@ public abstract class CypherMethods extends CypherHardware {
                                         moveToCenter(recognition.getLeft(), recognition.getRight());
                                         telemetry.addData("moving", "to skystone.........");
                                     } else {
-                                        testAutoMove(0, 6 * factor);
                                         telemetry.addData("moving", "to the side.........");
                                     }
                                 } else {
                                     telemetry.addData("not skystone", true);
-                                    testAutoMove(10, 0);
                                     telemetry.addData("moving", "forward.........");
                                 }
                             }

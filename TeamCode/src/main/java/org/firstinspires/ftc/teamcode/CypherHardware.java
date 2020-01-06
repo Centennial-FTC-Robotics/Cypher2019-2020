@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -20,14 +21,16 @@ public abstract class CypherHardware extends LinearOpMode {
     DcMotor rightUp;
     DcMotor rightDown;
     DcMotor vLeft;
+    //Bill was here
     DcMotor vRight;
 
     CRServo leftServo;
     CRServo rightServo;
     CRServo HSlide;
     CRServo swivel;
-    CRServo arm;
     CRServo foundation;
+    Servo arm;
+
 
     Orientation orientation = new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES, 0, 0, 0, 0);
     BNO055IMU imu;
@@ -57,7 +60,7 @@ public abstract class CypherHardware extends LinearOpMode {
         rightServo = hardwareMap.crservo.get("rightintake");
         HSlide = hardwareMap.crservo.get("hslide");
         swivel = hardwareMap.crservo.get("swivelservo");
-        arm = hardwareMap.crservo.get("armservo");
+        arm = hardwareMap.servo.get("armservo");
         foundation = hardwareMap.crservo.get("foundation");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");

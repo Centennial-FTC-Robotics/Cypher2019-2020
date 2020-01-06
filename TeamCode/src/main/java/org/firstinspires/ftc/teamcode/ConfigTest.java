@@ -9,11 +9,14 @@ public class ConfigTest extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
-        for(DcMotor motor : driveMotors) {
-            motor.setPower(0.3);
-            while(!gamepad1.a);
-            motor.setPower(0);
+        while(opModeIsActive()) {
+            for (DcMotor motor : driveMotors) {
+                motor.setPower(.5);
+                telemetry.addData("power", motor.getPower());
+            }
+            telemetry.update();
         }
+
     }
 }
 

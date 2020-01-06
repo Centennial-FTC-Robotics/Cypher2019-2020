@@ -24,9 +24,9 @@ public class mainDrive extends CypherMethods {
         ArmState armState = ArmState.REST;
         while (opModeIsActive()) {
             telemetry.addData("control timer", controller1Timer.milliseconds());
-            double leftPower = acutalControl(gamepad1.left_stick_x) * .7;
-            double forwardPower = acutalControl(gamepad1.left_stick_y) * .7;
-            double rotate = acutalControl(gamepad1.right_stick_x);
+            double leftPower = acutalControl(gamepad1.left_stick_x,0.3) * .7;
+            double forwardPower = acutalControl(gamepad1.left_stick_y, 0.5) * .7;
+            double rotate = acutalControl(gamepad1.right_stick_x, .3);
             boolean toggleIntake = gamepad1.a && !(gamepad1.start || gamepad2.start);
             boolean stopIntake = gamepad1.b && !(gamepad1.start || gamepad2.start);
             double vSlide = gamepad2.left_stick_y;
@@ -35,6 +35,8 @@ public class mainDrive extends CypherMethods {
             double swivelRight = gamepad2.right_trigger;
             double swivelLeft = -gamepad2.left_trigger;
             boolean toggleFoundation = gamepad1.y;
+
+            telemetry.addData("vslide", getVSlidePos());
 
             //Servo Intake Control------------------------------------------------------------------
             if (stopIntake) {
@@ -48,6 +50,7 @@ public class mainDrive extends CypherMethods {
                 }
             }
 
+            telemetry.addData("state",inState);
             if(controller1Timer.milliseconds() > miliTillReady) {
                 telemetry.addData("ready", true);
             } else {
@@ -67,12 +70,11 @@ public class mainDrive extends CypherMethods {
                     break;
             }
             //Speed Control-------------------------------------------------------------------------
-            if (gamepad1.right_bumper) {
-                factor = 1;
-            }
-            if (gamepad1.left_bumper) {
-                factor = .6;
-            }
+           if(gamepad1.left_trigger > 0) {
+               factor = 0.258;
+           } else {
+               factor = 1;
+           }
 
             telemetry.addData("factor", factor);
             //Driving-------------------------------------------------------------------------------
