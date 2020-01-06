@@ -9,9 +9,12 @@ public class ConfigTest extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
+
         while(opModeIsActive()) {
+
             for (DcMotor motor : driveMotors) {
-                motor.setPower(.5);
+                motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                motor.setPower(.1);
                 telemetry.addData("power", motor.getPower());
             }
             telemetry.update();

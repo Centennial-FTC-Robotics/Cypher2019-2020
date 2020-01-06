@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Encoder Test", group = "Test")
@@ -8,6 +9,7 @@ public class betterEncoder extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
+        resetEncoders();
         initEverything();
         waitForStart();
         double P = 0.04;
@@ -77,7 +79,7 @@ public class betterEncoder extends CypherMethods {
         double I = 0;
         double tolerance = 5;
         double minSpeed = 0.01;
-        double maxSpeed = 0.1;
+        double maxSpeed = 0.05;
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double negError, posError;
@@ -90,8 +92,8 @@ public class betterEncoder extends CypherMethods {
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
 
-            negError =  negTarget - currentNegPos;
-            posError =  posTarget - currentPosPos;
+            negError =   currentNegPos - negTarget;
+            posError =  currentPosPos  - posTarget;
 
             negSum += negError;
             posSum += posError;
@@ -99,8 +101,12 @@ public class betterEncoder extends CypherMethods {
             negSpeed = clip(P * negError + I * negSum, minSpeed, maxSpeed);
             posSpeed = clip(P * posError + I * posSum, minSpeed, maxSpeed);
 
-
             setStrafeMotors(negSpeed, posSpeed);
+
+            telemetry.addData("right up", rightUp.getPower());
+            telemetry.addData("right down", rightDown.getPower());
+            telemetry.addData("left up", leftUp.getPower());
+            telemetry.addData("left down", leftDown.getPower());
 
             telemetry.addData("neg current", currentNegPos);
             telemetry.addData("pos current", currentPosPos);

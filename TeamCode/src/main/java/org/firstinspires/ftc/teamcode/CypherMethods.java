@@ -329,7 +329,7 @@ public abstract class CypherMethods extends CypherHardware {
     void resetEncoders() {
         for (DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
         for(DcMotor motor : vSlides) {
@@ -376,6 +376,7 @@ public abstract class CypherMethods extends CypherHardware {
     void controlArm(double power) {
         HSlide.setPower(power);
     }
+    //BIll was here
 
     void grabServo(int pos) {
         arm.setPosition(pos);

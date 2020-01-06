@@ -94,10 +94,10 @@ public class mainDrive extends CypherMethods {
 
             switch (armState) {
                 case DROP:
-                    grabServo(-1);
+                    grabServo(0);
                     break;
                 case PICK:
-                    grabServo(1);
+                    grabServo(45);
                     break;
             }
 
