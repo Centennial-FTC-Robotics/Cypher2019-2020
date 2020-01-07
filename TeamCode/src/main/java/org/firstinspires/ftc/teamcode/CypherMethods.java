@@ -328,7 +328,6 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-        leftDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         for(DcMotor motor : vSlides) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
