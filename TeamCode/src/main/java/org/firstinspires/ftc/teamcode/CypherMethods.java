@@ -33,6 +33,7 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotor[] rightMotors = new DcMotor[2];
     private final DcMotor[] vSlides = new DcMotor[2];
     private final CRServo[] wheelIntakeServos = new CRServo[2];
+    private final CRServo[] foundationServos = new CRServo[2];
 
     private final int VSlideMax = 740;
     private final int VSlideMin = 10;
@@ -65,6 +66,9 @@ public abstract class CypherMethods extends CypherHardware {
 
         vSlides[0] = vLeft;
         vSlides[1] = vRight;
+
+        foundationServos[0] = lFoundation;
+        foundationServos[1] = rFoundation;
         resetEncoders();
     }
 
@@ -298,11 +302,13 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     int getPosPos() {
-        int average = 0;
+        /*int average = 0;
         for (DcMotor motor : strafePos) {
             average += motor.getCurrentPosition();
         }
         return average / 2;
+          */
+        return rightUp.getCurrentPosition();
     }
 
     int getVSlidePos() {
@@ -320,8 +326,9 @@ public abstract class CypherMethods extends CypherHardware {
     void resetEncoders() {
         for (DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
+        leftDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         for(DcMotor motor : vSlides) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -390,7 +397,9 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void moveFoundation(double power) {
-        foundation.setPower(power);
+        for(CRServo servo : foundationServos) {
+            servo.setPower(power);
+        }
     }
 
 
@@ -415,6 +424,9 @@ public abstract class CypherMethods extends CypherHardware {
         //a*b^3+(1-a)*b
         return (a * (Math.pow(controller, 3))) + ((1 - a) * controller);
     }
+     double getArmPos() {
+        return arm.getPosition();
+     }
 
     double clip(double num, double min, double max) {
         int sign;

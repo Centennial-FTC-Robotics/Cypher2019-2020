@@ -10,7 +10,6 @@ public class betterEncoder extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         resetEncoders();
-        initEverything();
         waitForStart();
         double P = 0.04;
         //Bill was here
@@ -79,7 +78,7 @@ public class betterEncoder extends CypherMethods {
         double I = 0;
         double tolerance = 5;
         double minSpeed = 0.01;
-        double maxSpeed = 0.05;
+        double maxSpeed = 0.3;
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double negError, posError;

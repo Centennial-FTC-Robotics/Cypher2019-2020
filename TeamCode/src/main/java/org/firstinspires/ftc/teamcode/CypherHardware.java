@@ -28,7 +28,7 @@ public abstract class CypherHardware extends LinearOpMode {
     CRServo rightServo;
     CRServo HSlide;
     CRServo swivel;
-    CRServo foundation;
+    CRServo lFoundation, rFoundation;
     Servo arm;
 
 
@@ -61,13 +61,14 @@ public abstract class CypherHardware extends LinearOpMode {
         HSlide = hardwareMap.crservo.get("hslide");
         swivel = hardwareMap.crservo.get("swivelservo");
         arm = hardwareMap.servo.get("armservo");
-        foundation = hardwareMap.crservo.get("foundation");
+        lFoundation = hardwareMap.crservo.get("foundation");
+        rFoundation = hardwareMap.crservo.get("foundation2");
+
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
         leftDown.setDirection(DcMotor.Direction.REVERSE);
         leftUp.setDirection(DcMotor.Direction.REVERSE);
-        rightDown.setDirection(DcMotor.Direction.REVERSE);
         vLeft.setDirection(DcMotor.Direction.REVERSE);
         rightServo.setDirection(CRServo.Direction.REVERSE);
 
