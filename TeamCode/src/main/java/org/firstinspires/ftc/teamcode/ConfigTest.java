@@ -16,6 +16,7 @@ public class ConfigTest extends CypherMethods {
                 motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 motor.setPower(.1);
                 telemetry.addData("power", motor.getPower());
+                telemetry.addData("encoder",motor.getCurrentPosition());
             }
             telemetry.update();
         }

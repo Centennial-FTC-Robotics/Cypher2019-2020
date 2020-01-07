@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "Red Team Loading Zone", group = "Auto")
-public class RedLoadingZone extends CypherMethods {
+public class RedLoadingZone extends CypherAutoMethods {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
