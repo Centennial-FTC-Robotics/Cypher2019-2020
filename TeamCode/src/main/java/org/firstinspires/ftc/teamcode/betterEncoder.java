@@ -119,17 +119,6 @@ public class betterEncoder extends CypherMethods {
         } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance));
         setDriveMotors(0);
     }
-    private void waitControlIntake(double power) {
-        ElapsedTime time = new ElapsedTime();
-        controlIntakeServos(power);
-        while (time.milliseconds() < 200) ;
-    }
-
-    private void waitMoveFoundation(double power) {
-        ElapsedTime time = new ElapsedTime();
-        moveFoundation(power);
-        while (time.milliseconds() < 200) ;
-    }
 }
 
 

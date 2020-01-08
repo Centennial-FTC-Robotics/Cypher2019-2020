@@ -248,7 +248,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //INITIALIZE STUFF
-    void initializeIMU() {
+    void  initializeIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -257,8 +257,7 @@ public abstract class CypherMethods extends CypherHardware {
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
-        while (opModeIsActive() && !imu.isGyroCalibrated()) ;
-        resetOrientation();
+
     }
 
     //METHODS THAT ASSIST WITH AUTONOMOUS IDK
@@ -466,7 +465,6 @@ public abstract class CypherMethods extends CypherHardware {
                                     }
                                 } else {
                                     telemetry.addData("not skystone", true);
-                                    telemetry.addData("moving", "forward.........");
                                 }
                             }
                             telemetry.update();
@@ -486,9 +484,6 @@ public abstract class CypherMethods extends CypherHardware {
 
         setDriveMotors(speed);
     }
-
-
-
 
     void initVuforia() {
 
@@ -515,14 +510,12 @@ public abstract class CypherMethods extends CypherHardware {
         initVuforia();
         initTfod();
 
+        while (opModeIsActive() && !imu.isGyroCalibrated()) ;
+        resetOrientation();
         if (tfod != null) {
             tfod.activate();
         }
     }
-
-
-    //AUTO STUFF
-
 
     enum IntakeState {
         IN, OUT, STOP
