@@ -12,13 +12,10 @@ public class ConfigTest extends CypherMethods {
         waitForStart();
 
         while(opModeIsActive()) {
-
-            for (DcMotor motor : driveMotors) {
-                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                motor.setPower(-.3);
-                telemetry.addData("pos for " + motor.getPortNumber() ,motor.getCurrentPosition());
-                telemetry.addData("weiughasdkgjhasdgsgd" + motor.getPortNumber(), motor.getPower());
-            }
+                leftDown.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                telemetry.addData("pos for " + leftDown.getPortNumber() ,leftDown.getCurrentPosition());
+                telemetry.addData("weiughasdkgjhasdgsgd" + leftDown.getPortNumber(), leftDown.getPower());
+            
             telemetry.update();
         }
 
