@@ -39,7 +39,7 @@ public abstract class CypherMethods extends CypherHardware {
     private final int VSlideMin = 10;
 
 
-    int dir;
+    public int dir;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -510,7 +510,7 @@ public abstract class CypherMethods extends CypherHardware {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    void initEverything() {
+    public void initEverything() {
         initializeIMU();
         initVuforia();
         initTfod();

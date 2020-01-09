@@ -56,7 +56,7 @@ public class betterEncoder extends CypherMethods {
 
                 }
                 if (cont) {
-                    findP(22.75, 0, P);
+                    findP(22.75, 22.75, P);
                     controllerTimer.reset();
 
                 }

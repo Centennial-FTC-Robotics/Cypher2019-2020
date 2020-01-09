@@ -2,18 +2,18 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Point;
 
-class Tile {
+public class Tile {
     private double x, y;
     Point innerTile;
 
 
-    Tile(double x1, double y1, int x2, int y2) {
+    public Tile(double x1, double y1, int x2, int y2) {
         //innerTile = new Point(x2, y2);
         setLocation(x1,y1);
         //setRealPos();
     }
 
-    Tile(double x, double y) {
+    public Tile(double x, double y) {
         setLocation(x,y);
         //innerTile = new Point(2, 2);
         //setRealPos();
@@ -21,7 +21,7 @@ class Tile {
 
 
 
-    Tile(Tile tile) {
+    public Tile(Tile tile) {
         setLocation(tile);
     }
 
@@ -33,7 +33,7 @@ class Tile {
         return y;
     }
 
-    void setLocation(double x, double y) {
+    public void setLocation(double x, double y) {
         this.x = x;
         this.y = y;
     }

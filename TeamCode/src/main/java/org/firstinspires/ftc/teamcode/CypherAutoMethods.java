@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public abstract class CypherAutoMethods extends CypherMethods {
 
-    final Tile currentPos = new Tile(0, 0); //always start here
+    public final Tile currentPos = new Tile(0, 0); //always start here
     private final Tile redFoundation = new Tile(5, 5.5);
     private final Tile redBuildSite = new Tile(6, 5.5);
     private final Tile redQuarry = new Tile(5.5, 2);
@@ -39,7 +39,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setDriveMotors(0);
     }
 
-    void buildingAuto(String side) {
+    public void buildingAuto(String side) {
         int factor = 1;
         switch (side) {
             case "red":
@@ -101,7 +101,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             moveToPos(blueBridge, dir); //or blue bridge
     }
 
-    void loadingAuto(String side) {
+    protected void loadingAuto(String side) {
         int factor = 1;
         switch (side) {
             case "red":
