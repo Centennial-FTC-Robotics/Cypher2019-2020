@@ -35,8 +35,8 @@ public abstract class CypherMethods extends CypherHardware {
     private final CRServo[] wheelIntakeServos = new CRServo[2];
     private final CRServo[] foundationServos = new CRServo[2];
 
-    private final int VSlideMax = 740;
-    private final int VSlideMin = 10;
+    private final int VSlideMax = 760;
+    private final int VSlideMin = 5;
 
 
     public int dir;
@@ -399,7 +399,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
     //BIll was here
 
-    void grabServo(int pos) {
+    void grabServo(double pos) {
         arm.setPosition(pos);
     }
 
@@ -413,7 +413,7 @@ public abstract class CypherMethods extends CypherHardware {
             if ((getVSlidePos() >= VSlideMax && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
                 motor.setPower(0);
             } else {
-                motor.setPower(clip(power, 0, .2));
+                motor.setPower(clip(power, 0, .15));
             }
         }
 
@@ -431,14 +431,14 @@ public abstract class CypherMethods extends CypherHardware {
         if (state.equals(FoundationState.RELEASE)) {
             time.reset();
             moveFoundation(-1);
-            while (time.milliseconds() < 650) ;
+            while (time.milliseconds() < 200);
             moveFoundation(0);
             time.reset();
         } else {
             time.reset();
             moveFoundation(1);
             while (time.milliseconds() < 350) ;
-            moveFoundation(0.3);
+            moveFoundation(0.1);
             time.reset();
         }
     }

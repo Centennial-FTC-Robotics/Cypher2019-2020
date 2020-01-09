@@ -11,10 +11,9 @@ public class betterEncoder extends CypherMethods {
         super.runOpMode();
         resetEncoders();
         waitForStart();
-        double P = 1d/1333;        //Bill was here
+        double P = 0.35;        //Bill was here
         ElapsedTime controllerTimer = new ElapsedTime();
         final int miliTillReady = 250;
-        int factor = 1;
 
         while (opModeIsActive()) {
             boolean a = gamepad1.a;
@@ -56,9 +55,8 @@ public class betterEncoder extends CypherMethods {
                     controllerTimer.reset();
 
                 }
-                if (cont) {
-                    findP(0, 22.75*factor, P);
-                    factor*=-1;
+                while (gamepad1.start) {
+                    arm.setPosition(P);
                     controllerTimer.reset();
 
                 }

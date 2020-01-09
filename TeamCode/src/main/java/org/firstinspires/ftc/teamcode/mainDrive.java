@@ -23,7 +23,9 @@ public class mainDrive extends CypherMethods {
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
         while (opModeIsActive()) {
-            telemetry.addData("control timer", controller1Timer.milliseconds());
+            telemetry.addData("foundation state", foundationState);
+
+            telemetry.addData("foundation 2", rFoundation.getPower());
             double leftPower = acutalControl(gamepad1.left_stick_x,0.3) * .7;
             double forwardPower = acutalControl(gamepad1.left_stick_y, 0.5) * .7;
             double rotate = acutalControl(gamepad1.right_stick_x, .3);
@@ -95,10 +97,10 @@ public class mainDrive extends CypherMethods {
 
             switch (armState) {
                 case DROP:
-                    grabServo(0);
+                    grabServo(0.6);
                     break;
                 case PICK:
-                    grabServo(45);
+                    grabServo(0.4934);
                     break;
             }
 
