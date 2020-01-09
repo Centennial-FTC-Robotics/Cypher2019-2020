@@ -11,10 +11,11 @@ public class betterEncoder extends CypherMethods {
         super.runOpMode();
         resetEncoders();
         waitForStart();
-        double P = 0.04;
-        //Bill was here
+        double P = 1d/1333;        //Bill was here
         ElapsedTime controllerTimer = new ElapsedTime();
         final int miliTillReady = 250;
+        int factor = 1;
+
         while (opModeIsActive()) {
             boolean a = gamepad1.a;
             boolean b = gamepad1.b;
@@ -27,36 +28,37 @@ public class betterEncoder extends CypherMethods {
 
             if (controllerTimer.milliseconds() > miliTillReady) {
                 if (a) {
-                    P += 0.01;
+                    P += 0.0005;
                     controllerTimer.reset();
                 }
                 if (y) {
-                    P += 0.1;
+                    P += 0.0001;
                     controllerTimer.reset();
 
                 }
                 if (right) {
-                    P += 0.5;
+                    P += 0.005;
                     controllerTimer.reset();
 
                 }
                 if (b) {
-                    P -= 0.01;
+                    P -= 0.0005;
                     controllerTimer.reset();
 
                 }
                 if (x) {
-                    P -= 0.1;
+                    P -= 0.0001;
                     controllerTimer.reset();
 
                 }
                 if (left) {
-                    P -= 0.5;
+                    P -= 0.001;
                     controllerTimer.reset();
 
                 }
                 if (cont) {
-                    findP(22.75, 22.75, P);
+                    findP(0, 22.75*factor, P);
+                    factor*=-1;
                     controllerTimer.reset();
 
                 }
@@ -75,10 +77,9 @@ public class betterEncoder extends CypherMethods {
 
         resetEncoders();
 
-        double I = 0;
-        double tolerance = 5;
-        double minSpeed = 0.01;
-        double maxSpeed = 0.3;
+        double tolerance = 1d/3;
+        double minSpeed = 0.02;
+        double maxSpeed = 0.4;
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double negError, posError;
@@ -88,27 +89,25 @@ public class betterEncoder extends CypherMethods {
         int posTarget = forwardMovement + leftMovement;
 
         do {
+
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
 
-            negError =   currentNegPos - negTarget;
-            posError =  currentPosPos  - posTarget;
+            negError = negTarget - currentNegPos;
+            posError = posTarget - currentPosPos;
 
             negSum += negError;
             posSum += posError;
 
-            negSpeed = clip(P * negError + I * negSum, minSpeed, maxSpeed);
-            posSpeed = clip(P * posError + I * posSum, minSpeed, maxSpeed);
+            negSpeed = clip(P * negError, minSpeed, maxSpeed);
+            posSpeed = clip(P * posError, minSpeed, maxSpeed);
 
             setStrafeMotors(negSpeed, posSpeed);
 
-            telemetry.addData("right up", rightUp.getPower());
-            telemetry.addData("right down", rightDown.getPower());
-            telemetry.addData("left up", leftUp.getPower());
-            telemetry.addData("left down", leftDown.getPower());
-
             telemetry.addData("neg current", currentNegPos);
             telemetry.addData("pos current", currentPosPos);
+            telemetry.addData("sum of neg", negSum);
+            telemetry.addData("sum of pos", posSum);
             telemetry.addData("neg error", negError);
             telemetry.addData("pos error", posError);
             telemetry.addData("neg speed", negSpeed);
@@ -118,17 +117,6 @@ public class betterEncoder extends CypherMethods {
             telemetry.update();
         } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance));
         setDriveMotors(0);
-    }
-    private void waitControlIntake(double power) {
-        ElapsedTime time = new ElapsedTime();
-        controlIntakeServos(power);
-        while (time.milliseconds() < 200) ;
-    }
-
-    private void waitMoveFoundation(double power) {
-        ElapsedTime time = new ElapsedTime();
-        moveFoundation(power);
-        while (time.milliseconds() < 200) ;
     }
 }
 

@@ -92,16 +92,16 @@ public abstract class CypherMethods extends CypherHardware {
         double currentAngle;
         int direction;
         double turnRate;
-        double P = 0.04;
-        double minSpeed = 0.01;
-        double maxSpeed = 0.4;
+        double minSpeed = 0.03;
+        double maxSpeed = 0.6;
         double tolerance = 5;
         double error;
+        double P = 1d/1200;
 
         do {
-            currentAngle = dimensionRotation();
-            error = getAngleDist(targetAngle, currentAngle);
-            direction = getAngleDir(targetAngle, currentAngle);
+            currentAngle = getRotationinDimension('Z');
+            error = getAngleDist(currentAngle, targetAngle);
+            direction = getAngleDir(currentAngle, targetAngle);
             turnRate = Range.clip(P * error, minSpeed, maxSpeed);
             telemetry.addData("error", error);
             telemetry.addData("turnRate", turnRate);
@@ -119,9 +119,9 @@ public abstract class CypherMethods extends CypherHardware {
 
         resetEncoders();
 
-        double P = 0.04;
+        double P = 1d / 1200;
         double I = 0;
-        double tolerance = 5;
+        double tolerance = 1d/3;
         double minSpeed = 0.01;
         double maxSpeed = 0.5;
         double negSpeed, posSpeed;
@@ -178,13 +178,13 @@ public abstract class CypherMethods extends CypherHardware {
         double negError, posError;
         double negSum = 0, posSum = 0;
         double angleError;
-        double startAngle = dimensionRotation();
+        double startAngle = getRotationinDimension('Z');
 
         int negTarget = forwardMovement - leftMovement;
         int posTarget = forwardMovement + leftMovement;
 
         do {
-            currentAngle = dimensionRotation();
+            currentAngle = getRotationinDimension('Z');
             angleError = currentAngle - startAngle;
 
             if (Math.abs(angleError) > angleTolerance) {
@@ -218,7 +218,7 @@ public abstract class CypherMethods extends CypherHardware {
         setDriveMotors(0);
     }
 
-    private void setDriveMotors(double leftPower, double rightPower) {
+    void setDriveMotors(double leftPower, double rightPower) {
         for (DcMotor motor : leftMotors) {
             motor.setPower(leftPower);
         }
@@ -244,33 +244,56 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void turnRelative(double target) {
-        turnAbsolute(AngleUnit.normalizeDegrees(dimensionRotation() + target));
+        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + target));
     }
 
     //INITIALIZE STUFF
     void initializeIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.mode = BNO055IMU.SensorMode.IMU;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
         while (opModeIsActive() && !imu.isGyroCalibrated()) ;
         resetOrientation();
+
     }
 
     //METHODS THAT ASSIST WITH AUTONOMOUS IDK
-    private double dimensionRotation() {
-        return AngleUnit.normalizeDegrees(rawDimension() - initialHeading);
+    public double getRotationinDimension(char dimension) {
+
+        switch (Character.toUpperCase(dimension)) {
+            case 'X':
+
+                return AngleUnit.normalizeDegrees(rawDimension('X') - initialPitch);
+            case 'Y':
+
+                return AngleUnit.normalizeDegrees(rawDimension('Y') - initialRoll);
+            case 'Z':
+                return AngleUnit.normalizeDegrees(rawDimension('Z') - initialHeading);
+        }
+
+        return 0;
     }
 
-    private double rawDimension() {
-        return orientation.firstAngle;
+    private double rawDimension(char dimension) {
+        orientationUpdate();
+        switch (dimension) {
+            case 'Z':
+                return orientation.firstAngle;
+            case 'Y':
+                return orientation.thirdAngle;
+            case 'X':
+                return orientation.secondAngle;
+        }
+        return 0;
     }
 
-    private double getAngleDist(double targetAngle, double currentAngle) {
+    double getAngleDist(double targetAngle, double currentAngle) {
         double angleDifference = currentAngle - targetAngle;
 
         if (Math.abs(angleDifference) > 180) {
@@ -282,7 +305,8 @@ public abstract class CypherMethods extends CypherHardware {
         return angleDifference;
     }
 
-    private int getAngleDir(double targetAngle, double currentAngle) {
+
+    int getAngleDir(double targetAngle, double currentAngle) {
         double angleDifference = targetAngle - currentAngle;
         int angleDir = (int) (angleDifference / Math.abs(angleDifference));
 
@@ -313,10 +337,10 @@ public abstract class CypherMethods extends CypherHardware {
 
     int getVSlidePos() {
         int average = 0;
-        for(DcMotor motor : vSlides) {
+        for (DcMotor motor : vSlides) {
             average += motor.getCurrentPosition();
         }
-        return average /2;
+        return average / 2;
     }
 
     int getPos() {
@@ -329,7 +353,7 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
-        for(DcMotor motor : vSlides) {
+        for (DcMotor motor : vSlides) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
@@ -348,7 +372,7 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     //CONVERSION METHODS
-     int convertInchToEncoder(double inches) {
+    int convertInchToEncoder(double inches) {
         return (int) (inches / ticksPerInch);
     }
 
@@ -386,7 +410,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     void controlSlides(double power) {
         for (DcMotor motor : vSlides) {
-            if((getVSlidePos() >=  VSlideMax && power < 0)|| (getVSlidePos() <= VSlideMin && power >0)) {
+            if ((getVSlidePos() >= VSlideMax && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
                 motor.setPower(0);
             } else {
                 motor.setPower(clip(power, 0, .2));
@@ -396,7 +420,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void moveFoundation(double power) {
-        for(CRServo servo : foundationServos) {
+        for (CRServo servo : foundationServos) {
             servo.setPower(power);
         }
     }
@@ -421,11 +445,12 @@ public abstract class CypherMethods extends CypherHardware {
 
     double acutalControl(double controller, double a) {
         //a*b^3+(1-a)*b
-        return (a * (Math.pow(controller, 3))) + ((1 - a) * controller);
+        return (a * (Math.pow(-controller, 3))) + ((1 - a) * -controller);
     }
-     double getArmPos() {
+
+    double getArmPos() {
         return arm.getPosition();
-     }
+    }
 
     double clip(double num, double min, double max) {
         int sign;
@@ -440,41 +465,40 @@ public abstract class CypherMethods extends CypherHardware {
         return num;
     }
 
-        void skystoneFindPls(int factor) {
-            final double tolerance = 200;
-            resetEncoders();
-            if (opModeIsActive()) {
-                while (opModeIsActive()) {
-                    if (tfod != null) {
-                        // getUpdatedRecognitions() will return null if no new information is available since
-                        // the last time that call was made.
-                        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                        if (updatedRecognitions != null) {
-                            telemetry.addData("# Object Detected", updatedRecognitions.size());
-                            // step through the list of recognitions and display boundary info.
-                            for (Recognition recognition : updatedRecognitions) {
-                                if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                                    setDriveMotors(0);
-                                    telemetry.addData("SKYSTONE", true);
-                                    telemetry.addData("left", recognition.getLeft());
-                                    telemetry.addData("right", recognition.getRight());
-                                    if (Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
-                                        moveToCenter(recognition.getLeft(), recognition.getRight());
-                                        telemetry.addData("moving", "to skystone.........");
-                                    } else {
-                                        telemetry.addData("moving", "to the side.........");
-                                    }
+    void skystoneFindPls(int factor) {
+        final double tolerance = 200;
+        resetEncoders();
+        if (opModeIsActive()) {
+            while (opModeIsActive()) {
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+                        // step through the list of recognitions and display boundary info.
+                        for (Recognition recognition : updatedRecognitions) {
+                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                                setDriveMotors(0);
+                                telemetry.addData("SKYSTONE", true);
+                                telemetry.addData("left", recognition.getLeft());
+                                telemetry.addData("right", recognition.getRight());
+                                if (Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
+                                    moveToCenter(recognition.getLeft(), recognition.getRight());
+                                    telemetry.addData("moving", "to skystone.........");
                                 } else {
-                                    telemetry.addData("not skystone", true);
-                                    telemetry.addData("moving", "forward.........");
+                                    telemetry.addData("moving", "to the side.........");
                                 }
+                            } else {
+                                telemetry.addData("not skystone", true);
                             }
-                            telemetry.update();
                         }
+                        telemetry.update();
                     }
                 }
             }
         }
+    }
 
     void moveToCenter(double left, double right) {
         double P = 0.02;
@@ -486,9 +510,6 @@ public abstract class CypherMethods extends CypherHardware {
 
         setDriveMotors(speed);
     }
-
-
-
 
     void initVuforia() {
 
@@ -515,14 +536,11 @@ public abstract class CypherMethods extends CypherHardware {
         initVuforia();
         initTfod();
 
+
         if (tfod != null) {
             tfod.activate();
         }
     }
-
-
-    //AUTO STUFF
-
 
     enum IntakeState {
         IN, OUT, STOP
@@ -535,7 +553,6 @@ public abstract class CypherMethods extends CypherHardware {
     enum ArmState {
         PICK, DROP, REST
     }
-
 
 
 }

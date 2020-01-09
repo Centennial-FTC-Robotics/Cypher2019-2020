@@ -37,7 +37,7 @@ public class mainDrive extends CypherMethods {
             boolean toggleFoundation = gamepad1.y;
 
             telemetry.addData("vslide", getVSlidePos());
-            telemetry.addData("armmmmmmmmmmmmmmmmmmmmmmmmmmmmm", getArmPos());
+            telemetry.addData("arm", getArmPos());
 
             //Servo Intake Control------------------------------------------------------------------
             if (stopIntake) {
