@@ -5,14 +5,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public abstract class CypherAutoMethods extends CypherMethods {
 
     public final Tile currentPos = new Tile(0, 0); //always start here
-    private final Tile redFoundation = new Tile(5, 5.5);
-    private final Tile redBuildSite = new Tile(6, 5.5);
-    private final Tile redQuarry = new Tile(5.5, 2);
-    private final Tile redBridge = new Tile(5.5, 3.5);
-    private final Tile blueFoundation = new Tile(2, 5.5);
-    private final Tile blueBuildSite = new Tile(1, 5.5);
-    private final Tile blueQuarry = new Tile(1.5, 2);
-    private final Tile blueBridge = new Tile(1.5, 3.5);
+    private final Tile redFoundation = new Tile(5, 5,1,3);
+    private final Tile redBuildSite = new Tile(6, 6,2,1);
+    private final Tile redQuarry = new Tile(5, 2,3,2);
+    private final Tile redBridge = new Tile(5, 3,2,3);
+    private final Tile blueFoundation = new Tile(redFoundation.flip());
+    private final Tile blueBuildSite = new Tile(redBuildSite.flip());
+    private final Tile blueQuarry = new Tile(redQuarry.flip());
+    private final Tile blueBridge = new Tile(redBridge.flip());
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
     }
@@ -101,7 +101,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             moveToPos(blueBridge, dir); //or blue bridge
     }
 
-    public void loadingAuto(String side) {
+    protected void loadingAuto(String side) {
         int factor = 1;
         switch (side) {
             case "red":

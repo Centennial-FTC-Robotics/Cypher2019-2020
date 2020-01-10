@@ -496,6 +496,7 @@ public abstract class CypherMethods extends CypherHardware {
                                     telemetry.addData("moving", "to skystone.........");
                                 } else {
                                     telemetry.addData("moving", "to the side.........");
+                                    testAutoMove(0,3*factor);
                                 }
                             } else {
                                 telemetry.addData("not skystone", true);

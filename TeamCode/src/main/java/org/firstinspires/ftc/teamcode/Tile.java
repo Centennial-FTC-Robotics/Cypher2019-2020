@@ -7,21 +7,21 @@ public class Tile {
     Point innerTile;
 
 
-    public Tile(double x1, double y1, int x2, int y2) {
-        //innerTile = new Point(x2, y2);
+    Tile(double x1, double y1, int x2, int y2) {
+        innerTile = new Point(x2, y2);
         setLocation(x1,y1);
-        //setRealPos();
+        setRealPos();
     }
 
-    public Tile(double x, double y) {
+    Tile(double x, double y) {
         setLocation(x,y);
-        //innerTile = new Point(2, 2);
-        //setRealPos();
+        innerTile = new Point(2, 2);
+        setRealPos();
     }
 
 
 
-    public Tile(Tile tile) {
+    Tile(Tile tile) {
         setLocation(tile);
     }
 
@@ -31,6 +31,13 @@ public class Tile {
 
     double getY() {
         return y;
+    }
+
+    int getInX() {
+        return innerTile.x; }
+
+    int getInY() {
+        return innerTile.y;
     }
 
     public void setLocation(double x, double y) {
@@ -60,8 +67,14 @@ public class Tile {
         } else if (innerTile.y < 2) {
             setLocation(x,y - 1/3d);
         }
+    }
 
-
+    Tile flip() {
+        double x;
+        int x2;
+        x = this.x * -1 + 7;
+        x2 = this.innerTile.x * -1 + 4;
+        return new Tile(x, y, x2, this.innerTile.y);
     }
 
 
