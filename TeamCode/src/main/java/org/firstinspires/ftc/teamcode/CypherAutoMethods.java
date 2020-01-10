@@ -56,13 +56,13 @@ public abstract class CypherAutoMethods extends CypherMethods {
             moveToPos(redFoundation, dir); //go to foundation
         else
             moveToPos(blueFoundation, dir);
-        waitMoveFoundation(1);
+        waitMoveFoundation(FoundationState.DRAG);
 
         if (factor == 1)
             moveToPos(redBuildSite, dir);
         else
             moveToPos(blueBuildSite, dir);
-        waitMoveFoundation(-1);
+        waitMoveFoundation(FoundationState.RELEASE);
         moveFoundation(0);
         if (factor == 1)
             moveToPos(redQuarry, dir); //go to red quarry
@@ -101,7 +101,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             moveToPos(blueBridge, dir); //or blue bridge
     }
 
-    protected void loadingAuto(String side) {
+    public void loadingAuto(String side) {
         int factor = 1;
         switch (side) {
             case "red":
@@ -142,13 +142,13 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 } else {
                     moveToPos(blueFoundation, dir);
                 }
-                waitMoveFoundation(1);
+                waitMoveFoundation(FoundationState.DRAG);
                 if (factor == 1) {
                     moveToPos(redBuildSite, dir);
                 } else {
                     moveToPos(blueBuildSite, dir);
                 }
-                waitMoveFoundation(-1);
+                waitMoveFoundation(FoundationState.RELEASE);
                 moveFoundation(0);
             }
 
@@ -183,9 +183,13 @@ public abstract class CypherAutoMethods extends CypherMethods {
         while (time.milliseconds() < 200) ;
     }
 
-    private void waitMoveFoundation(double power) {
+    private void waitMoveFoundation(FoundationState state) {
         ElapsedTime time = new ElapsedTime();
-        moveFoundation(power);
+        if(state.equals(FoundationState.DRAG)) {
+            moveFoundation(0);
+        } else {
+            moveFoundation(0);
+        }
         while (time.milliseconds() < 200) ;
     }
     private double[] getDist(Tile start, Tile end, int dir) {

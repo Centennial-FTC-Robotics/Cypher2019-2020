@@ -56,9 +56,7 @@ public class betterEncoder extends CypherMethods {
 
                 }
                 while (gamepad1.start) {
-                    arm.setPosition(P);
-                    controllerTimer.reset();
-
+                   testAutoMove(2,0);
                 }
             }
             telemetry.addData("P", P);

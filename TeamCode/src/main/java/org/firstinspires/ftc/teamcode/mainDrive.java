@@ -25,8 +25,7 @@ public class mainDrive extends CypherMethods {
         while (opModeIsActive()) {
             telemetry.addData("foundation state", foundationState);
 
-            telemetry.addData("foundation 2", rFoundation.getPower());
-            double leftPower = acutalControl(gamepad1.left_stick_x,0.3) * .7;
+            double leftPower = acutalControl(gamepad1.left_stick_x,0.45 ) * .7;
             double forwardPower = acutalControl(gamepad1.left_stick_y, 0.5) * .7;
             double rotate = acutalControl(gamepad1.right_stick_x, .3);
             boolean toggleIntake = gamepad1.a && !(gamepad1.start || gamepad2.start);
@@ -76,7 +75,7 @@ public class mainDrive extends CypherMethods {
            if(gamepad1.left_trigger > 0) {
                factor = 0.258;
            } else {
-               factor = 1;
+               factor = 0.87535463 ;
            }
 
             telemetry.addData("factor", factor);
@@ -100,7 +99,7 @@ public class mainDrive extends CypherMethods {
                     grabServo(0.6);
                     break;
                 case PICK:
-                    grabServo(0.4934);
+                    grabServo(0.4834);
                     break;
             }
 

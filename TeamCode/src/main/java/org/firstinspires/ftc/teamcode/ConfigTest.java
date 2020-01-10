@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Config Tester", group = "Test")
 public class ConfigTest extends CypherMethods {
@@ -9,10 +10,14 @@ public class ConfigTest extends CypherMethods {
         super.runOpMode();
         resetEncoders();
         waitForStart();
-        arm.setPosition(0.35);
+        ElapsedTime time = new ElapsedTime();
         while(opModeIsActive()) {
-            telemetry.addData("pos", arm.getPosition());
-            telemetry.update();
+            moveFoundation(-1);
+            while(time.seconds() < 3 && opModeIsActive());
+            time.reset();
+            moveFoundation(1);
+            while(time.seconds() < 3 && opModeIsActive());
+            time.reset();
         }
 
     }

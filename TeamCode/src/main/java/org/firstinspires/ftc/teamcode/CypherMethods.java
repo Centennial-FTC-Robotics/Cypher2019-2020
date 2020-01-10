@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -33,7 +34,7 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotor[] rightMotors = new DcMotor[2];
     private final DcMotor[] vSlides = new DcMotor[2];
     private final CRServo[] wheelIntakeServos = new CRServo[2];
-    private final CRServo[] foundationServos = new CRServo[2];
+    private final Servo[] foundationServos = new Servo[2];
 
     private final int VSlideMax = 760;
     private final int VSlideMin = 5;
@@ -99,7 +100,7 @@ public abstract class CypherMethods extends CypherHardware {
         double P = 1d/1200;
 
         do {
-            currentAngle = getRotationinDimension('Z');
+            currentAngle = getRotationDimension('Z');
             error = getAngleDist(currentAngle, targetAngle);
             direction = getAngleDir(currentAngle, targetAngle);
             turnRate = Range.clip(P * error, minSpeed, maxSpeed);
@@ -114,12 +115,22 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void testAutoMove(double forward, double left) {
+        if (forward > left) {
+            actualMove(0, left);
+            actualMove(forward, 0);
+        } else {
+            actualMove(forward, 0);
+            actualMove(0,left);
+        }
+    }
+
+    private void actualMove(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
 
         resetEncoders();
 
-        double P = 1d / 1200;
+        double P = 1d / 1333;
         double I = 0;
         double tolerance = 1d/3;
         double minSpeed = 0.01;
@@ -136,8 +147,8 @@ public abstract class CypherMethods extends CypherHardware {
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
 
-            negError = currentNegPos - negTarget;
-            posError = currentPosPos - posTarget;
+            negError =  negTarget - currentNegPos;
+            posError =  posTarget - currentPosPos;
 
             negSum += negError;
             posSum += posError;
@@ -178,13 +189,13 @@ public abstract class CypherMethods extends CypherHardware {
         double negError, posError;
         double negSum = 0, posSum = 0;
         double angleError;
-        double startAngle = getRotationinDimension('Z');
+        double startAngle = getRotationDimension('Z');
 
         int negTarget = forwardMovement - leftMovement;
         int posTarget = forwardMovement + leftMovement;
 
         do {
-            currentAngle = getRotationinDimension('Z');
+            currentAngle = getRotationDimension('Z');
             angleError = currentAngle - startAngle;
 
             if (Math.abs(angleError) > angleTolerance) {
@@ -244,16 +255,16 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void turnRelative(double target) {
-        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + target));
+        turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension('Z') + target));
     }
 
     //INITIALIZE STUFF
-    void initializeIMU() {
+    private void initializeIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.mode = BNO055IMU.SensorMode.IMU;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
@@ -263,15 +274,11 @@ public abstract class CypherMethods extends CypherHardware {
 
     }
 
-    //METHODS THAT ASSIST WITH AUTONOMOUS IDK
-    public double getRotationinDimension(char dimension) {
-
+    private double getRotationDimension(char dimension) {
         switch (Character.toUpperCase(dimension)) {
             case 'X':
-
                 return AngleUnit.normalizeDegrees(rawDimension('X') - initialPitch);
             case 'Y':
-
                 return AngleUnit.normalizeDegrees(rawDimension('Y') - initialRoll);
             case 'Z':
                 return AngleUnit.normalizeDegrees(rawDimension('Z') - initialHeading);
@@ -419,10 +426,11 @@ public abstract class CypherMethods extends CypherHardware {
 
     }
 
-    void moveFoundation(double power) {
-        for (CRServo servo : foundationServos) {
-            servo.setPower(power);
+    void moveFoundation(double pos) {
+        for(Servo servo : foundationServos) {
+            servo.setPosition(pos);
         }
+
     }
 
 
