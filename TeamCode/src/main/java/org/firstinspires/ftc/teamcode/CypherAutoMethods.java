@@ -2,9 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+
+import java.util.List;
+
 public abstract class CypherAutoMethods extends CypherMethods {
 
-    public final Tile currentPos = new Tile(0, 0); //always start here
+    protected final Tile currentPos = new Tile(0, 0); //always start here
     private final Tile redFoundation = new Tile(5, 5,1,3);
     private final Tile redBuildSite = new Tile(6, 6,2,1);
     private final Tile redQuarry = new Tile(5, 2,3,2);
@@ -39,7 +43,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setDriveMotors(0);
     }
 
-    public void buildingAuto(String side) {
+    protected void buildingAuto(String side) {
         int factor = 1;
         switch (side) {
             case "red":
@@ -205,7 +209,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         int startVerticalAdjust = -start.getX()*Math.sin(directionNew) + start.getY()*Math.cos(directionNew);
         int finalHorizontalAdjust = end.getX()*Math.cos(directionNew) + end.getY()*Math.sin(directionNew);
         int finalVerticalAdjust = -end.getX()*Math.sin(directionNew) + end.getY()*Math.cos(directionNew);
-        foward = finalVerticalAdjust - startVerticalAdjust;
+        forward = finalVerticalAdjust - startVerticalAdjust;
         left = finalHorizontalAdjust - startHorizontalAdjust;
         return new double[]{tilesToInch(forward), tilesToInch(left)};
          */
@@ -229,6 +233,54 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
+
+    private void skystoneFindPls(int factor) {
+        final double tolerance = 200;
+        resetEncoders();
+        if (opModeIsActive()) {
+            while (opModeIsActive()) {
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+                        // step through the list of recognitions and display boundary info.
+                        for (Recognition recognition : updatedRecognitions) {
+                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                                setDriveMotors(0);
+                                telemetry.addData("SKYSTONE", true);
+                                telemetry.addData("left", recognition.getLeft());
+                                telemetry.addData("right", recognition.getRight());
+                                if (Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
+                                    moveToCenter(recognition.getLeft(), recognition.getRight());
+                                    telemetry.addData("moving", "to skystone.........");
+                                } else {
+                                    telemetry.addData("moving", "to the side.........");
+                                    testAutoMove(0,3*factor);
+                                }
+                            } else {
+                                telemetry.addData("not skystone", true);
+                            }
+                        }
+                        telemetry.update();
+                    }
+                }
+            }
+        }
+    }
+
+    private void moveToCenter(double left, double right) {
+        double P = 0.02;
+        double error = left - right;
+        double speed;
+        double minSpeed = 0.01;
+        double maxSpeed = 0.03;
+        speed = clip(P * error, minSpeed, maxSpeed);
+
+        setDriveMotors(speed);
+    }
+
 
 
 }

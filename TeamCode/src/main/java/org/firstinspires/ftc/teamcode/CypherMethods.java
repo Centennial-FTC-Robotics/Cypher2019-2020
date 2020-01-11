@@ -14,10 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-
-import java.util.List;
 
 public abstract class CypherMethods extends CypherHardware {
 
@@ -27,9 +24,9 @@ public abstract class CypherMethods extends CypherHardware {
     private final double distanceInWheelRotation = wheelDiameter * Math.PI;
     private final double ticksPerInch = distanceInWheelRotation / ticksPerWheelRotation;
 
-    final DcMotor[] driveMotors = new DcMotor[4];
-    final DcMotor[] strafeNeg = new DcMotor[2];
-    final DcMotor[] strafePos = new DcMotor[2];
+    private final DcMotor[] driveMotors = new DcMotor[4];
+    private final DcMotor[] strafeNeg = new DcMotor[2];
+    private final DcMotor[] strafePos = new DcMotor[2];
     private final DcMotor[] leftMotors = new DcMotor[2];
     private final DcMotor[] rightMotors = new DcMotor[2];
     private final DcMotor[] vSlides = new DcMotor[2];
@@ -40,7 +37,7 @@ public abstract class CypherMethods extends CypherHardware {
     private final int VSlideMin = 5;
 
 
-    public int dir;
+    protected int dir;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -73,6 +70,7 @@ public abstract class CypherMethods extends CypherHardware {
         resetEncoders();
     }
 
+    //MOVEMENT
     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
         double magnitude = Math.cbrt(forwardPower * forwardPower + leftPower * leftPower + rotate * rotate);
         if (magnitude > 1) {
@@ -88,7 +86,6 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    //MOVEMENT
     private void turnAbsolute(double targetAngle) {
         double currentAngle;
         int direction;
@@ -113,6 +110,11 @@ public abstract class CypherMethods extends CypherHardware {
         while (opModeIsActive() && error > tolerance);
         setDriveMotors(0);
     }
+
+    void turnRelative(double target) {
+        turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension('Z') + target));
+    }
+
 
     void testAutoMove(double forward, double left) {
         if (forward > left) {
@@ -229,7 +231,8 @@ public abstract class CypherMethods extends CypherHardware {
         setDriveMotors(0);
     }
 
-    void setDriveMotors(double leftPower, double rightPower) {
+    //MOTOR CONTROL
+    private void setDriveMotors(double leftPower, double rightPower) {
         for (DcMotor motor : leftMotors) {
             motor.setPower(leftPower);
         }
@@ -254,9 +257,19 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    void turnRelative(double target) {
-        turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension('Z') + target));
+    void resetEncoders() {
+        for (DcMotor motor : driveMotors) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        for (DcMotor motor : vSlides) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
+
+
 
     //INITIALIZE STUFF
     private void initializeIMU() {
@@ -271,9 +284,50 @@ public abstract class CypherMethods extends CypherHardware {
         imu.initialize(parameters);
         while (opModeIsActive() && !imu.isGyroCalibrated()) ;
         resetOrientation();
+    }
+
+    private void initVuforia() {
+
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = CameraDirection.BACK;
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
     }
 
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minimumConfidence = 0.8;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+    }
+
+    protected void initEverything() {
+        initializeIMU();
+        initVuforia();
+        initTfod();
+
+        if (tfod != null) {
+            tfod.activate();
+        }
+    }
+
+    private void orientationUpdate() {
+        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    }
+
+    private void resetOrientation() {
+        orientationUpdate();
+        initialHeading = orientation.firstAngle;
+        initialRoll = orientation.secondAngle;
+        initialPitch = orientation.thirdAngle;
+    }
+
+    //GETTING STUFF LIKE MOTOR POSITION, ORIENTATION, AND STUFF LIKE THAT IDK
     private double getRotationDimension(char dimension) {
         switch (Character.toUpperCase(dimension)) {
             case 'X':
@@ -300,7 +354,7 @@ public abstract class CypherMethods extends CypherHardware {
         return 0;
     }
 
-    double getAngleDist(double targetAngle, double currentAngle) {
+    private double getAngleDist(double targetAngle, double currentAngle) {
         double angleDifference = currentAngle - targetAngle;
 
         if (Math.abs(angleDifference) > 180) {
@@ -313,7 +367,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
-    int getAngleDir(double targetAngle, double currentAngle) {
+    private int getAngleDir(double targetAngle, double currentAngle) {
         double angleDifference = targetAngle - currentAngle;
         int angleDir = (int) (angleDifference / Math.abs(angleDifference));
 
@@ -333,13 +387,11 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     int getPosPos() {
-        /*int average = 0;
+        int average = 0;
         for (DcMotor motor : strafePos) {
             average += motor.getCurrentPosition();
         }
         return average / 2;
-          */
-        return rightUp.getCurrentPosition();
     }
 
     int getVSlidePos() {
@@ -354,29 +406,9 @@ public abstract class CypherMethods extends CypherHardware {
         return (getNegPos() + getPosPos()) / 2;
     }
 
-    void resetEncoders() {
-        for (DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-        for (DcMotor motor : vSlides) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+    double getArmPos() {
+        return arm.getPosition();
     }
-
-    private void orientationUpdate() {
-        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-    }
-
-    private void resetOrientation() {
-        orientationUpdate();
-        initialHeading = orientation.firstAngle;
-        initialRoll = orientation.secondAngle;
-        initialPitch = orientation.thirdAngle;
-    }
-
 
     //CONVERSION METHODS
     int convertInchToEncoder(double inches) {
@@ -405,16 +437,24 @@ public abstract class CypherMethods extends CypherHardware {
         HSlide.setPower(power);
     }
     //BIll was here
+    //ok bill
 
     void grabServo(double pos) {
         arm.setPosition(pos);
     }
 
+    //ARM & SLIDES
     void swivelServo(double power) {
-
         swivel.setPower(power);
     }
 
+    private void moveSlide(int pos) {
+        for(DcMotor motor : vSlides) {
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setTargetPosition(pos);
+            motor.setPower(.3);
+        }
+    }
     void controlSlides(double power) {
         for (DcMotor motor : vSlides) {
             if ((getVSlidePos() >= VSlideMax && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
@@ -423,16 +463,27 @@ public abstract class CypherMethods extends CypherHardware {
                 motor.setPower(clip(power, 0, .15));
             }
         }
-
     }
 
+    void moveSlides(int factor) {
+        final int moveBy = 150*factor;
+        int a = getVSlidePos() + moveBy;
+        if(a >= VSlideMax) {
+            moveSlide(VSlideMax);
+        } else if(a <= VSlideMin) {
+            moveSlide(VSlideMin);
+        } else {
+            moveSlide(moveBy);
+        }
+
+    }
+    //FOUNDATION THINGY
     void moveFoundation(double pos) {
         for(Servo servo : foundationServos) {
             servo.setPosition(pos);
         }
 
     }
-
 
     void controlFoundation(FoundationState state) {
         ElapsedTime time = new ElapsedTime();
@@ -451,14 +502,12 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    double acutalControl(double controller, double a) {
+    //mathy math math stuff idk
+    double actualControl(double controller, double a) {
         //a*b^3+(1-a)*b
         return (a * (Math.pow(-controller, 3))) + ((1 - a) * -controller);
     }
 
-    double getArmPos() {
-        return arm.getPosition();
-    }
 
     double clip(double num, double min, double max) {
         int sign;
@@ -473,84 +522,10 @@ public abstract class CypherMethods extends CypherHardware {
         return num;
     }
 
-    void skystoneFindPls(int factor) {
-        final double tolerance = 200;
-        resetEncoders();
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        // step through the list of recognitions and display boundary info.
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                                setDriveMotors(0);
-                                telemetry.addData("SKYSTONE", true);
-                                telemetry.addData("left", recognition.getLeft());
-                                telemetry.addData("right", recognition.getRight());
-                                if (Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
-                                    moveToCenter(recognition.getLeft(), recognition.getRight());
-                                    telemetry.addData("moving", "to skystone.........");
-                                } else {
-                                    telemetry.addData("moving", "to the side.........");
-                                    testAutoMove(0,3*factor);
-                                }
-                            } else {
-                                telemetry.addData("not skystone", true);
-                            }
-                        }
-                        telemetry.update();
-                    }
-                }
-            }
-        }
+    boolean notInitController() {
+        return !(gamepad1.start || gamepad2.start);
     }
-
-    void moveToCenter(double left, double right) {
-        double P = 0.02;
-        double error = left - right;
-        double speed;
-        double minSpeed = 0.01;
-        double maxSpeed = 0.03;
-        speed = clip(P * error, minSpeed, maxSpeed);
-
-        setDriveMotors(speed);
-    }
-
-    void initVuforia() {
-
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
-
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-    }
-
-    void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minimumConfidence = 0.8;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-    }
-
-    public void initEverything() {
-        initializeIMU();
-        initVuforia();
-        initTfod();
-
-
-        if (tfod != null) {
-            tfod.activate();
-        }
-    }
-
+    //enum stuff
     enum IntakeState {
         IN, OUT, STOP
     }

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
@@ -18,48 +17,58 @@ public class mainDrive extends CypherMethods {
 
         resetEncoders();
 
-        double factor = 1;
+        double factor;
         IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
         while (opModeIsActive()) {
             telemetry.addData("foundation state", foundationState);
+            //controller 1 stuff
+            boolean toggleIntake = gamepad1.a && notInitController();
+            boolean stopIntake = gamepad1.b && notInitController();
+            boolean toggleFoundation = gamepad1.y;
+            double leftPower = actualControl(gamepad1.left_stick_x,0.45 ) * .7;
+            double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .7;
+            double rotate = actualControl(gamepad1.right_stick_x, .3);
 
-            double leftPower = acutalControl(gamepad1.left_stick_x,0.45 ) * .7;
-            double forwardPower = acutalControl(gamepad1.left_stick_y, 0.5) * .7;
-            double rotate = acutalControl(gamepad1.right_stick_x, .3);
-            boolean toggleIntake = gamepad1.a && !(gamepad1.start || gamepad2.start);
-            boolean stopIntake = gamepad1.b && !(gamepad1.start || gamepad2.start);
+
+            //controller 2 stuff
+            boolean arm = gamepad2.b && notInitController();
+            boolean slideDown = gamepad2.b && notInitController();
+            boolean slideUp = gamepad2.y;
             double vSlide = gamepad2.left_stick_y;
             double hSlide = gamepad2.right_stick_x;
-            boolean arm = gamepad2.a && !(gamepad1.start || gamepad2.start);
             double swivelRight = gamepad2.right_trigger;
             double swivelLeft = -gamepad2.left_trigger;
-            boolean toggleFoundation = gamepad1.y;
 
-            telemetry.addData("vslide", getVSlidePos());
-            telemetry.addData("arm", getArmPos());
 
-            //Servo Intake Control------------------------------------------------------------------
-            if (stopIntake) {
-                inState = IntakeState.STOP;
-            } else if (toggleIntake && controller1Timer.milliseconds() >=  miliTillReady) {
-                controller1Timer.reset();
-                if (inState.equals(IntakeState.OUT)) {
-                    inState = IntakeState.IN;
-                } else {
-                    inState = IntakeState.OUT;
+            //timer thingy
+            if(controller1Timer.milliseconds() >= miliTillReady) {
+                if (toggleIntake) {
+                    controller1Timer.reset();
+                    if (inState.equals(IntakeState.OUT)) {
+                        inState = IntakeState.IN;
+                    } else {
+                        inState = IntakeState.OUT;
+                    }
+                }
+                if (stopIntake) {
+                    controller1Timer.reset();
+                    inState = IntakeState.STOP;
+                }
+                if(toggleFoundation) {
+                    controller1Timer.reset();
+                    if(foundationState.equals(FoundationState.RELEASE)) {
+                        foundationState = FoundationState.DRAG;
+                        controlFoundation(foundationState);
+                    } else{
+                        foundationState = FoundationState.RELEASE;
+                        controlFoundation(foundationState);
+                    }
                 }
             }
-
+            //Servo Intake Control------------------------------------------------------------------
             telemetry.addData("state",inState);
-            if(controller1Timer.milliseconds() > miliTillReady) {
-                telemetry.addData("ready", true);
-            } else {
-                telemetry.addData("not ready", false);
-            }
-
-
             switch (inState) {
                 case IN:
                     controlIntakeServos(1);
@@ -82,18 +91,19 @@ public class mainDrive extends CypherMethods {
             //Driving-------------------------------------------------------------------------------
             manDriveMotors(forwardPower, leftPower, rotate, factor);
 
-            //Arm Control---------------------------------------------------------------------------
-
-            if (arm && controller2Timer.milliseconds() >=  miliTillReady) {
-                controller2Timer.reset();
-                if (armState.equals(ArmState.PICK)) {
-                    armState = ArmState.DROP;
-                } else {
-                    armState = ArmState.PICK;
+            //timer thingy
+            if(controller2Timer.milliseconds() >= miliTillReady) {
+                if (arm) {
+                    controller2Timer.reset();
+                    if (armState.equals(ArmState.PICK)) {
+                        armState = ArmState.DROP;
+                    } else {
+                        armState = ArmState.PICK;
+                    }
                 }
             }
 
-
+            //Arm Control---------------------------------------------------------------------------
             switch (armState) {
                 case DROP:
                     grabServo(0.6);
@@ -102,20 +112,15 @@ public class mainDrive extends CypherMethods {
                     grabServo(0.4834);
                     break;
             }
-
+            if(slideDown) {
+                moveSlides(-1);
+            } else if (slideUp) {
+                moveSlides(1);
+            }
             controlArm(hSlide);
             controlSlides(vSlide);
             swivelServo(swivelLeft + swivelRight);
 
-            if(toggleFoundation && controller2Timer.milliseconds() >= miliTillReady) {
-                if(foundationState.equals(FoundationState.RELEASE)) {
-                    foundationState = FoundationState.DRAG;
-                    controlFoundation(foundationState);
-                } else{
-                    foundationState = FoundationState.RELEASE;
-                    controlFoundation(foundationState);
-                }
-            }
             telemetry.update();
         }
     }
