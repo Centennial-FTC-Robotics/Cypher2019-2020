@@ -15,8 +15,6 @@ public class mainDrive extends CypherMethods {
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
-        resetEncoders();
-
         double factor;
         double slideFactor = 1;
         IntakeState inState = IntakeState.STOP;
@@ -126,8 +124,6 @@ public class mainDrive extends CypherMethods {
             }
 
             //Arm Control---------------------------------------------------------------------------
-
-
             controlArm(hSlide);
             controlSlides(vSlide * slideFactor);
             swivelServo(swivelLeft + swivelRight);
