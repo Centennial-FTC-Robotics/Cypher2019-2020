@@ -9,28 +9,29 @@ import java.util.List;
 public abstract class CypherAutoMethods extends CypherMethods {
 
     protected final Tile currentPos = new Tile(0, 0); //always start here
-    private final Tile redFoundation = new Tile(5, 5,1,3);
-    private final Tile redBuildSite = new Tile(6, 6,2,1);
-    private final Tile redQuarry = new Tile(5, 2,3,2);
-    private final Tile redBridge = new Tile(5, 3,2,3);
+    private final Tile redFoundation = new Tile(5, 5, 1, 3);
+    private final Tile redBuildSite = new Tile(6, 6, 2, 1);
+    private final Tile redQuarry = new Tile(5, 2, 3, 2);
+    private final Tile redBridge = new Tile(5, 3, 2, 3);
     private final Tile blueFoundation = new Tile(redFoundation.flip());
     private final Tile blueBuildSite = new Tile(redBuildSite.flip());
     private final Tile blueQuarry = new Tile(redQuarry.flip());
     private final Tile blueBridge = new Tile(redBridge.flip());
+
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
     }
 
-    void emergencyMove(String side, String color) {
+    void emergencyMove(String side, String color) throws StopException {
         //no encoders, loading zone, building zone, red, blue
         ElapsedTime timer = new ElapsedTime();
         double factor;
 
         if (side.equals("loading")) {
-            if(color.equals("red")) factor = 1;
+            if (color.equals("red")) factor = 1;
             else factor = -1;
-        }  else {
-            if(color.equals("red")) factor = -1;
+        } else {
+            if (color.equals("red")) factor = -1;
             else factor = 1;
 
         }
@@ -38,7 +39,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
         telemetry.update();
         timer.reset();
         do {
-            setStrafeMotors(-0.4*factor, 0.4*factor);
+            if (shouldStop()) {
+                throw new StopException("stap");
+            }
+            setStrafeMotors(-0.4 * factor, 0.4 * factor);
         } while (timer.seconds() < 2);
         setDriveMotors(0);
     }
@@ -53,56 +57,60 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 factor = -1;
         }
         Tile oldPos;
-        moveToPos(currentPos.getX() - .5 * factor, currentPos.getY(), dir); //move forward a small bit
-        turnRelative(180); //turn around so we can pick up foundation
-        dir = 90 * factor;
-        if (factor == 1)
-            moveToPos(redFoundation, dir); //go to foundation
-        else
-            moveToPos(blueFoundation, dir);
-        waitMoveFoundation(FoundationState.DRAG);
+        try {
+            moveToPos(currentPos.getX() - .5 * factor, currentPos.getY(), dir); //move forward a small bit
+            turnRelative(180); //turn around so we can pick up foundation
+            dir = 90 * factor;
+            if (factor == 1)
+                moveToPos(redFoundation, dir); //go to foundation
+            else
+                moveToPos(blueFoundation, dir);
+            waitMoveFoundation(FoundationState.DRAG);
 
-        if (factor == 1)
-            moveToPos(redBuildSite, dir);
-        else
-            moveToPos(blueBuildSite, dir);
-        waitMoveFoundation(FoundationState.RELEASE);
-        moveFoundation(0);
-        if (factor == 1)
-            moveToPos(redQuarry, dir); //go to red quarry
-        else
-            moveToPos(blueQuarry, dir);
-        turnRelative(-90 * factor);
-        dir = 180;
-
-        for (int i = 0; i < 2; i++) { //repeat twice for 2 skystones
-
-            skystoneFindPls(factor); //center with skystone
-            currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
-            oldPos = new Tile(currentPos);
-            moveToPos(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
-
-            //pick up skystone and move into it
-            controlIntakeServos(1);
-            testAutoMove(2, 0);
-            currentPos.add(0, convertInchToTile(-2));
-
-            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
-            moveToPos(currentPos.getX(), currentPos.getY() + 2, dir); //move to other side
-
-            turnRelative(-90 * factor); //turn to release skystone and not have it in the way
-            dir = -90 * factor;
-            waitControlIntake(-1); //release skystone
-            controlIntakeServos(0);
-            turnRelative(90 * factor); //turn back
+            if (factor == 1)
+                moveToPos(redBuildSite, dir);
+            else
+                moveToPos(blueBuildSite, dir);
+            waitMoveFoundation(FoundationState.RELEASE);
+            moveFoundation(0);
+            if (factor == 1)
+                moveToPos(redQuarry, dir); //go to red quarry
+            else
+                moveToPos(blueQuarry, dir);
+            turnRelative(-90 * factor);
             dir = 180;
-            if (i == 0) //if that was the first skystone move back to where we got the first one to look for second ome
-                moveToPos(oldPos, dir);
+
+            for (int i = 0; i < 2; i++) { //repeat twice for 2 skystones
+
+                skystoneFindPls(factor); //center with skystone
+                currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
+                oldPos = new Tile(currentPos);
+                moveToPos(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
+
+                //pick up skystone and move into it
+                controlIntakeServos(1);
+                testAutoMove(2, 0);
+                currentPos.add(0, convertInchToTile(-2));
+
+                moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+                moveToPos(currentPos.getX(), currentPos.getY() + 2, dir); //move to other side
+
+                turnRelative(-90 * factor); //turn to release skystone and not have it in the way
+                dir = -90 * factor;
+                waitControlIntake(-1); //release skystone
+                controlIntakeServos(0);
+                turnRelative(90 * factor); //turn back
+                dir = 180;
+                if (i == 0) //if that was the first skystone move back to where we got the first one to look for second ome
+                    moveToPos(oldPos, dir);
+            }
+            if (factor == 1)
+                moveToPos(redBridge, dir); //go to red bridge
+            else
+                moveToPos(blueBridge, dir); //or blue bridge
+        } catch (StopException e) {
+            stopEverything();
         }
-        if (factor == 1)
-            moveToPos(redBridge, dir); //go to red bridge
-        else
-            moveToPos(blueBridge, dir); //or blue bridge
     }
 
     protected void loadingAuto(String side) {
@@ -115,91 +123,106 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 factor = -1;
                 break;
         }
-
-        testAutoMove(12, 0);
-        currentPos.add(convertInchToTile(6) * factor, 0);
-        turnRelative(-90 * factor);
-        dir = 180;
-        for (int i = 0; i < 2; i++) {
-            resetEncoders();
-            skystoneFindPls(factor);
-            currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
-            Tile oldPos = new Tile(currentPos);
-            resetEncoders();
-            testAutoMove(-6,0);
-            testAutoMove(0,6);
-            currentPos.add(convertInchToTile(6) * factor, convertInchToTile(6) * factor);
-            waitControlIntake(1);
-            testAutoMove(2, 0);
-            currentPos.add(convertInchToTile(2), 0);
-
-
-            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
-            moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
-
-            turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
-            dir = -90 * factor; //change dir
-            waitControlIntake(-1); //spit it out
-
-            turnRelative(180);
-            dir *= -1;
-            if (i == 0) { //if its the first skystone move foundation
-                if (factor == 1) {
-                    moveToPos(redFoundation, dir);
-
-                } else {
-                    moveToPos(blueFoundation, dir);
-                }
-                waitMoveFoundation(FoundationState.DRAG);
-                if (factor == 1) {
-                    moveToPos(redBuildSite, dir);
-                } else {
-                    moveToPos(blueBuildSite, dir);
-                }
-                waitMoveFoundation(FoundationState.RELEASE);
-                moveFoundation(0);
-            }
-
-            if (i == 0) {
-                moveToPos(oldPos, dir);
-            }
-
-            turnRelative(90 * factor);
+        try {
+            testAutoMove(12, 0);
+            currentPos.add(convertInchToTile(6) * factor, 0);
+            turnRelative(-90 * factor);
             dir = 180;
-        }
-        if (factor == 1) {
-            moveToPos(redBridge, dir);
-        } else {
-            moveToPos(blueBridge, dir);
+            for (int i = 0; i < 2; i++) {
+                resetEncoders();
+                skystoneFindPls(factor);
+                currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
+                Tile oldPos = new Tile(currentPos);
+                resetEncoders();
+                testAutoMove(-6, 0);
+                testAutoMove(0, 12*factor);
+                currentPos.add(convertInchToTile(-6) * factor, convertInchToTile(-6));
+                waitControlIntake(1);
+                testAutoMove(3, 0);
+                currentPos.add(convertInchToTile(3), 0);
+
+
+                moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+                moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
+
+                turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
+                dir = -90 * factor; //change dir
+                waitControlIntake(-1); //spit it out
+
+                turnRelative(180);
+                dir *= -1;
+                if (i == 0) { //if its the first skystone move foundation
+                    if (factor == 1) {
+                        moveToPos(redFoundation, dir);
+
+                    } else {
+                        moveToPos(blueFoundation, dir);
+                    }
+                    waitMoveFoundation(FoundationState.DRAG);
+                    if (factor == 1) {
+                        moveToPos(redBuildSite, dir);
+                    } else {
+                        moveToPos(blueBuildSite, dir);
+                    }
+                    waitMoveFoundation(FoundationState.RELEASE);
+                }
+                if(factor == 1)
+                    moveToPos(new Tile(6,5 - convertInchToTile(1d/3),2,1), dir);
+                else
+                    moveToPos(new Tile(1,5 + convertInchToTile(1d/3),2,1), dir);
+
+                if (i == 0) {
+                    moveToPos(currentPos.getX(), oldPos.getY(), dir);
+                }
+
+                turnRelative(90 * factor);
+                dir = 180;
+            }
+            if (factor == 1) {
+                moveToPos(currentPos.getX(), redBridge.getY(), dir);
+            } else {
+                moveToPos(currentPos.getX(), blueBridge.getY(), dir);
+            }
+        } catch (StopException e) {
+            stopEverything();
         }
 
     }
 
-    private void moveToPos(double x2, double y2, int dir) {
+    private void moveToPos(double x2, double y2, int dir) throws StopException {
         moveToPos(new Tile(x2, y2), dir);
     }
 
-    private void moveToPos(Tile end, int dir) {
+    private void moveToPos(Tile end, int dir) throws StopException {
         double[] move = getDist(currentPos, end, dir);
         testAutoMove(move[0], move[1]);
         currentPos.setLocation(end);
     }
 
-    private void waitControlIntake(double power) {
+    private void waitControlIntake(double power) throws StopException {
         ElapsedTime time = new ElapsedTime();
         controlIntakeServos(power);
-        while (time.milliseconds() < 200) ;
+        while(time.milliseconds() < 500) {
+            if(shouldStop()) {
+                throw new StopException("stap");
+            }
+        }
     }
 
-    private void waitMoveFoundation(FoundationState state) {
+    private void waitMoveFoundation(FoundationState state) throws StopException {
         ElapsedTime time = new ElapsedTime();
-        if(state.equals(FoundationState.DRAG)) {
-            moveFoundation(0);
+        if (state.equals(FoundationState.DRAG)) {
+            moveFoundation(0.1);
         } else {
-            moveFoundation(0);
+            moveFoundation(1);
         }
-        while (time.milliseconds() < 200) ;
+        while (time.milliseconds() < 200) {
+            if (shouldStop()) {
+                throw new StopException("stap");
+            }
+        }
     }
+
     private double[] getDist(Tile start, Tile end, int dir) {
         double forward, left;
         /* Note: Code to apply for any given angle. Not sure if it works, so it's commented. Let's tests.
@@ -238,10 +261,16 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 
-    void skystoneFindPls(int factor) {
+    private void skystoneFindPls(int factor) throws StopException {
+        ElapsedTime timer = new ElapsedTime();
         final double tolerance = 200;
+        boolean isSkystone = false;
         if (opModeIsActive()) {
-            while (opModeIsActive()) {
+            int max, counter = 0;
+            do {
+                if (shouldStop()) {
+                    throw new StopException("stap");
+                }
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
@@ -249,9 +278,13 @@ public abstract class CypherAutoMethods extends CypherMethods {
                     if (updatedRecognitions != null) {
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
                         // step through the list of recognitions and display boundary info.
+                        max = updatedRecognitions.size();
                         for (Recognition recognition : updatedRecognitions) {
+                            counter++;
+                            if (shouldStop()) {
+                                throw new StopException("stap");
+                            }
                             if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                                setDriveMotors(0);
                                 telemetry.addData("SKYSTONE", true);
                                 telemetry.addData("left", recognition.getLeft());
                                 telemetry.addData("right", recognition.getRight());
@@ -260,19 +293,22 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     telemetry.addData("moving", "to skystone.........");
                                 } else {
                                     telemetry.addData("moving", "to the side.........");
-                                    testAutoMove(0,3*factor);
+                                    isSkystone = true;
+                                    break;
                                 }
-                            } else {
+                            } else if (counter == max) {
                                 telemetry.addData("not skystone", true);
-                                testAutoMove(6,0);
+                                testAutoMove(6, 0);
+                                break;
                             }
+                            telemetry.update();
                         }
-                        telemetry.update();
                     }
                 }
-            }
+            }while (!isSkystone && timer.seconds() < 10);
         }
     }
+
 
     private void moveToCenter(double left, double right) {
         double P = 0.02;
@@ -284,7 +320,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
         setDriveMotors(speed);
     }
-
 
 
 }

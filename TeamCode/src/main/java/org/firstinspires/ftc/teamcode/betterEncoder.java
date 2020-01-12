@@ -14,11 +14,19 @@ public class betterEncoder extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         resetEncoders();
-        initEverything();
+        try {
+            initEverything();
+        } catch (StopException e) {
+            stopEverything();
+        }
         waitForStart();
-        skystoneFindPls(-1);
+        try {
+            skystoneFindPls(-1);
+        } catch (StopException e) {
+            stopEverything();
+        }
     }
-    void skystoneFindPls(int factor) {
+    void skystoneFindPls(int factor) throws StopException {
         final double tolerance = 200;
         if (opModeIsActive()) {
             while (opModeIsActive()) {
