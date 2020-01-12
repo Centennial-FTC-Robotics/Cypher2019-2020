@@ -90,8 +90,8 @@ public abstract class CypherMethods extends CypherHardware {
         double currentAngle;
         int direction;
         double turnRate;
-        double minSpeed = 0.03;
-        double maxSpeed = 0.6;
+        double minSpeed = 0.09;
+        double maxSpeed = 0.7;
         double tolerance = 7;
         double error;
         double P = 1d/1200;
@@ -139,7 +139,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         double P = 1d / 1333;
         double I = 0;
-        double tolerance = 3;
+        double tolerance = convertInchToEncoder(1d/3);
         double minSpeed = 0.01;
         double maxSpeed = 0.5;
         double negSpeed, posSpeed;
@@ -308,7 +308,7 @@ public abstract class CypherMethods extends CypherHardware {
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
-        while (opModeIsActive() && !imu.isGyroCalibrated()) {
+        while (!imu.isGyroCalibrated()) {
             if(shouldStop()) {
                 throw new StopException("stap");
             }
@@ -521,7 +521,7 @@ public abstract class CypherMethods extends CypherHardware {
         if (state.equals(FoundationState.RELEASE))
             moveFoundation(1);
         else
-          moveFoundation(0.1);
+          moveFoundation(0.05);
 
     }
 

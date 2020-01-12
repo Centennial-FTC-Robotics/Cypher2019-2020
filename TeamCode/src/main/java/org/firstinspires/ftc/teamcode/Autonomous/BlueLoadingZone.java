@@ -15,10 +15,9 @@ public class BlueLoadingZone extends CypherAutoMethods {
         } catch (StopException e) {
             stopEverything();
         }
-
         waitForStart();
 
         currentPos.setLocation(1, 2);
-        loadingAuto("blue");
+        loadingAuto("blue",2);
     }
 }

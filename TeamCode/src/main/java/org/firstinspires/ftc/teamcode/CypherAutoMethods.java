@@ -347,8 +347,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
             controlFoundation(FoundationState.DRAG);
             ElapsedTime timer = new ElapsedTime();
             while(timer.seconds() < 1);
-            testAutoMove(24,0);
-            turnRelative(90);
+            testAutoMove(26,0);
+            //turnRelative(90);
         } catch (StopException e) {
             stopEverything();
         }

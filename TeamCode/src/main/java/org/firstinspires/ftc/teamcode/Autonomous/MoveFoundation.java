@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
 
-@Autonomous(name = "Red Team Loading Zone", group = "Auto")
-public class RedLoadingZone extends CypherAutoMethods {
-
+@Autonomous(name="get foundation and get out", group = "auto")
+public class MoveFoundation extends CypherAutoMethods {
+    @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         try {
@@ -15,11 +15,9 @@ public class RedLoadingZone extends CypherAutoMethods {
         } catch (StopException e) {
             stopEverything();
         }
-
         waitForStart();
+        getFoundation();
 
-        currentPos.setLocation(6, 2);
-        dir = -90;
-        loadingAuto("red", 2);
+
     }
 }
