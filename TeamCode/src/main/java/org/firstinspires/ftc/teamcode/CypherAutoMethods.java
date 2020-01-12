@@ -116,19 +116,23 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 break;
         }
 
-        testAutoMove(2, 0);
-        currentPos.add(convertInchToTile(2) * factor, 0);
+        testAutoMove(12, 0);
+        currentPos.add(convertInchToTile(6) * factor, 0);
         turnRelative(-90 * factor);
         dir = 180;
         for (int i = 0; i < 2; i++) {
+            resetEncoders();
             skystoneFindPls(factor);
             currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
             Tile oldPos = new Tile(currentPos);
-            moveToPos(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
-
+            resetEncoders();
+            testAutoMove(-6,0);
+            testAutoMove(0,6);
+            currentPos.add(convertInchToTile(6) * factor, convertInchToTile(6) * factor);
             waitControlIntake(1);
             testAutoMove(2, 0);
             currentPos.add(convertInchToTile(2), 0);
+
 
             moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
             moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
@@ -234,9 +238,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 
-    private void skystoneFindPls(int factor) {
+    void skystoneFindPls(int factor) {
         final double tolerance = 200;
-        resetEncoders();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 if (tfod != null) {
@@ -261,6 +264,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                 }
                             } else {
                                 telemetry.addData("not skystone", true);
+                                testAutoMove(6,0);
                             }
                         }
                         telemetry.update();

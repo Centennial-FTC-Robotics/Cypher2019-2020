@@ -18,6 +18,7 @@ public class mainDrive extends CypherMethods {
         resetEncoders();
 
         double factor;
+        double slideFactor = 1;
         IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
@@ -27,7 +28,7 @@ public class mainDrive extends CypherMethods {
             boolean toggleIntake = gamepad1.a && notInitController();
             boolean stopIntake = gamepad1.b && notInitController();
             boolean toggleFoundation = gamepad1.y;
-            double leftPower = actualControl(gamepad1.left_stick_x,0.45 ) * .7;
+            double leftPower = actualControl(gamepad1.left_stick_x,0.45 ) * .5;
             double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .7;
             double rotate = actualControl(gamepad1.right_stick_x, .3);
 
@@ -36,6 +37,7 @@ public class mainDrive extends CypherMethods {
             boolean arm = gamepad2.b && notInitController();
             boolean slideDown = gamepad2.b && notInitController();
             boolean slideUp = gamepad2.y;
+            boolean slow = gamepad2.left_bumper;
             double vSlide = gamepad2.left_stick_y;
             double hSlide = gamepad2.right_stick_x;
             double swivelRight = gamepad2.right_trigger;
@@ -46,10 +48,10 @@ public class mainDrive extends CypherMethods {
             if(controller1Timer.milliseconds() >= miliTillReady) {
                 if (toggleIntake) {
                     controller1Timer.reset();
-                    if (inState.equals(IntakeState.OUT)) {
-                        inState = IntakeState.IN;
-                    } else {
+                    if (inState.equals(IntakeState.IN)) {
                         inState = IntakeState.OUT;
+                    } else {
+                        inState = IntakeState.IN;
                     }
                 }
                 if (stopIntake) {
@@ -100,25 +102,34 @@ public class mainDrive extends CypherMethods {
                     } else {
                         armState = ArmState.PICK;
                     }
+
+                    switch (armState) {
+                        case DROP:
+                            grabServo(0.65);
+                            break;
+                        case PICK:
+                            grabServo(0.3999);
+                            break;
+                    }
                 }
+
+                if(slideDown) {
+                    moveSlides(-1);
+                } else if (slideUp) {
+                    moveSlides(1);
+                }
+
+                if(slow)
+                    slideFactor = 0.4;
+                else
+                    slideFactor = 1;
             }
 
             //Arm Control---------------------------------------------------------------------------
-            switch (armState) {
-                case DROP:
-                    grabServo(0.6);
-                    break;
-                case PICK:
-                    grabServo(0.4834);
-                    break;
-            }
-            if(slideDown) {
-                moveSlides(-1);
-            } else if (slideUp) {
-                moveSlides(1);
-            }
+
+
             controlArm(hSlide);
-            controlSlides(vSlide);
+            controlSlides(vSlide * slideFactor);
             swivelServo(swivelLeft + swivelRight);
 
             telemetry.update();

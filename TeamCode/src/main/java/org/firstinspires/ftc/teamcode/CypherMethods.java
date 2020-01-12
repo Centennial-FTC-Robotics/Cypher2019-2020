@@ -92,7 +92,7 @@ public abstract class CypherMethods extends CypherHardware {
         double turnRate;
         double minSpeed = 0.03;
         double maxSpeed = 0.6;
-        double tolerance = 5;
+        double tolerance = 7;
         double error;
         double P = 1d/1200;
 
@@ -119,10 +119,12 @@ public abstract class CypherMethods extends CypherHardware {
     void testAutoMove(double forward, double left) {
         if (forward > left) {
             actualMove(0, left);
-            actualMove(forward, 0);
+            if(forward > 0)
+                actualMove(forward, 0);
         } else {
             actualMove(forward, 0);
-            actualMove(0,left);
+            if(left > 0)
+                 actualMove(0,left);
         }
     }
 
@@ -134,7 +136,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         double P = 1d / 1333;
         double I = 0;
-        double tolerance = 1d/3;
+        double tolerance = 3;
         double minSpeed = 0.01;
         double maxSpeed = 0.5;
         double negSpeed, posSpeed;
@@ -450,13 +452,14 @@ public abstract class CypherMethods extends CypherHardware {
 
     private void moveSlide(int pos) {
         for(DcMotor motor : vSlides) {
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setTargetPosition(pos);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(.3);
         }
     }
     void controlSlides(double power) {
         for (DcMotor motor : vSlides) {
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             if ((getVSlidePos() >= VSlideMax && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
                 motor.setPower(0);
             } else {
@@ -487,19 +490,11 @@ public abstract class CypherMethods extends CypherHardware {
 
     void controlFoundation(FoundationState state) {
         ElapsedTime time = new ElapsedTime();
-        if (state.equals(FoundationState.RELEASE)) {
-            time.reset();
-            moveFoundation(-1);
-            while (time.milliseconds() < 200);
-            moveFoundation(0);
-            time.reset();
-        } else {
-            time.reset();
+        if (state.equals(FoundationState.RELEASE))
             moveFoundation(1);
-            while (time.milliseconds() < 350) ;
-            moveFoundation(0.1);
-            time.reset();
-        }
+        else
+          moveFoundation(0.1);
+
     }
 
     //mathy math math stuff idk

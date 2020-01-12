@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 
-@Autonomous(name = "Blue Team Quarry", group = "Auto")
+@Autonomous(name = "Blue Team Loading Zone", group = "Auto")
 public class BlueLoadingZone extends CypherAutoMethods {
 
     public void runOpMode() throws InterruptedException {

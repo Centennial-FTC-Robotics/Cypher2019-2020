@@ -12,7 +12,7 @@ public class ConfigTest extends CypherMethods {
         waitForStart();
         ElapsedTime time = new ElapsedTime();
         while(opModeIsActive()) {
-            moveFoundation(-1);
+            moveFoundation(0);
             while(time.seconds() < 3 && opModeIsActive());
             time.reset();
             moveFoundation(1);
