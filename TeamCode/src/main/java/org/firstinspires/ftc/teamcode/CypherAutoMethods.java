@@ -113,7 +113,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
-    protected void loadingAuto(String side) {
+    protected void loadingAuto(String side, int amount) {
         int factor = 1;
         switch (side) {
             case "red":
@@ -128,7 +128,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             currentPos.add(convertInchToTile(6) * factor, 0);
             turnRelative(-90 * factor);
             dir = 180;
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < amount; i++) {
                 resetEncoders();
                 skystoneFindPls(factor);
                 currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
@@ -324,7 +324,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void emergRedLoading() {
         try {
             turnRelative(-90);
-            testAutoMove(30,0);
+            testAutoMove(34,0);
         } catch (StopException e) {
             stopEverything();
         }
@@ -333,7 +333,22 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void emergRedBuilding() {
         try {
             turnRelative(90);
-            testAutoMove(30,0);
+            testAutoMove(34,0);
+        } catch (StopException e) {
+            stopEverything();
+        }
+    }
+
+    protected void getFoundation() {
+        try {
+            testAutoMove(6,0);
+            turnRelative(180);
+            testAutoMove(-24,0);
+            controlFoundation(FoundationState.DRAG);
+            ElapsedTime timer = new ElapsedTime();
+            while(timer.seconds() < 1);
+            testAutoMove(24,0);
+            turnRelative(90);
         } catch (StopException e) {
             stopEverything();
         }
