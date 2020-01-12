@@ -321,5 +321,23 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setDriveMotors(speed);
     }
 
+    protected void emergRedLoading() {
+        try {
+            turnRelative(-90);
+            testAutoMove(30,0);
+        } catch (StopException e) {
+            stopEverything();
+        }
+    }
+
+    protected void emergRedBuilding() {
+        try {
+            turnRelative(90);
+            testAutoMove(30,0);
+        } catch (StopException e) {
+            stopEverything();
+        }
+    }
+
 
 }
