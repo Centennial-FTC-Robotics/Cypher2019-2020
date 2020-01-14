@@ -135,7 +135,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 Tile oldPos = new Tile(currentPos);
                 resetEncoders();
                 testAutoMove(-6, 0);
-                testAutoMove(0, 12*factor);
+                testAutoMove(0, 36*factor);
                 currentPos.add(convertInchToTile(-6) * factor, convertInchToTile(-6));
                 waitControlIntake(1);
                 testAutoMove(3, 0);
@@ -339,20 +339,26 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
-    protected void getFoundation() {
+    protected void getFoundation(int factor) {
         try {
-            testAutoMove(6,0);
-            turnRelative(180);
-            testAutoMove(-24,0);
+            //turnRelative(180);
+            testAutoMove(-30,0);
+            testAutoMove(0,-10)  ;
             controlFoundation(FoundationState.DRAG);
             ElapsedTime timer = new ElapsedTime();
             while(timer.seconds() < 1);
-            testAutoMove(26,0);
+            testAutoMove(44 ,0);
+            turnRelative(75 * factor);
+            timer.reset();
+            controlFoundation(FoundationState.RELEASE);
+            while(timer.seconds() < 1);
+            testAutoMove(26*factor,0);
             //turnRelative(90);
         } catch (StopException e) {
             stopEverything();
         }
     }
+
 
 
 }

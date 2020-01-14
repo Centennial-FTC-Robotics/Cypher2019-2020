@@ -110,7 +110,7 @@ public abstract class CypherMethods extends CypherHardware {
             telemetry.update();
             setDriveMotors((turnRate * direction), -(turnRate * direction));
         }
-        while (opModeIsActive() && error > tolerance);
+        while (opModeIsActive() && Math.abs(error) > tolerance);
         setDriveMotors(0);
     }
 
@@ -119,15 +119,13 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
-    void testAutoMove(double forward, double left) throws StopException {
-        if (forward > left) {
+    protected void testAutoMove(double forward, double left) throws StopException {
+        if (left < forward) {
                 actualMove(0, left);
-            if(forward != 0)
-                actualMove(forward, 0);
+                actualMove(forward,0);
         } else {
             actualMove(forward, 0);
-            if(left != 0)
-                 actualMove(0,left);
+            actualMove(0,left);
         }
     }
 
@@ -141,7 +139,7 @@ public abstract class CypherMethods extends CypherHardware {
         double I = 0;
         double tolerance = convertInchToEncoder(1d/3);
         double minSpeed = 0.01;
-        double maxSpeed = 0.5;
+        double maxSpeed = 0.2666;
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double negError, posError;
