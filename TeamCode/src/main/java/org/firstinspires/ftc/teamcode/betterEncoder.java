@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
@@ -26,6 +24,7 @@ public class betterEncoder extends CypherMethods {
             stopEverything();
         }
     }
+
     void skystoneFindPls(int factor) throws StopException {
         final double tolerance = 200;
         if (opModeIsActive()) {
@@ -48,11 +47,11 @@ public class betterEncoder extends CypherMethods {
                                     telemetry.addData("moving", "to skystone.........");
                                 } else {
                                     telemetry.addData("moving", "to the side.........");
-                                    testAutoMove(0,3*factor);
+                                    testAutoMove(0, 3 * factor);
                                 }
                             } else {
                                 telemetry.addData("not skystone", true);
-                                testAutoMove(6,0);
+                                testAutoMove(6, 0);
                             }
                         }
                         telemetry.update();
@@ -72,7 +71,6 @@ public class betterEncoder extends CypherMethods {
 
         setDriveMotors(speed);
     }
-
 
 
 }

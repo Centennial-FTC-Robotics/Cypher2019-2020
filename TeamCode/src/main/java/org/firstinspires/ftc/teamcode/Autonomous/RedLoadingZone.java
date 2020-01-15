@@ -23,7 +23,5 @@ public class RedLoadingZone extends CypherAutoMethods {
         loadingAuto("red", 2);
 
 
-
-
     }
 }

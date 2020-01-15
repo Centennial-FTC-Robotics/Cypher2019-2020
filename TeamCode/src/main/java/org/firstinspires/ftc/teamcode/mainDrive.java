@@ -26,7 +26,7 @@ public class mainDrive extends CypherMethods {
             boolean toggleIntake = gamepad1.a && notInitController();
             boolean stopIntake = gamepad1.b && notInitController();
             boolean toggleFoundation = gamepad1.y;
-            double leftPower = actualControl(gamepad1.left_stick_x,0.4 ) * .5;
+            double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .5;
             double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .7;
             double rotate = actualControl(gamepad1.right_stick_x, .3);
 
@@ -43,7 +43,7 @@ public class mainDrive extends CypherMethods {
 
 
             //timer thingy
-            if(controller1Timer.milliseconds() >= miliTillReady) {
+            if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (toggleIntake) {
                     controller1Timer.reset();
                     if (inState.equals(IntakeState.IN)) {
@@ -56,19 +56,19 @@ public class mainDrive extends CypherMethods {
                     controller1Timer.reset();
                     inState = IntakeState.STOP;
                 }
-                if(toggleFoundation) {
+                if (toggleFoundation) {
                     controller1Timer.reset();
-                    if(foundationState.equals(FoundationState.RELEASE)) {
+                    if (foundationState.equals(FoundationState.RELEASE)) {
                         foundationState = FoundationState.DRAG;
                         controlFoundation(foundationState);
-                    } else{
+                    } else {
                         foundationState = FoundationState.RELEASE;
                         controlFoundation(foundationState);
                     }
                 }
             }
             //Servo Intake Control------------------------------------------------------------------
-            telemetry.addData("state",inState);
+            telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
                     controlIntakeServos(1);
@@ -81,18 +81,18 @@ public class mainDrive extends CypherMethods {
                     break;
             }
             //Speed Control-------------------------------------------------------------------------
-           if(gamepad1.left_trigger > 0) {
-               factor = 0.258;
-           } else {
-               factor = 0.87535463 ;
-           }
+            if (gamepad1.left_trigger > 0) {
+                factor = 0.258;
+            } else {
+                factor = 0.87535463;
+            }
 
             telemetry.addData("factor", factor);
             //Driving-------------------------------------------------------------------------------
             manDriveMotors(forwardPower, leftPower, rotate, factor);
 
             //timer thingy
-            if(controller2Timer.milliseconds() >= miliTillReady) {
+            if (controller2Timer.milliseconds() >= miliTillReady) {
                 if (arm) {
                     controller2Timer.reset();
                     if (armState.equals(ArmState.PICK)) {
@@ -111,13 +111,13 @@ public class mainDrive extends CypherMethods {
                     }
                 }
 
-                if(slideDown) {
+                if (slideDown) {
                     moveSlides(-1);
                 } else if (slideUp) {
                     moveSlides(1);
                 }
 
-                if(slow)
+                if (slow)
                     slideFactor = 0.4;
                 else
                     slideFactor = 1;

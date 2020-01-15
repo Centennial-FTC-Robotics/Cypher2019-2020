@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
 
-@Autonomous(name="red team 1 skystone", group="Auto")
+@Autonomous(name = "red team 1 skystone", group = "Auto")
 public class RedOneSkystone extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -18,6 +18,6 @@ public class RedOneSkystone extends CypherAutoMethods {
         waitForStart();
 
         currentPos.setLocation(1, 2);
-        loadingAuto("red",1);
+        loadingAuto("red", 1);
     }
 }

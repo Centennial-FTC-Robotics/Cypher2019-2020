@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
+
 @Disabled
 @Autonomous(name = "Red Team Build Zone", group = "Auto")
 public class RedBuildingZone extends CypherAutoMethods {

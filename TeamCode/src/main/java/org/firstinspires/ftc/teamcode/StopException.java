@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-public class StopException extends  Exception {
+public class StopException extends Exception {
     StopException(String msg) {
         super(msg);
     }

@@ -23,7 +23,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     void emergencyMove(String side, String color) throws StopException {
-        //no encoders, loading zone, building zone, red, blue
         ElapsedTime timer = new ElapsedTime();
         double factor;
 
@@ -135,7 +134,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 Tile oldPos = new Tile(currentPos);
                 resetEncoders();
                 testAutoMove(-6, 0);
-                testAutoMove(0, 36*factor);
+                testAutoMove(0, 36 * factor);
                 currentPos.add(convertInchToTile(-6) * factor, convertInchToTile(-6));
                 waitControlIntake(1);
                 testAutoMove(3, 0);
@@ -166,10 +165,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
                     }
                     waitMoveFoundation(FoundationState.RELEASE);
                 }
-                if(factor == 1)
-                    moveToPos(new Tile(6,5 - convertInchToTile(1d/3),2,1), dir);
+                if (factor == 1)
+                    moveToPos(new Tile(6, 5 - convertInchToTile(1d / 3), 2, 1), dir);
                 else
-                    moveToPos(new Tile(1,5 + convertInchToTile(1d/3),2,1), dir);
+                    moveToPos(new Tile(1, 5 + convertInchToTile(1d / 3), 2, 1), dir);
 
                 if (i == 0) {
                     moveToPos(currentPos.getX(), oldPos.getY(), dir);
@@ -202,8 +201,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
     private void waitControlIntake(double power) throws StopException {
         ElapsedTime time = new ElapsedTime();
         controlIntakeServos(power);
-        while(time.milliseconds() < 500) {
-            if(shouldStop()) {
+        while (time.milliseconds() < 500) {
+            if (shouldStop()) {
                 throw new StopException("stap");
             }
         }
@@ -305,7 +304,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                         }
                     }
                 }
-            }while (!isSkystone && timer.seconds() < 10);
+            } while (!isSkystone && timer.seconds() < 10);
         }
     }
 
@@ -324,7 +323,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void emergRedLoading() {
         try {
             turnRelative(-90);
-            testAutoMove(34,0);
+            testAutoMove(34, 0);
         } catch (StopException e) {
             stopEverything();
         }
@@ -333,7 +332,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void emergRedBuilding() {
         try {
             turnRelative(90);
-            testAutoMove(34,0);
+            testAutoMove(34, 0);
         } catch (StopException e) {
             stopEverything();
         }
@@ -342,23 +341,22 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void getFoundation(int factor) {
         try {
             //turnRelative(180);
-            testAutoMove(-30,0);
-            testAutoMove(0,-10)  ;
+            testAutoMove(-30, 0);
+            testAutoMove(0, -10);
             controlFoundation(FoundationState.DRAG);
             ElapsedTime timer = new ElapsedTime();
-            while(timer.seconds() < 1);
-            testAutoMove(44 ,0);
+            while (timer.seconds() < 1) ;
+            testAutoMove(44, 0);
             turnRelative(75 * factor);
             timer.reset();
             controlFoundation(FoundationState.RELEASE);
-            while(timer.seconds() < 1);
-            testAutoMove(26*factor,0);
+            while (timer.seconds() < 1) ;
+            testAutoMove(26 * factor, 0);
             //turnRelative(90);
         } catch (StopException e) {
             stopEverything();
         }
     }
-
 
 
 }

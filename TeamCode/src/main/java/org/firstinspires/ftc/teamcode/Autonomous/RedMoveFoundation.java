@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
 
-@Autonomous(name="red team just get foundation", group="Auto")
+@Autonomous(name = "red team just get foundation", group = "Auto")
 public class RedMoveFoundation extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
