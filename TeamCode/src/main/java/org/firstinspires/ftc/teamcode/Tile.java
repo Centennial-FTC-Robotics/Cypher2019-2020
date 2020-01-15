@@ -6,7 +6,6 @@ public class Tile {
     Point innerTile;
     private double x, y;
 
-
     Tile(double x1, double y1, int x2, int y2) {
         innerTile = new Point(x2, y2);
         setLocation(x1, y1);

@@ -497,10 +497,12 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void controlFoundation(FoundationState state) {
-        if (state.equals(FoundationState.RELEASE))
+        if (state.equals(FoundationState.RELEASE)) {
             moveFoundation(1);
-        else
+        }
+        else {
             moveFoundation(0.05);
+        }
 
     }
 
@@ -518,10 +520,14 @@ public abstract class CypherMethods extends CypherHardware {
         } else {
             sign = 1;
         }
-        if (Math.abs(num) < min) return min * sign;
-        if (Math.abs(num) > max) return max * sign;
+        if (Math.abs(num) < min) {
+            return min * sign;
+        } else if (Math.abs(num) > max) {
+            return max * sign;
+        } else {
+            return num;
+        }
 
-        return num;
     }
 
     boolean notInitController() {

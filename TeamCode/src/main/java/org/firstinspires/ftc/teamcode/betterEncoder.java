@@ -25,7 +25,7 @@ public class betterEncoder extends CypherMethods {
         }
     }
 
-    void skystoneFindPls(int factor) throws StopException {
+    private void skystoneFindPls(int factor) throws StopException {
         final double tolerance = 200;
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -64,12 +64,9 @@ public class betterEncoder extends CypherMethods {
     private void moveToCenter(double left, double right) {
         double P = 0.02;
         double error = left - right;
-        double speed;
         double minSpeed = 0.01;
         double maxSpeed = 0.03;
-        speed = clip(P * error, minSpeed, maxSpeed);
-
-        setDriveMotors(speed);
+        setDriveMotors(clip(P * error, minSpeed, maxSpeed));
     }
 
 
