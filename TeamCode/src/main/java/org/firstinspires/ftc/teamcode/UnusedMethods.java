@@ -31,6 +31,13 @@ public class UnusedMethods {
         return 0;
     }
 
+    int getInX() {
+        return innerTile.x;
+    }
+
+    int getInY() {
+        return innerTile.y;
+    }
 
      */
 }

@@ -32,14 +32,6 @@ public class Tile {
         return y;
     }
 
-    int getInX() {
-        return innerTile.x;
-    }
-
-    int getInY() {
-        return innerTile.y;
-    }
-
     public void setLocation(double x, double y) {
         this.x = x;
         this.y = y;

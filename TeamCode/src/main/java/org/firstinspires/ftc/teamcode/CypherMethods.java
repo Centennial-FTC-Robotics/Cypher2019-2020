@@ -423,22 +423,18 @@ public abstract class CypherMethods extends CypherHardware {
 
     //CONVERSION METHODS
     private int convertInchToEncoder(double inches) {
-
         return (int) (inches / ticksPerInch);
     }
 
     int convertEncoderToInch(int encoder) {
-
         return (int) (ticksPerInch / encoder);
     }
 
     double tilesToInch(double tiles) {
-
         return tiles * 22.75;
     }
 
     double convertInchToTile(double tiles) {
-
         return tiles / 24;
     }
 
@@ -451,8 +447,6 @@ public abstract class CypherMethods extends CypherHardware {
     void controlArm(double power) {
         HSlide.setPower(power);
     }
-    //BIll was here
-    //ok bill
 
     void grabServo(double pos) {
         arm.setPosition(pos);
@@ -500,7 +494,6 @@ public abstract class CypherMethods extends CypherHardware {
         for (Servo servo : foundationServos) {
             servo.setPosition(pos);
         }
-
     }
 
     void controlFoundation(FoundationState state) {
