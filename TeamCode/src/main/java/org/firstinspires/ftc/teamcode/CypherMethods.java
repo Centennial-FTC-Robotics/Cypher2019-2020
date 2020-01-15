@@ -426,8 +426,8 @@ public abstract class CypherMethods extends CypherHardware {
         return (int) (inches / ticksPerInch);
     }
 
-    int convertEncoderToInch(int encoder) {
-        return (int) (ticksPerInch / encoder);
+    double convertEncoderToInch(int encoder) {
+        return ticksPerInch / encoder;
     }
 
     double tilesToInch(double tiles) {
@@ -533,13 +533,12 @@ public abstract class CypherMethods extends CypherHardware {
     boolean notInitController() {
         return !(gamepad1.start || gamepad2.start);
     }
-    //enum stuff
 
     boolean shouldStop() {
         return isStopRequested() || !opModeIsActive();
     }
 
-
+    //enum stuff
     enum IntakeState {
         IN, OUT, STOP
     }

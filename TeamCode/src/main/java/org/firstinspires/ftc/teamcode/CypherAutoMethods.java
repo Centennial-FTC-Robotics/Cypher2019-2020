@@ -54,6 +54,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 break;
             case "blue":
                 factor = -1;
+                break;
         }
         Tile oldPos;
         try {

@@ -15,7 +15,6 @@ public class UnusedMethods {
         return 0;
     }
     double getArmPos() {
-
         return arm.getPosition();
     }
     private double rawDimension(char dimension) {
@@ -30,7 +29,7 @@ public class UnusedMethods {
         }
         return 0;
     }
-
+    //Tile
     int getInX() {
         return innerTile.x;
     }

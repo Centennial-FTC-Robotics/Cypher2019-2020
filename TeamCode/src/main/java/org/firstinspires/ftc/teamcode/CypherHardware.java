@@ -58,7 +58,6 @@ public abstract class CypherHardware extends LinearOpMode {
         lFoundation = hardwareMap.servo.get("foundation");
         rFoundation = hardwareMap.servo.get("foundation2");
 
-
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
         rightDown.setDirection(DcMotor.Direction.REVERSE);
