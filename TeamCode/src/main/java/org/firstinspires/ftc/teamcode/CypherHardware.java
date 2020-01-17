@@ -43,6 +43,11 @@ public abstract class CypherHardware extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        getHardwareDevices();
+        initHardware();
+    }
+    
+    private void getHardwareDevices() {
         leftUp = hardwareMap.dcMotor.get("upleft");
         rightUp = hardwareMap.dcMotor.get("upright");
         rightDown = hardwareMap.dcMotor.get("backright");
@@ -59,7 +64,9 @@ public abstract class CypherHardware extends LinearOpMode {
         rFoundation = hardwareMap.servo.get("foundation2");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-
+    }
+    
+    private void initHardware() {
         rightDown.setDirection(DcMotor.Direction.REVERSE);
         rightUp.setDirection(DcMotor.Direction.REVERSE);
         vLeft.setDirection(DcMotor.Direction.REVERSE);
