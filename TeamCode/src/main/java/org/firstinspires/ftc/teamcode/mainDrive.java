@@ -9,6 +9,7 @@ public class mainDrive extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         final int miliTillReady = 250;
+        final boolean outreach = true;
         super.runOpMode();
         waitForStart();
 
@@ -26,11 +27,9 @@ public class mainDrive extends CypherMethods {
             boolean toggleIntake = gamepad1.a && notInitController();
             boolean stopIntake = gamepad1.b && notInitController();
             boolean toggleFoundation = gamepad1.y;
-            double leftPower = actualControl(gamepad1.left_stick_x, 0.7) * .4;
-            double forwardPower = actualControl(gamepad1.left_stick_y, 0.8) * .4;
-            double rotate = actualControl(gamepad1.right_stick_x, .7)*.4;
-
-
+            double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .5;
+            double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .7;
+            double rotate = actualControl(gamepad1.right_stick_x, .3);
             //controller 2 stuff
             boolean arm = gamepad2.b && notInitController();
             boolean slideDown = gamepad2.b && notInitController();
@@ -40,7 +39,6 @@ public class mainDrive extends CypherMethods {
             double hSlide = gamepad2.right_stick_x;
             double swivelRight = gamepad2.right_trigger;
             double swivelLeft = -gamepad2.left_trigger;
-
 
             //timer thingy
             if (controller1Timer.milliseconds() >= miliTillReady) {
@@ -81,12 +79,24 @@ public class mainDrive extends CypherMethods {
                     break;
             }
             //Speed Control-------------------------------------------------------------------------
+            if (outreach) {
+                telemetry.addData("Outreach Mode: Have fun!", " ");
+                leftPower = actualControl(gamepad1.left_stick_x, 0.7) * .4;
+                forwardPower = actualControl(gamepad1.left_stick_y, 0.8) * .4;
+                rotate = actualControl(gamepad1.right_stick_x, .7)*.4;
+            } else {
+                if (gamepad1.right_trigger > 0) {
+                    telemetry.addData("EMERGENCY MODE", "");
+                    //factor = whatever number should be used
+                }
+            }
             if (gamepad1.left_trigger > 0) {
+                telemetry.addData("SLOW MODE ACTIVATED", " ");
                 factor = 0.258;
             } else {
+                telemetry.addData("NORMAL MODE", " ");
                 factor = 0.87535463;
             }
-
             telemetry.addData("factor", factor);
             //Driving-------------------------------------------------------------------------------
             manDriveMotors(forwardPower, leftPower, rotate, factor);
