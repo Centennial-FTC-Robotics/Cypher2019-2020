@@ -70,6 +70,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //MOVEMENT
+    
     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
         double magnitude = Math.cbrt(forwardPower * forwardPower + leftPower * leftPower + rotate * rotate);
         if (magnitude > 1) {
@@ -119,7 +120,7 @@ public abstract class CypherMethods extends CypherHardware {
         turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension() + target));
     }
 
-
+    //cause diagonal strafe no work we just move forward then to the side
     protected void testAutoMove(double forward, double left) throws StopException {
         if (left < forward) {
             actualMove(0, left);
