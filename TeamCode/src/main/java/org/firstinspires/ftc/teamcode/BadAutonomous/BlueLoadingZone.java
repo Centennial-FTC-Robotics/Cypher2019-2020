@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.BadAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
-
+@Disabled
 @Autonomous(name = "Blue Team Loading Zone", group = "Auto")
 public class BlueLoadingZone extends CypherAutoMethods {
 

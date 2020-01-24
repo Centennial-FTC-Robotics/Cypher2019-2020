@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.BadAutonomous;
+package org.firstinspires.ftc.teamcode.BetterAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 

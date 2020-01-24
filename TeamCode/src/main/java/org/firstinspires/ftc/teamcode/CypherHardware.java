@@ -26,8 +26,8 @@ public abstract class CypherHardware extends LinearOpMode {
     DcMotor rightDown;
     DcMotor vLeft;
     DcMotor vRight;
-    CRServo leftServo;
-    CRServo rightServo;
+    DcMotor leftIntake;
+    DcMotor rightIntake;
     CRServo HSlide;
     CRServo swivel;
     Servo lFoundation;
@@ -55,8 +55,8 @@ public abstract class CypherHardware extends LinearOpMode {
         vLeft = hardwareMap.dcMotor.get("vleft");
         vRight = hardwareMap.dcMotor.get("vright");
 
-        leftServo = hardwareMap.crservo.get("leftintake");
-        rightServo = hardwareMap.crservo.get("rightintake");
+        leftIntake = hardwareMap.dcMotor.get("leftintake");
+        rightIntake = hardwareMap.dcMotor.get("rightintake");
         HSlide = hardwareMap.crservo.get("hslide");
         swivel = hardwareMap.crservo.get("swivelservo");
         arm = hardwareMap.servo.get("armservo");
@@ -70,7 +70,7 @@ public abstract class CypherHardware extends LinearOpMode {
         rightDown.setDirection(DcMotor.Direction.REVERSE);
         rightUp.setDirection(DcMotor.Direction.REVERSE);
         vLeft.setDirection(DcMotor.Direction.REVERSE);
-        rightServo.setDirection(CRServo.Direction.REVERSE);
+        rightIntake.setDirection(DcMotor.Direction.REVERSE);
         lFoundation.setDirection(Servo.Direction.REVERSE);
 
         leftDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -79,6 +79,8 @@ public abstract class CypherHardware extends LinearOpMode {
         rightUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         vRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         vLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
     }
 
 }

@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -29,7 +29,7 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotor[] leftMotors = new DcMotor[2];
     private final DcMotor[] rightMotors = new DcMotor[2];
     private final DcMotor[] vSlides = new DcMotor[2];
-    private final CRServo[] wheelIntakeServos = new CRServo[2];
+    private final DcMotor[] wheelIntakeMotors = new DcMotor[2];
     private final Servo[] foundationServos = new Servo[2];
 
     private final int VSlideMax = 760;
@@ -58,8 +58,8 @@ public abstract class CypherMethods extends CypherHardware {
         strafePos[0] = rightUp;
         strafePos[1] = leftDown;
 
-        wheelIntakeServos[0] = leftServo;
-        wheelIntakeServos[1] = rightServo;
+        wheelIntakeMotors[0] = leftIntake;
+        wheelIntakeMotors[1] = rightIntake;
 
         vSlides[0] = vLeft;
         vSlides[1] = vRight;
@@ -247,14 +247,16 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     protected void stopEverything() {
+        telemetry.addData("stopping", null);
+        telemetry.update();
         for (DcMotor motor : driveMotors) {
             motor.setPower(0);
         }
         for (DcMotor motor : vSlides) {
             motor.setPower(0);
         }
-        for (CRServo servo : wheelIntakeServos) {
-            servo.setPower(0);
+        for (DcMotor motor: wheelIntakeMotors) {
+            motor.setPower(0);
         }
         swivel.setPower(0);
         HSlide.setPower(0);
@@ -441,8 +443,8 @@ public abstract class CypherMethods extends CypherHardware {
 
     //INTAKE METHODS
     void controlIntakeServos(double power) {
-        wheelIntakeServos[0].setPower(power);
-        wheelIntakeServos[1].setPower(power);
+        wheelIntakeMotors[0].setPower(power);
+        wheelIntakeMotors[1].setPower(power);
     }
 
     void controlArm(double power) {
