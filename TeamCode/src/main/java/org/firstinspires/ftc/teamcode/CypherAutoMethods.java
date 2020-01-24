@@ -358,6 +358,107 @@ public abstract class CypherAutoMethods extends CypherMethods {
             stopEverything();
         }
     }
+    protected void park(Team team, Side side) throws StopException {
+        //TODO: work on this and make it cool k thx
+    }
+
+    protected void actualAuto(Team team, Side side, int amount) {
+        int factor = 1;
+        if (team == Team.BLUE) {
+            factor = -1;
+        }
+        try {
+            //move forward a small bit so the robot can see the stones
+            testAutoMove(12, 0);
+            currentPos.add(convertInchToTile(12) * factor, 0); //add the amount we travelled to the trash thing that holds current pos
+            turnRelative(-90 * factor); //turn so the phone can seeeeeee the stones
+            dir = 180;
+            //for the amount of stones were supposed to find (should be 2 max)
+            for (int i = 0; i < amount; i++) {
+                //reset the encoders - needed for finding out how much we travelled while running finding skystone
+                resetEncoders();
+                skystoneFindPls(factor); //go find the skystone
+                currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone and add it
+                Tile oldPos = new Tile(currentPos); //save it to a new variable so if were getting the 2nd skystone we know where to start looking
+                resetEncoders(); //reset the encoders - needed since were gonna use the encoder thing again
+                //move backwards and to the side so the stone is in front of the robot
+                testAutoMove(-6, 0);
+                testAutoMove(0, 36 * factor);
+                currentPos.add(convertInchToTile(-36) * factor, convertInchToTile(-6)); //add it to the position of the robot
+                //grab that stone and move forward so its actually grabbed
+                waitControlIntake(1);
+                testAutoMove(3, 0);
+                //add that to the current pos
+                currentPos.add(convertInchToTile(-  3), 0);
+
+                //if we want to just use the bridge side
+                if(side == Side.BRIDGE) {
+                    if(team == Team.RED)
+                        moveToPos(5, currentPos.getY(), dir); //move to above the bridge side on red
+                    else
+                        moveToPos(2, currentPos.getY(), dir); //move to above the bridge side on blue
+                } else {
+                    if(team == Team.RED)
+                        moveToPos(6, currentPos.getY(), dir); //move to above the wall side on red
+                    else
+                        moveToPos(1, currentPos.getY(), dir); //move to above the wall side on red
+                }
+
+                /*TODO: add part to drop off stone and move foundation
+                  TODO: and park on the specified side
+                  TODO: and like work in general    
+                 */
+                moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
+
+                turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
+                dir = -90 * factor; //change dir
+                waitControlIntake(-1); //spit it out
+
+                turnRelative(180);
+                dir *= -1;
+                if (i == 0) { //if its the first skystone move foundation
+                    if (factor == 1) {
+                        moveToPos(redFoundation, dir);
+
+                    } else {
+                        moveToPos(blueFoundation, dir);
+                    }
+                    waitMoveFoundation(FoundationState.DRAG);
+                    if (factor == 1) {
+                        moveToPos(redBuildSite, dir);
+                    } else {
+                        moveToPos(blueBuildSite, dir);
+                    }
+                    waitMoveFoundation(FoundationState.RELEASE);
+                }
+                if (factor == 1)
+                    moveToPos(new Tile(6, 5 - convertInchToTile(1d / 3), 2, 1), dir);
+                else
+                    moveToPos(new Tile(1, 5 + convertInchToTile(1d / 3), 2, 1), dir);
+
+                if (i == 0) {
+                    moveToPos(currentPos.getX(), oldPos.getY(), dir);
+                }
+
+                turnRelative(90 * factor);
+                dir = 180;
+            }
+            if (factor == 1) {
+                moveToPos(currentPos.getX(), redBridge.getY(), dir);
+            } else {
+                moveToPos(currentPos.getX(), blueBridge.getY(), dir);
+            }
+        } catch (StopException e) {
+            stopEverything();
+        }
+
+    }
 
 
+        enum Team{
+            RED,BLUE
+        }
+        enum Side{
+            BRIDGE,WALL
+        }
 }

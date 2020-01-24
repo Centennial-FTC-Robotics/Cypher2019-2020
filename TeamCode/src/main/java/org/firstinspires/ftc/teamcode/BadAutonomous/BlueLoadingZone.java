@@ -1,13 +1,14 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.BadAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
+@Disabled
+@Autonomous(name = "Blue Team Loading Zone", group = "Auto")
+public class BlueLoadingZone extends CypherAutoMethods {
 
-@Autonomous(name = "Red Loading/Blue Building EMERG", group = "Auto")
-public class RedLoadingBlueBulding extends CypherAutoMethods {
-    @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         try {
@@ -16,6 +17,8 @@ public class RedLoadingBlueBulding extends CypherAutoMethods {
             stopEverything();
         }
         waitForStart();
-        emergRedLoading();
+
+        currentPos.setLocation(1, 2);
+        loadingAuto("blue", 2);
     }
 }
