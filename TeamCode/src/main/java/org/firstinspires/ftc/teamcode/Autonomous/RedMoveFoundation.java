@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
-
+@Disabled
 @Autonomous(name = "red team just get foundation", group = "Auto")
 public class RedMoveFoundation extends CypherAutoMethods {
     @Override
