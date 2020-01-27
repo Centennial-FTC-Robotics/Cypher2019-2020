@@ -69,13 +69,13 @@ public class mainDrive extends CypherMethods {
             telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
-                    controlIntakeServos(0.5);
+                    controlIntakeMotors(0.5);
                     break;
                 case OUT:
-                    controlIntakeServos(-0.5);
+                    controlIntakeMotors(-0.5);
                     break;
                 case STOP:
-                    controlIntakeServos(0);
+                    controlIntakeMotors(0);
                     break;
             }
             //Speed Control-------------------------------------------------------------------------

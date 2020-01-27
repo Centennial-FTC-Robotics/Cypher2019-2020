@@ -4,10 +4,10 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -247,7 +247,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     protected void stopEverything() {
-        telemetry.addData("stopping", null);
+        telemetry.addData("stop",null);
         telemetry.update();
         for (DcMotor motor : driveMotors) {
             motor.setPower(0);
@@ -313,7 +313,7 @@ public abstract class CypherMethods extends CypherHardware {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
         while (!imu.isGyroCalibrated()) {
-            if (shouldStop()) {
+            if(isStopRequested()) {
                 throw new StopException("stap");
             }
         }
@@ -331,7 +331,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     }
 
-    private void initTfod() {
+    protected void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
@@ -340,7 +340,7 @@ public abstract class CypherMethods extends CypherHardware {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    protected void initEverything() throws StopException {
+    protected void initEverything() throws StopException  {
         initializeIMU();
         initVuforia();
         initTfod();
@@ -348,6 +348,8 @@ public abstract class CypherMethods extends CypherHardware {
         if (tfod != null) {
             tfod.activate();
         }
+        telemetry.addData("init done", null);
+        telemetry.update();
     }
 
     private void orientationUpdate() {
@@ -442,7 +444,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //INTAKE METHODS
-    void controlIntakeServos(double power) {
+    void controlIntakeMotors(double power) {
         wheelIntakeMotors[0].setPower(power);
         wheelIntakeMotors[1].setPower(power);
     }
@@ -504,7 +506,8 @@ public abstract class CypherMethods extends CypherHardware {
             moveFoundation(1);
         }
         else {
-            moveFoundation(0.05);
+            lFoundation.setPosition(0.05);
+            rFoundation.setPosition(0);
         }
 
     }
@@ -515,6 +518,15 @@ public abstract class CypherMethods extends CypherHardware {
         return (a * (Math.pow(-controller, 3))) + ((1 - a) * -controller);
     }
 
+    protected void waitMili(double mili) {
+        ElapsedTime time = new ElapsedTime();
+        while(time.milliseconds() < mili) {
+            if(shouldStop()) {
+                stopEverything();
+                break;
+            }
+        }
+    }
 
     double clip(double num, double min, double max) {
         int sign;
@@ -538,7 +550,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     boolean shouldStop() {
-        return isStopRequested() || !opModeIsActive();
+        return isStopRequested() || (!opModeIsActive());
     }
 
     //enum stuff

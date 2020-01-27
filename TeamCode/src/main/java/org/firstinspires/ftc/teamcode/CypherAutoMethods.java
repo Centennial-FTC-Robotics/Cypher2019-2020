@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
@@ -88,7 +89,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 moveToPos(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
 
                 //pick up skystone and move into it
-                controlIntakeServos(1);
+                controlIntakeMotors(1);
                 testAutoMove(2, 0);
                 currentPos.add(0, convertInchToTile(-2));
 
@@ -98,7 +99,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 turnRelative(-90 * factor); //turn to release skystone and not have it in the way
                 dir = -90 * factor;
                 waitControlIntake(-1); //release skystone
-                controlIntakeServos(0);
+                controlIntakeMotors(0);
                 turnRelative(90 * factor); //turn back
                 dir = 180;
                 if (i == 0) //if that was the first skystone move back to where we got the first one to look for second ome
@@ -201,7 +202,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     private void waitControlIntake(double power) throws StopException {
         ElapsedTime time = new ElapsedTime();
-        controlIntakeServos(power);
+        controlIntakeMotors(power);
         while (time.milliseconds() < 500) {
             if (shouldStop()) {
                 throw new StopException("stap");
@@ -261,9 +262,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 
-    private void skystoneFindPls(int factor) throws StopException {
+    protected void skystoneFindPls(int factor) throws StopException {
         ElapsedTime timer = new ElapsedTime();
-        final double tolerance = 200;
+        final double tolerance = 50;
         boolean isSkystone = false;
         if (opModeIsActive()) {
             int max, counter = 0;
@@ -284,12 +285,20 @@ public abstract class CypherAutoMethods extends CypherMethods {
                             if (shouldStop()) {
                                 throw new StopException("stap");
                             }
+
+                            //TODO: gets really confused when it sees more than one stone, fix this somehow by making it stick w/ the first stone it sees k thx
+
                             if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
                                 telemetry.addData("SKYSTONE", true);
                                 telemetry.addData("left", recognition.getLeft());
                                 telemetry.addData("right", recognition.getRight());
-                                if (Math.abs(recognition.getRight() - recognition.getLeft()) > tolerance) {
-                                    moveToCenter(recognition.getLeft(), recognition.getRight());
+                                //not sure how it updates the right and top, maybe try a while loop and if not who knows
+                                if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
+                                    if(recognition.getRight() > recognition.getTop() + 150)
+                                        setDriveMotors(0.1);
+                                    else
+                                        setDriveMotors(-0.1);
+                                    //auTO NEEDS TO WORK BY SATERDAY!
                                     telemetry.addData("moving", "to skystone.........");
                                 } else {
                                     telemetry.addData("moving", "to the side.........");
@@ -305,20 +314,24 @@ public abstract class CypherAutoMethods extends CypherMethods {
                         }
                     }
                 }
-            } while (!isSkystone && timer.seconds() < 10);
+            } while (!isSkystone);
         }
     }
 
 
     private void moveToCenter(double left, double right) {
+/*
         double P = 0.02;
-        double error = left - right;
+        double error =  right - left;
         double speed;
         double minSpeed = 0.01;
         double maxSpeed = 0.03;
-        speed = clip(P * error, minSpeed, maxSpeed);
+        speed = Range.clip(P * error, minSpeed, maxSpeed);
+ */
+        telemetry.addData("left",left);
+        telemetry.addData("right", right);
+        telemetry.update();
 
-        setDriveMotors(speed);
     }
 
     protected void emergRedLoading() {
@@ -364,16 +377,16 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void actualAuto(Team team, Side side, int amount) {
+        controlIntakeMotors(1);
+        waitMili(25);
+        controlIntakeMotors(0);
         int factor = 1;
         if (team == Team.BLUE) {
             factor = -1;
         }
         try {
             //move forward a small bit so the robot can see the stones
-            testAutoMove(12, 0);
             currentPos.add(convertInchToTile(12) * factor, 0); //add the amount we travelled to the trash thing that holds current pos
-            turnRelative(-90 * factor); //turn so the phone can seeeeeee the stones
-            dir = 180;
             //for the amount of stones were supposed to find (should be 2 max)
             for (int i = 0; i < amount; i++) {
                 //reset the encoders - needed for finding out how much we travelled while running finding skystone
@@ -383,8 +396,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 Tile oldPos = new Tile(currentPos); //save it to a new variable so if were getting the 2nd skystone we know where to start looking
                 resetEncoders(); //reset the encoders - needed since were gonna use the encoder thing again
                 //move backwards and to the side so the stone is in front of the robot
-                testAutoMove(-6, 0);
-                testAutoMove(0, 36 * factor);
+                testAutoMove(0, -60 * factor);
                 currentPos.add(convertInchToTile(-36) * factor, convertInchToTile(-6)); //add it to the position of the robot
                 //grab that stone and move forward so its actually grabbed
                 waitControlIntake(1);
@@ -407,7 +419,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
                 /*TODO: add part to drop off stone and move foundation
                   TODO: and park on the specified side
-                  TODO: and like work in general    
+                  TODO: and like work in general
                  */
                 moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
 
@@ -455,10 +467,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
 
-        enum Team{
+        protected enum Team{
             RED,BLUE
         }
-        enum Side{
+        protected enum Side{
             BRIDGE,WALL
         }
 }
