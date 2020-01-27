@@ -9,7 +9,7 @@ public class mainDrive extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         final int miliTillReady = 250;
-        final boolean outreach = true;
+        final boolean outreach = false;
         super.runOpMode();
         waitForStart();
 
@@ -69,10 +69,10 @@ public class mainDrive extends CypherMethods {
             telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
-                    controlIntakeServos(1);
+                    controlIntakeServos(0.5);
                     break;
                 case OUT:
-                    controlIntakeServos(-1);
+                    controlIntakeServos(-0.5);
                     break;
                 case STOP:
                     controlIntakeServos(0);

@@ -356,6 +356,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             //turnRelative(90);
         } catch (StopException e) {
             stopEverything();
+            //no u
         }
     }
     protected void park(Team team, Side side) throws StopException {
@@ -419,7 +420,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 if (i == 0) { //if its the first skystone move foundation
                     if (factor == 1) {
                         moveToPos(redFoundation, dir);
-
                     } else {
                         moveToPos(blueFoundation, dir);
                     }
