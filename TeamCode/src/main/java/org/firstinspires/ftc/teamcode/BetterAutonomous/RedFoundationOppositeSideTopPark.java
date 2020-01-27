@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
 
-@Autonomous(name = "red parking on the opposite side towards the bottom with respect to the intial position only", group = "Auto")
-public class RedFoundationOppositeSideBottomPark {
+@Autonomous(name = "red parking on the opposite side towards the top with respect to the intial position only", group = "Auto")
+public class RedFoundationOppositeSideTopPark {
     super.runOpMode();
         try {
         initEverything();
@@ -15,14 +15,15 @@ public class RedFoundationOppositeSideBottomPark {
     }
     waitForStart();
         try {
-            /* Assuming the foundation claws are facing away from the foundation,
-            the robot needs to move 12 to the right and 0 forwards/backwards since
-            it needs to park bottom in this path
+            /* Assuming the foundation claws are facing away the foundation,
+            the robot needs to move 12 to the right and 20 forwards since
+            it needs to park top in this path
              */
 
+        testAutoMove(20, 0);
         testAutoMove(0, -12);
     } catch (StopException e) {
         stopEverything();
     }
-}
 
+}
