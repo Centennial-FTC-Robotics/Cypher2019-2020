@@ -225,21 +225,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     private double[] getDist(Tile start, Tile end, int dir) {
         double forward, left;
-        /* Note: Code to apply for any given angle. Not sure if it works, so it's commented. Let's tests.
-        if (dir >= 0) {
-            directionNew = 360 - (dir - 90);
-        }
-        else {
-            directionNew = -dir + 90;
-        }
-        int startHorizontalAdjust = start.getX()*Math.cos(directionNew) + start.getY()*Math.sin(directionNew);
-        int startVerticalAdjust = -start.getX()*Math.sin(directionNew) + start.getY()*Math.cos(directionNew);
-        int finalHorizontalAdjust = end.getX()*Math.cos(directionNew) + end.getY()*Math.sin(directionNew);
-        int finalVerticalAdjust = -end.getX()*Math.sin(directionNew) + end.getY()*Math.cos(directionNew);
-        forward = finalVerticalAdjust - startVerticalAdjust;
-        left = finalHorizontalAdjust - startHorizontalAdjust;
-        return new double[]{tilesToInch(forward), tilesToInch(left)};
-         */
         switch (dir) {
             case 90:
                 forward = end.getX() - start.getX();
@@ -359,7 +344,19 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
     protected void park(Team team, Side side) throws StopException {
-        //TODO: work on this and make it cool k thx
+        //TODO: work on this and make it cool k thx; prototype
+        if (side == Side.BRIDGE) {
+            testAutoMove(30, 0);
+        } else {
+            if (side == Side.LEFTWALL) {
+                testAutoMove(0, -10);
+                testAutoMove(30, 0);
+            } else {
+                testAutoMove(0, 10);
+                testAutoMove(30, 0);
+            }
+        }
+
     }
 
     protected void actualAuto(Team team, Side side, int amount) {
@@ -459,6 +456,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
             RED,BLUE
         }
         enum Side{
-            BRIDGE,WALL
+            BRIDGE,LEFTWALL
         }
 }
