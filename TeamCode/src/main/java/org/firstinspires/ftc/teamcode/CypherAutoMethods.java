@@ -266,6 +266,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
         ElapsedTime timer = new ElapsedTime();
         final double tolerance = 50;
         boolean isSkystone = false;
+        boolean skystoneFound = false;
+        double oldRight = 0, oldTop = 0;
         if (opModeIsActive()) {
             int max, counter = 0;
             do {
@@ -287,24 +289,33 @@ public abstract class CypherAutoMethods extends CypherMethods {
                             }
 
                             //TODO: gets really confused when it sees more than one stone, fix this somehow by making it stick w/ the first stone it sees k thx
-
+                            //done needs testing and a small bit of fine tuning
                             if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                                telemetry.addData("SKYSTONE", true);
-                                telemetry.addData("left", recognition.getLeft());
-                                telemetry.addData("right", recognition.getRight());
-                                //not sure how it updates the right and top, maybe try a while loop and if not who knows
-                                if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
-                                    if(recognition.getRight() > recognition.getTop() + 150)
-                                        setDriveMotors(0.1);
-                                    else
-                                        setDriveMotors(-0.1);
-                                    //auTO NEEDS TO WORK BY SATERDAY!
-                                    telemetry.addData("moving", "to skystone.........");
-                                } else {
-                                    telemetry.addData("moving", "to the side.........");
-                                    isSkystone = true;
-                                    break;
+                                if (!skystoneFound) {
+                                    oldRight = recognition.getRight();
+                                    oldTop = recognition.getTop();
+                                    skystoneFound = true;
                                 }
+                                    if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
+                                        telemetry.addData("SKYSTONE", true);
+                                        telemetry.addData("left", recognition.getLeft());
+                                        telemetry.addData("right", recognition.getRight());
+                                        if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
+                                            if (recognition.getRight() > recognition.getTop() + 150)
+                                                setDriveMotors(0.1);
+                                            else
+                                                setDriveMotors(-0.1);
+                                            //auTO NEEDS TO WORK BY SATERDAY!
+                                            //ok boomer
+                                            telemetry.addData("moving", "to skystone.........");
+                                        } else {
+                                            telemetry.addData("moving", "to the side.........");
+                                            isSkystone = true;
+                                            break;
+                                        }
+                                        oldRight = recognition.getRight();
+                                        oldTop = recognition.getTop();
+                                    }
                             } else if (counter == max) {
                                 telemetry.addData("not skystone", true);
                                 testAutoMove(6, 0);
@@ -318,6 +329,15 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
+    private boolean isSame(double right1, double top1, double right2, double top2) {
+        double rightDiff = Math.abs(right1 - right2);
+        double topDiff = Math.abs(top1 - top2);
+        final int TOLERANCE = 20;
+        if  ((rightDiff <= TOLERANCE) && (topDiff <= TOLERANCE))
+            return true;
+        return false;
+    }
+
 
     private void moveToCenter(double left, double right) {
 /*
@@ -328,7 +348,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         double maxSpeed = 0.03;
         speed = Range.clip(P * error, minSpeed, maxSpeed);
  */
-        telemetry.addData("left",left);
+        telemetry.addData("left", left);
         telemetry.addData("right", right);
         telemetry.update();
 
@@ -372,6 +392,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             //no u
         }
     }
+
     protected void park(Team team, Side side) throws StopException {
         //TODO: work on this and make it cool k thx
     }
@@ -402,16 +423,16 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 waitControlIntake(1);
                 testAutoMove(3, 0);
                 //add that to the current pos
-                currentPos.add(convertInchToTile(-  3), 0);
+                currentPos.add(convertInchToTile(-3), 0);
 
                 //if we want to just use the bridge side
-                if(side == Side.BRIDGE) {
-                    if(team == Team.RED)
+                if (side == Side.BRIDGE) {
+                    if (team == Team.RED)
                         moveToPos(5, currentPos.getY(), dir); //move to above the bridge side on red
                     else
                         moveToPos(2, currentPos.getY(), dir); //move to above the bridge side on blue
                 } else {
-                    if(team == Team.RED)
+                    if (team == Team.RED)
                         moveToPos(6, currentPos.getY(), dir); //move to above the wall side on red
                     else
                         moveToPos(1, currentPos.getY(), dir); //move to above the wall side on red
@@ -467,10 +488,11 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
 
-        protected enum Team{
-            RED,BLUE
-        }
-        protected enum Side{
-            BRIDGE,WALL
-        }
+    protected enum Team {
+        RED, BLUE
+    }
+
+    protected enum Side {
+        BRIDGE, WALL
+    }
 }

@@ -27,8 +27,8 @@ public class mainDrive extends CypherMethods {
             boolean toggleIntake = gamepad1.a && notInitController();
             boolean stopIntake = gamepad1.b && notInitController();
             boolean toggleFoundation = gamepad1.y;
-            double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .5;
-            double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .7;
+            double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
+            double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
             double rotate = actualControl(gamepad1.right_stick_x, .3);
             //controller 2 stuff
             boolean arm = gamepad2.b && notInitController();

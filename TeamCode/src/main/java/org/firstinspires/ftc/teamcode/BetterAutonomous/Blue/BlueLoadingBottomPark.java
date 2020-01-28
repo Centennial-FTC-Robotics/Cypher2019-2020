@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.BetterAutonomous;
+package org.firstinspires.ftc.teamcode.BetterAutonomous.Blue;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
 
-@Autonomous(name = "blue parking on the opposite side towards the bottom with respect to the intial position only", group = "Auto")
-public class BlueOppositeSideBottomPark {
+@Autonomous(name = "Blue Loading Bottom Park", group = "Blue Loading Auto")
+public class BlueLoadingBottomPark extends CypherAutoMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         try {
@@ -21,7 +21,7 @@ public class BlueOppositeSideBottomPark {
             it needs to park bottom in this path
              */
 
-            testAutoMove(0, 12);
+            testAutoMove(0, -12);
         } catch (StopException e) {
             stopEverything();
         }
