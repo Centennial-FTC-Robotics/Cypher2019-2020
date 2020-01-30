@@ -296,26 +296,26 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     oldTop = recognition.getTop();
                                     skystoneFound = true;
                                 }
-                                    if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
-                                        telemetry.addData("SKYSTONE", true);
-                                        telemetry.addData("left", recognition.getLeft());
-                                        telemetry.addData("right", recognition.getRight());
-                                        if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
-                                            if (recognition.getRight() > recognition.getTop() + 150)
-                                                setDriveMotors(0.1);
-                                            else
-                                                setDriveMotors(-0.1);
-                                            //auTO NEEDS TO WORK BY SATERDAY!
-                                            //ok boomer
-                                            telemetry.addData("moving", "to skystone.........");
-                                        } else {
-                                            telemetry.addData("moving", "to the side.........");
-                                            isSkystone = true;
-                                            break;
-                                        }
-                                        oldRight = recognition.getRight();
-                                        oldTop = recognition.getTop();
+                                if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
+                                    telemetry.addData("SKYSTONE", true);
+                                    telemetry.addData("left", recognition.getLeft());
+                                    telemetry.addData("right", recognition.getRight());
+                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
+                                        if (recognition.getRight() > recognition.getTop() + 150)
+                                            setDriveMotors(0.1);
+                                        else
+                                            setDriveMotors(-0.1);
+                                        //auTO NEEDS TO WORK BY SATERDAY!
+                                        //ok boomer
+                                        telemetry.addData("moving", "to skystone.........");
+                                    } else {
+                                        telemetry.addData("moving", "to the side.........");
+                                        isSkystone = true;
+                                        break;
                                     }
+                                    oldRight = recognition.getRight();
+                                    oldTop = recognition.getTop();
+                                }
                             } else if (counter == max) {
                                 telemetry.addData("not skystone", true);
                                 testAutoMove(6, 0);
@@ -333,7 +333,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         double rightDiff = Math.abs(right1 - right2);
         double topDiff = Math.abs(top1 - top2);
         final int TOLERANCE = 20;
-        if  ((rightDiff <= TOLERANCE) && (topDiff <= TOLERANCE))
+        if ((rightDiff <= TOLERANCE) && (topDiff <= TOLERANCE))
             return true;
         return false;
     }
@@ -373,7 +373,11 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void getFoundation(int factor) {
+        getFoundation(factor, Side.BRIDGE);
+    }
+    protected void getFoundation(int factor, Side side) {
         try {
+
             //turnRelative(180);
             testAutoMove(-30, 0);
             testAutoMove(0, -10);
@@ -385,7 +389,11 @@ public abstract class CypherAutoMethods extends CypherMethods {
             timer.reset();
             controlFoundation(FoundationState.RELEASE);
             while (timer.seconds() < 1) ;
-            testAutoMove(26 * factor, 0);
+            if (side == Side.BRIDGE)
+                testAutoMove(26 * factor, 0);
+            else {
+                testAutoMove(-26 * factor, 20 * factor);
+            }
             //turnRelative(90);
         } catch (StopException e) {
             stopEverything();
