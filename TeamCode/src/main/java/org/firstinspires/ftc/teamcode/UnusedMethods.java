@@ -40,7 +40,7 @@ public class UnusedMethods {
 
     private double[] getDist(Tile start, Tile end, int dir) {
         double forward, left;
-        /* Note: Code to apply for any given angle. Not sure if it works, so it's commented. Let's tests.
+        /* //Note: Code to apply for any given angle. Not sure if it works, so it's commented. Let's tests.
         if (dir >= 0) {
             directionNew = 360 - (dir - 90);
         }
@@ -55,6 +55,18 @@ public class UnusedMethods {
         left = finalHorizontalAdjust - startHorizontalAdjust;
         return new double[]{tilesToInch(forward), tilesToInch(left)};
         }
+private void moveToCenter(double left, double right) {
+        double P = 0.02;
+        double error =  right - left;
+        double speed;
+        double minSpeed = 0.01;
+        double maxSpeed = 0.03;
+        speed = Range.clip(P * error, minSpeed, maxSpeed);
+        telemetry.addData("left", left);
+        telemetry.addData("right", right);
+        telemetry.update();
+
+}
         */
 
 

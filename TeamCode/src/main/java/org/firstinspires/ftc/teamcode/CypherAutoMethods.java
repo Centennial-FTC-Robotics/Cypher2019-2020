@@ -224,21 +224,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     private double[] getDist(Tile start, Tile end, int dir) {
         double forward, left;
-        /* Note: Code to apply for any given angle. Not sure if it works, so it's commented. Let's tests.
-        if (dir >= 0) {
-            directionNew = 360 - (dir - 90);
-        }
-        else {
-            directionNew = -dir + 90;
-        }
-        int startHorizontalAdjust = start.getX()*Math.cos(directionNew) + start.getY()*Math.sin(directionNew);
-        int startVerticalAdjust = -start.getX()*Math.sin(directionNew) + start.getY()*Math.cos(directionNew);
-        int finalHorizontalAdjust = end.getX()*Math.cos(directionNew) + end.getY()*Math.sin(directionNew);
-        int finalVerticalAdjust = -end.getX()*Math.sin(directionNew) + end.getY()*Math.cos(directionNew);
-        forward = finalVerticalAdjust - startVerticalAdjust;
-        left = finalHorizontalAdjust - startHorizontalAdjust;
-        return new double[]{tilesToInch(forward), tilesToInch(left)};
-         */
         switch (dir) {
             case 90:
                 forward = end.getX() - start.getX();
@@ -286,8 +271,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                 throw new StopException("stap");
                             }
 
-                            //TODO: gets really confused when it sees more than one stone, fix this somehow by making it stick w/ the first stone it sees k thx
-                            //done needs testing and a small bit of fine tuning
+                            //testing and a small bit of fine tuning
                             if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
                                 if (!skystoneFound) {
                                     oldRight = recognition.getRight();
@@ -307,6 +291,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                         }
                                         //auTO NEEDS TO WORK BY SATERDAY!
                                         //ok boomer
+                                        //alright, happy Saterday Holidays!
                                         telemetry.addData("moving", "to skystone.........");
                                     } else {
                                         telemetry.addData("moving", "to the side.........");
@@ -354,7 +339,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                 throw new StopException("stap");
                             }
 
-                            //TODO: gets really confused when it sees more than one stone, fix this somehow by making it stick w/ the first stone it sees k thx
                             //done needs testing and a small bit of fine tuning
                             if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
                                 if (!skystoneFound) {
@@ -405,21 +389,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
 
-    private void moveToCenter(double left, double right) {
-/*
-        double P = 0.02;
-        double error =  right - left;
-        double speed;
-        double minSpeed = 0.01;
-        double maxSpeed = 0.03;
-        speed = Range.clip(P * error, minSpeed, maxSpeed);
- */
-        telemetry.addData("left", left);
-        telemetry.addData("right", right);
-        telemetry.update();
-
-    }
-
     protected void emergRedLoading() {
         try {
             turnRelative(-90);
@@ -443,7 +412,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
     protected void getFoundation(int factor, Side side) {
         try {
-
             //turnRelative(180);
             testAutoMove(-30, 0);
             testAutoMove(0, -10);
@@ -468,7 +436,18 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void park(Team team, Side side) throws StopException {
-        //TODO: work on this and make it cool k thx
+        if (side == Side.BRIDGE) {
+            testAutoMove(30, 0);
+        } else {
+            if (side == Side.LEFTWALL) {
+                testAutoMove(0, -10);
+                testAutoMove(30, 0);
+            } else {
+                testAutoMove(0, 10);
+                testAutoMove(30, 0);
+            }
+        }
+
     }
 
     protected void actualAuto(Team team, Side side, int amount) {
@@ -567,6 +546,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected enum Side {
-        BRIDGE, WALL
+        BRIDGE, LEFTWALL
     }
 }
