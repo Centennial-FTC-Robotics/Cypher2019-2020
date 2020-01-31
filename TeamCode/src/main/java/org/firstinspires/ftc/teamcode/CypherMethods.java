@@ -23,7 +23,7 @@ public abstract class CypherMethods extends CypherHardware {
     private final double distanceInWheelRotation = wheelDiameter * Math.PI;
     private final double ticksPerInch = distanceInWheelRotation / ticksPerWheelRotation;
 
-    private final DcMotor[] driveMotors = new DcMotor[4];
+    protected final DcMotor[] driveMotors = new DcMotor[4];
     private final DcMotor[] strafeNeg = new DcMotor[2];
     private final DcMotor[] strafePos = new DcMotor[2];
     private final DcMotor[] leftMotors = new DcMotor[2];
@@ -525,6 +525,12 @@ public abstract class CypherMethods extends CypherHardware {
                 stopEverything();
                 break;
             }
+        }
+    }
+
+    void setMotorsWithoutEncoders() {
+        for(DcMotor motor : driveMotors) {
+             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
     }
 

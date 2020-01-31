@@ -3,15 +3,16 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp
-public class mainDrive extends CypherMethods {
+@TeleOp(name="Outreach")
+public class OutreachDrive extends CypherMethods {
 
     @Override
     public void runOpMode() throws InterruptedException {
         final int miliTillReady = 250;
         super.runOpMode();
-        waitForStart();
         setMotorsWithoutEncoders();
+        waitForStart();
+
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
@@ -26,9 +27,9 @@ public class mainDrive extends CypherMethods {
             boolean intakeIn = gamepad1.a && notInitController();
             boolean intakeOut = gamepad1.x;
             boolean intakeStop = gamepad1.b && notInitController();
-            double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
-            double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
-            double rotate = actualControl(gamepad1.right_stick_x, .3);
+            double leftPower = actualControl(gamepad1.left_stick_x, 0.7) * .2;
+            double forwardPower = actualControl(gamepad1.left_stick_y, 0.6) * .4;
+            double rotate = actualControl(gamepad1.right_stick_x, .6) * .2;
             //controller 2 stuff
             boolean arm = gamepad2.b && notInitController();
             boolean toggleFoundation = gamepad2.y;
@@ -40,7 +41,7 @@ public class mainDrive extends CypherMethods {
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {
                     controller1Timer.reset();
-                        inState = IntakeState.IN;
+                    inState = IntakeState.IN;
                 }
                 if (intakeOut) {
                     controller1Timer.reset();
