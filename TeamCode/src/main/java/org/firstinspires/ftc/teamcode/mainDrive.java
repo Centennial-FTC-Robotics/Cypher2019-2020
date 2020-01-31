@@ -11,7 +11,6 @@ public class mainDrive extends CypherMethods {
         final int miliTillReady = 250;
         super.runOpMode();
         waitForStart();
-        setMotorsWithoutEncoders();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 

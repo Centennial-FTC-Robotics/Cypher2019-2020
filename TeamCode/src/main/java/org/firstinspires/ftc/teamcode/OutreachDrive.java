@@ -10,7 +10,6 @@ public class OutreachDrive extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         final int miliTillReady = 250;
         super.runOpMode();
-        setMotorsWithoutEncoders();
         waitForStart();
 
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);

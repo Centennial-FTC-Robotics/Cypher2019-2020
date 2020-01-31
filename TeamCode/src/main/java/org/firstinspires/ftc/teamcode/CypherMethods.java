@@ -527,13 +527,7 @@ public abstract class CypherMethods extends CypherHardware {
             }
         }
     }
-
-    void setMotorsWithoutEncoders() {
-        for(DcMotor motor : driveMotors) {
-             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-    }
-
+    
     double clip(double num, double min, double max) {
         int sign;
         if (num < 0) {
