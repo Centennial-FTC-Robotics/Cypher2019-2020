@@ -125,10 +125,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 break;
         }
         try {
-            testAutoMove(12, 0);
+            testAutoMove(0, -6);
             currentPos.add(convertInchToTile(6) * factor, 0);
-            turnRelative(-90 * factor);
-            dir = 180;
             for (int i = 0; i < amount; i++) {
                 resetEncoders();
                 skystoneFindPls(factor);
@@ -301,10 +299,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     telemetry.addData("left", recognition.getLeft());
                                     telemetry.addData("right", recognition.getRight());
                                     if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
-                                        if (recognition.getRight() > recognition.getTop() + 150)
+                                        if (recognition.getRight() > recognition.getTop() + 150) {
                                             setDriveMotors(0.1);
-                                        else
+                                        }
+                                        else {
                                             setDriveMotors(-0.1);
+                                        }
                                         //auTO NEEDS TO WORK BY SATERDAY!
                                         //ok boomer
                                         telemetry.addData("moving", "to skystone.........");
@@ -325,17 +325,83 @@ public abstract class CypherAutoMethods extends CypherMethods {
                         }
                     }
                 }
+            } while (!skystoneFound);
+        }
+    }
+
+    protected void skystonePrintPls(int factor) throws StopException {
+        ElapsedTime timer = new ElapsedTime();
+        final double tolerance = 50;
+        boolean isSkystone = false;
+        boolean skystoneFound = false;
+        double oldRight = 0, oldTop = 0;
+        if (opModeIsActive()) {
+            int max, counter = 0;
+            do {
+                if (shouldStop()) {
+                    throw new StopException("stap");
+                }
+                if (tfod != null) {
+                    // getUpdatedRecognitions() will return null if no new information is available since
+                    // the last time that call was made.
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        // step through the list of recognitions and display boundary info.
+                        max = updatedRecognitions.size();
+                        for (Recognition recognition : updatedRecognitions) {
+                            counter++;
+                            if (shouldStop()) {
+                                throw new StopException("stap");
+                            }
+
+                            //TODO: gets really confused when it sees more than one stone, fix this somehow by making it stick w/ the first stone it sees k thx
+                            //done needs testing and a small bit of fine tuning
+                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                                if (!skystoneFound) {
+                                    oldRight = recognition.getRight();
+                                    oldTop = recognition.getTop();
+                                    skystoneFound = true;
+                                }
+                              if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
+                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
+                                        if (recognition.getRight() > recognition.getTop() + 150)
+                                            telemetry.addData("Robot would move","forward");
+                                        else
+                                            telemetry.addData("Robot would move","backwards");
+                                        //auTO NEEDS TO WORK BY SATERDAY!
+                                        //ok boomer
+                                        telemetry.update();
+                                    } else {
+                                        telemetry.addData("robot", "is centered");
+                                        telemetry.update();
+                                        isSkystone = true;
+                                        break;
+                                    }
+                                    oldRight = recognition.getRight();
+                                    oldTop = recognition.getTop();
+                                } else {
+                                  telemetry.addData("not the same", "u stoopid");
+                                  telemetry.update();
+                              }
+                            } else if (counter == max) {
+                                telemetry.addData("not skystone", true);
+                                testAutoMove(6, 0);
+                                break;
+                            }
+                            telemetry.update();
+                        }
+                    }
+                }
             } while (!isSkystone);
+
         }
     }
 
     private boolean isSame(double right1, double top1, double right2, double top2) {
         double rightDiff = Math.abs(right1 - right2);
         double topDiff = Math.abs(top1 - top2);
-        final int TOLERANCE = 20;
-        if ((rightDiff <= TOLERANCE) && (topDiff <= TOLERANCE))
-            return true;
-        return false;
+        final int TOLERANCE = 100;
+        return (rightDiff <= TOLERANCE) && (topDiff <= TOLERANCE);
     }
 
 

@@ -320,7 +320,7 @@ public abstract class CypherMethods extends CypherHardware {
         resetOrientation();
     }
 
-    private void initVuforia() {
+    protected void initVuforia() {
 
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 

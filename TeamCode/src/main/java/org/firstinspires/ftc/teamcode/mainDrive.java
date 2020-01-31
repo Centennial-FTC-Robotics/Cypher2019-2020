@@ -24,33 +24,30 @@ public class mainDrive extends CypherMethods {
         while (opModeIsActive()) {
             telemetry.addData("foundation state", foundationState);
             //controller 1 stuff
-            boolean toggleIntake = gamepad1.a && notInitController();
-            boolean stopIntake = gamepad1.b && notInitController();
-            boolean toggleFoundation = gamepad1.y;
+            boolean intakeIn = gamepad1.a && notInitController();
+            boolean intakeOut = gamepad1.x;
+            boolean intakeStop = gamepad1.b && notInitController();
             double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
             double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
             double rotate = actualControl(gamepad1.right_stick_x, .3);
             //controller 2 stuff
             boolean arm = gamepad2.b && notInitController();
-            boolean slideDown = gamepad2.b && notInitController();
-            boolean slideUp = gamepad2.y;
+            boolean toggleFoundation = gamepad2.y;
             boolean slow = gamepad2.left_bumper;
             double vSlide = gamepad2.left_stick_y;
             double hSlide = gamepad2.right_stick_x;
-            double swivelRight = gamepad2.right_trigger;
-            double swivelLeft = -gamepad2.left_trigger;
 
             //timer thingy
             if (controller1Timer.milliseconds() >= miliTillReady) {
-                if (toggleIntake) {
+                if (intakeIn) {
                     controller1Timer.reset();
-                    if (inState.equals(IntakeState.IN)) {
-                        inState = IntakeState.OUT;
-                    } else {
                         inState = IntakeState.IN;
-                    }
                 }
-                if (stopIntake) {
+                if (intakeOut) {
+                    controller1Timer.reset();
+                    inState = IntakeState.OUT;
+                }
+                if(intakeStop) {
                     controller1Timer.reset();
                     inState = IntakeState.STOP;
                 }
@@ -69,7 +66,7 @@ public class mainDrive extends CypherMethods {
             telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
-                    controlIntakeMotors(0.5);
+                    controlIntakeMotors(0.9);
                     break;
                 case OUT:
                     controlIntakeMotors(-0.5);
@@ -83,12 +80,7 @@ public class mainDrive extends CypherMethods {
                 telemetry.addData("Outreach Mode: Have fun!", " ");
                 leftPower = actualControl(gamepad1.left_stick_x, 0.7) * .4;
                 forwardPower = actualControl(gamepad1.left_stick_y, 0.8) * .4;
-                rotate = actualControl(gamepad1.right_stick_x, .7)*.4;
-            } else {
-                if (gamepad1.right_trigger > 0) {
-                    telemetry.addData("EMERGENCY MODE", "");
-                    //factor = whatever number should be used
-                }
+                rotate = actualControl(gamepad1.right_stick_x, .7) * .4;
             }
             if (gamepad1.left_trigger > 0) {
                 telemetry.addData("SLOW MODE ACTIVATED", " ");
@@ -119,26 +111,19 @@ public class mainDrive extends CypherMethods {
                             grabServo(0.2);
                             break;
                     }
+
+                    if (slow)
+                        slideFactor = 0.4;
+                    else
+                        slideFactor = 1;
                 }
 
-                if (slideDown) {
-                    moveSlides(-1);
-                } else if (slideUp) {
-                    moveSlides(1);
-                }
+                //Arm Control---------------------------------------------------------------------------
+                controlArm(hSlide);
+                controlSlides(vSlide * slideFactor);
 
-                if (slow)
-                    slideFactor = 0.4;
-                else
-                    slideFactor = 1;
+                telemetry.update();
             }
-
-            //Arm Control---------------------------------------------------------------------------
-            controlArm(hSlide);
-            controlSlides(vSlide * slideFactor);
-            swivelServo(swivelLeft + swivelRight);
-
-            telemetry.update();
         }
     }
 }

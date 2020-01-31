@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -38,7 +39,7 @@ public abstract class CypherHardware extends LinearOpMode {
     double initialPitch;
     double initialRoll;
     VuforiaLocalizer vuforia;
-    TFObjectDetector tfod;
+    protected TFObjectDetector tfod;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -71,6 +72,7 @@ public abstract class CypherHardware extends LinearOpMode {
         vLeft.setDirection(DcMotor.Direction.REVERSE);
         lFoundation.setDirection(Servo.Direction.REVERSE);
         leftIntake.setDirection(DcMotor.Direction.REVERSE);
+        leftUp.setDirection(DcMotor.Direction.REVERSE);
 
         leftDown.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftUp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
