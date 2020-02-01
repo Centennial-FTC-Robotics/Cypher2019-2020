@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="Outreach")
+@TeleOp(name = "Outreach")
 public class OutreachDrive extends CypherMethods {
 
     @Override
@@ -15,7 +15,7 @@ public class OutreachDrive extends CypherMethods {
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
-        double factor;
+        final double factor = 0.75;
         double slideFactor = 1;
         IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELEASE;
@@ -46,7 +46,7 @@ public class OutreachDrive extends CypherMethods {
                     controller1Timer.reset();
                     inState = IntakeState.OUT;
                 }
-                if(intakeStop) {
+                if (intakeStop) {
                     controller1Timer.reset();
                     inState = IntakeState.STOP;
                 }
@@ -75,13 +75,7 @@ public class OutreachDrive extends CypherMethods {
                     break;
             }
             //Speed Control-------------------------------------------------------------------------
-            if (gamepad1.left_trigger > 0) {
-                telemetry.addData("SLOW MODE ACTIVATED", " ");
-                factor = 0.258;
-            } else {
-                telemetry.addData("NORMAL MODE", " ");
-                factor = 0.87535463;
-            }
+            telemetry.addData("OUTREACH: Have Fun!", " ");
             telemetry.addData("factor", factor);
             //Driving-------------------------------------------------------------------------------
             manDriveMotors(forwardPower, leftPower, rotate, factor);

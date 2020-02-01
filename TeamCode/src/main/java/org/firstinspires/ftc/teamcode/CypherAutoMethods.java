@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
@@ -134,8 +132,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 Tile oldPos = new Tile(currentPos);
                 resetEncoders();
                 testAutoMove(-6, 0);
-                testAutoMove(0, 36 * factor);
-                currentPos.add(convertInchToTile(-6) * factor, convertInchToTile(-6));
+                testAutoMove(0, -40 * factor);
+                currentPos.add(convertInchToTile(-10) * factor, convertInchToTile(-6));
                 waitControlIntake(1);
                 testAutoMove(3, 0);
                 currentPos.add(convertInchToTile(3), 0);
@@ -248,7 +246,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void skystoneFindPls(int factor) throws StopException {
         ElapsedTime timer = new ElapsedTime();
         final double tolerance = 50;
-        boolean isSkystone = false;
         boolean skystoneFound = false;
         double oldRight = 0, oldTop = 0;
         if (opModeIsActive()) {
@@ -283,19 +280,20 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     telemetry.addData("left", recognition.getLeft());
                                     telemetry.addData("right", recognition.getRight());
                                     if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
+                                        telemetry.addData("moving", "to skystone.........");
                                         if (recognition.getRight() > recognition.getTop() + 150) {
                                             setDriveMotors(0.1);
-                                        }
-                                        else {
+                                            telemetry.addData("moving", "forward");
+                                        } else {
                                             setDriveMotors(-0.1);
+                                            telemetry.addData("moving", "backwards");
                                         }
                                         //auTO NEEDS TO WORK BY SATERDAY!
                                         //ok boomer
                                         //alright, happy Saterday Holidays!
-                                        telemetry.addData("moving", "to skystone.........");
                                     } else {
                                         telemetry.addData("moving", "to the side.........");
-                                        isSkystone = true;
+                                        skystoneFound = true;
                                         break;
                                     }
                                     oldRight = recognition.getRight();
@@ -303,7 +301,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                 }
                             } else if (counter == max) {
                                 telemetry.addData("not skystone", true);
-                                testAutoMove(6, 0);
                                 break;
                             }
                             telemetry.update();
@@ -346,12 +343,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     oldTop = recognition.getTop();
                                     skystoneFound = true;
                                 }
-                              if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
-                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
-                                        if (recognition.getRight() > recognition.getTop() + 150)
-                                            telemetry.addData("Robot would move","forward");
+                                if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
+                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 200) > tolerance) {
+                                        if (recognition.getRight() > recognition.getTop() + 200)
+                                            telemetry.addData("Robot would move", "forward");
                                         else
-                                            telemetry.addData("Robot would move","backwards");
+                                            telemetry.addData("Robot would move", "backwards");
                                         //auTO NEEDS TO WORK BY SATERDAY!
                                         //ok boomer
                                         telemetry.update();
@@ -364,9 +361,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     oldRight = recognition.getRight();
                                     oldTop = recognition.getTop();
                                 } else {
-                                  telemetry.addData("not the same", "u stoopid");
-                                  telemetry.update();
-                              }
+                                    telemetry.addData("not the same", "u stoopid");
+                                    telemetry.update();
+                                }
                             } else if (counter == max) {
                                 telemetry.addData("not skystone", true);
                                 testAutoMove(6, 0);
@@ -410,6 +407,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void getFoundation(int factor) {
         getFoundation(factor, Side.BRIDGE);
     }
+
     protected void getFoundation(int factor, Side side) {
         try {
             //turnRelative(180);
@@ -436,16 +434,26 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void park(Team team, Side side) throws StopException {
-        if (side == Side.BRIDGE) {
-            testAutoMove(30, 0);
-        } else {
-            if (side == Side.WALL) {
-                testAutoMove(0, -10);
-                testAutoMove(30, 0);
-            } else {
-                testAutoMove(0, 10);
-                testAutoMove(30, 0);
-            }
+        //highly doubtful team is needed but if so put it in; also prob just need testautomove only
+        switch (team) {
+            case RED:
+                switch (side) {
+                    case BRIDGE:
+                        testAutoMove(30, 0);
+                    case WALL:
+                        testAutoMove(0, -10);
+                        testAutoMove(30, 0);
+                }
+            case BLUE:
+                switch (side) {
+                    case BRIDGE:
+                        testAutoMove(30, 0);
+                    case WALL:
+                        testAutoMove(0, 10);
+                        testAutoMove(30, 0);
+                }
+
+
         }
 
     }

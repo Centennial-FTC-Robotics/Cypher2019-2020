@@ -39,13 +39,13 @@ public class mainDrive extends CypherMethods {
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {
                     controller1Timer.reset();
-                        inState = IntakeState.IN;
+                    inState = IntakeState.IN;
                 }
                 if (intakeOut) {
                     controller1Timer.reset();
                     inState = IntakeState.OUT;
                 }
-                if(intakeStop) {
+                if (intakeStop) {
                     controller1Timer.reset();
                     inState = IntakeState.STOP;
                 }

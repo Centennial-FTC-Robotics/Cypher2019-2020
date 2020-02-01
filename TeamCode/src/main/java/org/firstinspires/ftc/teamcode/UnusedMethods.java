@@ -68,6 +68,22 @@ private void moveToCenter(double left, double right) {
 
 }
         */
+/*someidea I had that isn't needed
+public class RedBottomMoveFoundationRight extends CypherAutoMethods {
+    @Override
+    public void runOpMode() throws InterruptedException {
+        super.runOpMode();
+        try {
+            initEverything();
+        } catch (StopException e) {
+            stopEverything();
+        }
+        waitForStart();
+        getFoundation(-1, Side.RIGHTWALL);
 
+
+    }
+}
+ */
 
 }
