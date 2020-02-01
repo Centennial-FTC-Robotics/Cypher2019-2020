@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-public class ReusableMethods {
-    /*
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+public class Tuner extends CypherMethods {
     //TUNER
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -53,7 +54,7 @@ public class ReusableMethods {
 
                 }
                 if (cont) {
-                    findP(0, 22.75 * factor, P);
+                    //findP(0, 22.75 * factor, P); unsure why this is here will delete if not resolved
                     factor *= -1;
                     controllerTimer.reset();
 
@@ -66,5 +67,4 @@ public class ReusableMethods {
 
     }
 
-     */
 }
