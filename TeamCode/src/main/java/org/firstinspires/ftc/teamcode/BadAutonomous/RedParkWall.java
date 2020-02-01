@@ -14,7 +14,5 @@ public class RedParkWall extends CypherAutoMethods {
         waitForStart();
 
 
-
-
     }
 }

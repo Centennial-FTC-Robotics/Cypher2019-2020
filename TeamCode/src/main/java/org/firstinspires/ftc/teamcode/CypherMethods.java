@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -17,13 +16,12 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 public abstract class CypherMethods extends CypherHardware {
 
+    protected final DcMotor[] driveMotors = new DcMotor[4];
     private final double ticksPerRotation = 383.6;
     private final double wheelDiameter = 3.937;
     private final double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
     private final double distanceInWheelRotation = wheelDiameter * Math.PI;
     private final double ticksPerInch = distanceInWheelRotation / ticksPerWheelRotation;
-
-    protected final DcMotor[] driveMotors = new DcMotor[4];
     private final DcMotor[] strafeNeg = new DcMotor[2];
     private final DcMotor[] strafePos = new DcMotor[2];
     private final DcMotor[] leftMotors = new DcMotor[2];
@@ -70,7 +68,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //MOVEMENT
-    
+
     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
         double magnitude = Math.cbrt(forwardPower * forwardPower + leftPower * leftPower + rotate * rotate);
         if (magnitude > 1) {
@@ -247,7 +245,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     protected void stopEverything() {
-        telemetry.addData("stop",null);
+        telemetry.addData("stop", null);
         telemetry.update();
         for (DcMotor motor : driveMotors) {
             motor.setPower(0);
@@ -255,7 +253,7 @@ public abstract class CypherMethods extends CypherHardware {
         for (DcMotor motor : vSlides) {
             motor.setPower(0);
         }
-        for (DcMotor motor: wheelIntakeMotors) {
+        for (DcMotor motor : wheelIntakeMotors) {
             motor.setPower(0);
         }
         swivel.setPower(0);
@@ -313,7 +311,7 @@ public abstract class CypherMethods extends CypherHardware {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
         while (!imu.isGyroCalibrated()) {
-            if(isStopRequested()) {
+            if (isStopRequested()) {
                 throw new StopException("stap");
             }
         }
@@ -340,7 +338,7 @@ public abstract class CypherMethods extends CypherHardware {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    protected void initEverything() throws StopException  {
+    protected void initEverything() throws StopException {
         initializeIMU();
         initVuforia();
         initTfod();
@@ -504,8 +502,7 @@ public abstract class CypherMethods extends CypherHardware {
     void controlFoundation(FoundationState state) {
         if (state.equals(FoundationState.RELEASE)) {
             moveFoundation(1);
-        }
-        else {
+        } else {
             lFoundation.setPosition(0.05);
             rFoundation.setPosition(0);
         }
@@ -520,14 +517,14 @@ public abstract class CypherMethods extends CypherHardware {
 
     protected void waitMili(double mili) {
         ElapsedTime time = new ElapsedTime();
-        while(time.milliseconds() < mili) {
-            if(shouldStop()) {
+        while (time.milliseconds() < mili) {
+            if (shouldStop()) {
                 stopEverything();
                 break;
             }
         }
     }
-    
+
     double clip(double num, double min, double max) {
         int sign;
         if (num < 0) {

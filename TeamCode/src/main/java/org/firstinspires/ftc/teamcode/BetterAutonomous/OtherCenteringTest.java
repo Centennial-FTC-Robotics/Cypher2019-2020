@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.BetterAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
 
@@ -18,7 +17,7 @@ public class OtherCenteringTest extends CypherAutoMethods {
         waitForStart();
         try {
             skystonePrintPls(1);
-        } catch(StopException e) {
+        } catch (StopException e) {
             stopEverything();
         }
 

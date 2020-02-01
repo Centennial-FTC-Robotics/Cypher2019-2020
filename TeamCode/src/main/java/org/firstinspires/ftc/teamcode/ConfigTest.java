@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -15,7 +14,7 @@ public class ConfigTest extends CypherMethods {
         waitForStart();
         ElapsedTime time = new ElapsedTime();
         while (opModeIsActive()) {
-            for(DcMotor motor : driveMotors) {
+            for (DcMotor motor : driveMotors) {
                 telemetry.addData("pos", motor.getCurrentPosition());
             }
             telemetry.update();

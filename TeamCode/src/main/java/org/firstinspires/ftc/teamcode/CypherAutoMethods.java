@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
@@ -285,8 +283,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
                                         if (recognition.getRight() > recognition.getTop() + 150) {
                                             setDriveMotors(0.1);
-                                        }
-                                        else {
+                                        } else {
                                             setDriveMotors(-0.1);
                                         }
                                         //auTO NEEDS TO WORK BY SATERDAY!
@@ -346,12 +343,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     oldTop = recognition.getTop();
                                     skystoneFound = true;
                                 }
-                              if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
+                                if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
                                     if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
                                         if (recognition.getRight() > recognition.getTop() + 150)
-                                            telemetry.addData("Robot would move","forward");
+                                            telemetry.addData("Robot would move", "forward");
                                         else
-                                            telemetry.addData("Robot would move","backwards");
+                                            telemetry.addData("Robot would move", "backwards");
                                         //auTO NEEDS TO WORK BY SATERDAY!
                                         //ok boomer
                                         telemetry.update();
@@ -364,9 +361,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     oldRight = recognition.getRight();
                                     oldTop = recognition.getTop();
                                 } else {
-                                  telemetry.addData("not the same", "u stoopid");
-                                  telemetry.update();
-                              }
+                                    telemetry.addData("not the same", "u stoopid");
+                                    telemetry.update();
+                                }
                             } else if (counter == max) {
                                 telemetry.addData("not skystone", true);
                                 testAutoMove(6, 0);
@@ -410,6 +407,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void getFoundation(int factor) {
         getFoundation(factor, Side.BRIDGE);
     }
+
     protected void getFoundation(int factor, Side side) {
         try {
             //turnRelative(180);
@@ -435,19 +433,18 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
-    protected void park(Team team, Side side) throws StopException {
-        if (side == Side.BRIDGE) {
-            testAutoMove(30, 0);
-        } else {
-            if (side == Side.LEFTWALL) {
+    protected void park(Side side) throws StopException {
+        //highly doubtful team is needed but if so put it in; also prob just need testautomove only
+        switch (side) {
+            case BRIDGE:
+                testAutoMove(30, 0);
+            case LEFTWALL:
                 testAutoMove(0, -10);
                 testAutoMove(30, 0);
-            } else {
+            case RIGHTWALL:
                 testAutoMove(0, 10);
                 testAutoMove(30, 0);
-            }
         }
-
     }
 
     protected void actualAuto(Team team, Side side, int amount) {
@@ -546,6 +543,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected enum Side {
-        BRIDGE, LEFTWALL
+        BRIDGE, LEFTWALL, RIGHTWALL
     }
 }
