@@ -439,7 +439,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         if (side == Side.BRIDGE) {
             testAutoMove(30, 0);
         } else {
-            if (side == Side.LEFTWALL) {
+            if (side == Side.WALL) {
                 testAutoMove(0, -10);
                 testAutoMove(30, 0);
             } else {
@@ -546,6 +546,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected enum Side {
-        BRIDGE, LEFTWALL
+        BRIDGE, WALL
     }
 }

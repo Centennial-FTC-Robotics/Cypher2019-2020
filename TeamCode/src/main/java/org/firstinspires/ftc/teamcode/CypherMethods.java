@@ -527,7 +527,7 @@ public abstract class CypherMethods extends CypherHardware {
             }
         }
     }
-    
+
     double clip(double num, double min, double max) {
         int sign;
         if (num < 0) {
