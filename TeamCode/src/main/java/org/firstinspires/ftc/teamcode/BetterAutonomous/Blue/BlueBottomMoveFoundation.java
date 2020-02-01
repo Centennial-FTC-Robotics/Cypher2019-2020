@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.BetterAutonomous.Red;
+package org.firstinspires.ftc.teamcode.BetterAutonomous.Blue;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
 
-@Autonomous(name = "Red Top Move Foundation Left", group = "Red Bridge Auto")
-public class RedBottomMoveFoundationLeft extends CypherAutoMethods {
+@Autonomous(name = "Blue Top Move Foundation Left", group = "Blue Bridge Auto")
+public class BlueBottomMoveFoundation extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -15,7 +15,7 @@ public class RedBottomMoveFoundationLeft extends CypherAutoMethods {
             stopEverything();
         }
         waitForStart();
-        getFoundation(-1, Side.LEFTWALL);
+        getFoundation(1, Side.WALL);
 
 
     }

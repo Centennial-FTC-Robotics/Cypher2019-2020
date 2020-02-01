@@ -433,18 +433,29 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
-    protected void park(Side side) throws StopException {
+    protected void park(Team team, Side side) throws StopException {
         //highly doubtful team is needed but if so put it in; also prob just need testautomove only
-        switch (side) {
-            case BRIDGE:
-                testAutoMove(30, 0);
-            case LEFTWALL:
-                testAutoMove(0, -10);
-                testAutoMove(30, 0);
-            case RIGHTWALL:
-                testAutoMove(0, 10);
-                testAutoMove(30, 0);
+        switch (team) {
+            case RED:
+                switch (side) {
+                    case BRIDGE:
+                        testAutoMove(30, 0);
+                    case WALL:
+                        testAutoMove(0, -10);
+                        testAutoMove(30, 0);
+                }
+            case BLUE:
+                switch (side) {
+                    case BRIDGE:
+                        testAutoMove(30, 0);
+                    case WALL:
+                        testAutoMove(0, 10);
+                        testAutoMove(30, 0);
+                }
+
+
         }
+
     }
 
     protected void actualAuto(Team team, Side side, int amount) {
@@ -543,6 +554,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected enum Side {
-        BRIDGE, LEFTWALL, RIGHTWALL
+        BRIDGE, WALL
     }
 }
