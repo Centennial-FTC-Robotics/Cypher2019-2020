@@ -30,9 +30,10 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotor[] wheelIntakeMotors = new DcMotor[2];
     private final Servo[] foundationServos = new Servo[2];
 
+    //TODO: Re-finetune these and not break
+    //TODO: suggest put limit max range based on residual speed/distance when motors "stop"; something line "risky" and safe
     private final int VSlideMax = 760;
     private final int VSlideMin = 5;
-
 
     protected int dir;
 
@@ -181,7 +182,7 @@ public abstract class CypherMethods extends CypherHardware {
         setDriveMotors(0);
     }
 
-    //still needs testing
+    //TODO: DRIVER ENHANCEMNT SELF CORRECTING STRAFE: do test
     void selfCorrectStrafe(double forward, double left) throws StopException {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);

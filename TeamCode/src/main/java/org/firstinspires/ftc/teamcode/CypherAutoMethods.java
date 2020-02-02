@@ -21,6 +21,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         super.runOpMode();
     }
 
+    //TODO: Find place to put this method
     void emergencyMove(String side, String color) throws StopException {
         ElapsedTime timer = new ElapsedTime();
         double factor;
@@ -351,6 +352,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                             telemetry.addData("Robot would move", "backwards");
                                         //auTO NEEDS TO WORK BY SATERDAY!
                                         //ok boomer
+                                        //happy saterday everyone
                                         telemetry.update();
                                     } else {
                                         telemetry.addData("robot", "is centered");
@@ -502,6 +504,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 /*TODO: add part to drop off stone and move foundation
                   TODO: and park on the specified side
                   TODO: and like work in general
+                  TODO: Are we still using actual auton tho? if not then put in unused methods
                  */
                 moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
 

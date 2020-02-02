@@ -68,7 +68,7 @@ private void moveToCenter(double left, double right) {
 
 }
         */
-/*someidea I had that isn't needed
+/*someidea I had that isn't needed(park to the right side(AKA non-wall side) of bridge
 public class RedBottomMoveFoundationRight extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {

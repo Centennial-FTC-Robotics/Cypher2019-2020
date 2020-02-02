@@ -13,12 +13,12 @@ public class mainDrive extends CypherMethods {
         waitForStart();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-
         double factor;
         double slideFactor = 1;
         IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
+
         while (opModeIsActive()) {
             telemetry.addData("foundation state", foundationState);
             //controller 1 stuff

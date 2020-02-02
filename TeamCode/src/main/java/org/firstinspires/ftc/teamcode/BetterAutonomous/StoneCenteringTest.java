@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 import org.firstinspires.ftc.teamcode.StopException;
 
 @Autonomous(name = "Center Test Just Print", group = "Test")
-public class OtherCenteringTest extends CypherAutoMethods {
+public class StoneCenteringTest extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
