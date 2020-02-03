@@ -35,6 +35,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
         }
         telemetry.addData("EMERGENCY", "ROBOT DOES NOT WORK NORMALLY");
+        //the robot is always like that wdym
         telemetry.update();
         timer.reset();
         do {
