@@ -31,6 +31,7 @@ public abstract class CypherMethods extends CypherHardware {
     private final Servo[] foundationServos = new Servo[2];
 
     //TODO: Re-finetune these and not break
+    //slides break thats how they work
     //TODO: suggest put limit max range based on residual speed/distance when motors "stop"; something line "risky" and safe
     private final int VSlideMax = 760;
     private final int VSlideMin = 5;
@@ -188,7 +189,7 @@ public abstract class CypherMethods extends CypherHardware {
         int leftMovement = convertInchToEncoder(left);
 
         resetEncoders();
-        double P = 0.04;
+        double P = 1/1333d;
         double I = 0;
         double tolerance = 5;
         double angleTolerance = 10;
