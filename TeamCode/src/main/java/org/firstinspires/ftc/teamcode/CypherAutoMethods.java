@@ -7,7 +7,7 @@ import java.util.List;
 
 public abstract class CypherAutoMethods extends CypherMethods {
 
-    protected final Tile currentPos = new Tile(0, 0); //always start here
+    private final Tile currentPos = new Tile(0, 0); //always start here; changed from protected to private to lose warning
     private final Tile redFoundation = new Tile(5, 5, 1, 3);
     private final Tile redBuildSite = new Tile(6, 6, 2, 1);
     private final Tile redQuarry = new Tile(5, 2, 3, 2);
@@ -36,6 +36,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
         telemetry.addData("EMERGENCY", "ROBOT DOES NOT WORK NORMALLY");
         //the robot is always like that wdym
+        //ok boomer
         telemetry.update();
         timer.reset();
         do {
@@ -223,6 +224,47 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     private double[] getDist(Tile start, Tile end, int dir) {
+        /*
+        The angle manipulation is assuming that the degrees become negative right after it crosses 180 degrees.
+        For instance, this assumption implies that one degree after 180 degrees is -1 degree because 90 more then becomes -90.
+        It also assumes that the degree system stays negative from -90 and 90 degrees onward from that:
+         */
+
+        /*
+        Actual Attempt at angle stuff:
+
+        int actualDir;
+        double forward;
+        double left;
+        double endHorzShift;
+        double endVertShift;
+        double begHorzShift;
+        double begVertShift;
+        if (dir >= 0) {
+            actualDir = -dir + 90;
+        }
+        else {
+            actualDir = dir - 90;
+        }
+
+        endHorzShift = end.getX()*Math.cos(actualDir) + end.getY()*Math.sin(actualDir);
+        endVertShift = -end.getX()*Math.sin(actualDir) + end.getY()*Math.cos(actualDir);
+        begHorzShift = start.getX()*Math.cos(actualDir) + start.getY()*Math.sin(actualDir);
+        begVertzShift = -start.getX()*Math.sin(actualDir) + start.getY()*Math.cos(actualDir);
+
+        forward = endHorzShift - begHorzShift;
+        left = endVertShift - begVertShift;
+
+        return new double[]{tilesToInch(forward), tilesToInch(left)};
+
+        */
+
+        /*
+        If it does not work, it's probably a result of one of the two things:
+        1.) The way the angle system works, such as when it turns negative.
+        2.) Switching forward and left from each other, in which case, just swap the forward and let declaration statements.
+         */
+
         double forward, left;
         switch (dir) {
             case 90:
@@ -245,7 +287,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 
-    protected void skystoneFindPls(int factor) throws StopException {
+    private void skystoneFindPls(int factor) throws StopException { //changed from protected to private, so warnings can stop yelling
         ElapsedTime timer = new ElapsedTime();
         final double tolerance = 50;
         boolean skystoneFound = false;
@@ -411,19 +453,19 @@ public abstract class CypherAutoMethods extends CypherMethods {
         getFoundation(factor, Side.BRIDGE);
     }
 
-    protected void getFoundation(int factor, Side side) {
+    private void getFoundation(int factor, Side side) { //changed from protected to private, so warnings can stop yelling
         try {
             //turnRelative(180);
             testAutoMove(-30, 0);
             testAutoMove(0, -10);
             controlFoundation(FoundationState.DRAG);
             ElapsedTime timer = new ElapsedTime();
-            while (timer.seconds() < 1) ;
+            while (timer.seconds() < 1);
             testAutoMove(44, 0);
             turnRelative(75 * factor);
             timer.reset();
             controlFoundation(FoundationState.RELEASE);
-            while (timer.seconds() < 1) ;
+            while (timer.seconds() < 1);
             if (side == Side.BRIDGE)
                 testAutoMove(26 * factor, 0);
             else {
