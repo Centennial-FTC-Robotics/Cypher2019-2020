@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
@@ -19,9 +20,11 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
+        changeColor(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_WAVES);
     }
 
-    //TODO: Find place to put this method
+    //TODO: Find place to put this method\
+    //ha no
     void emergencyMove(String side, String color) throws StopException {
         ElapsedTime timer = new ElapsedTime();
         double factor;
@@ -339,7 +342,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                             }
 
                             //done needs testing and a small bit of fine tuning
-                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                            if (recognition.getLabel().equals(LABEL_FIRST_ELEMENT)) {
                                 if (!skystoneFound) {
                                     oldRight = recognition.getRight();
                                     oldTop = recognition.getTop();
@@ -369,7 +372,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                 }
                             } else if (counter == max) {
                                 telemetry.addData("not skystone", true);
-                                testAutoMove(6, 0);
                                 break;
                             }
                             telemetry.update();

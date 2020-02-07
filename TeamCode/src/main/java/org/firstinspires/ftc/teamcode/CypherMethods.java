@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -190,6 +191,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         resetEncoders();
         double P = 1/1333d;
+        double rotateP = 1/2666d;
         double I = 0;
         double tolerance = 5;
         double angleTolerance = 10;
@@ -216,7 +218,7 @@ public abstract class CypherMethods extends CypherHardware {
             angleError = currentAngle - startAngle;
 
             if (Math.abs(angleError) > angleTolerance) {
-                turnRelative(angleError);
+                turnAbsolute(startAngle);
             }
 
             currentNegPos = getNegPos();
@@ -227,7 +229,6 @@ public abstract class CypherMethods extends CypherHardware {
 
             negSum += negError;
             posSum += posError;
-
             negSpeed = clip(P * negError + I * negSum, minSpeed, maxSpeed);
             posSpeed = clip(P * posError + I * posSum, minSpeed, maxSpeed);
 
@@ -546,6 +547,10 @@ public abstract class CypherMethods extends CypherHardware {
 
     boolean shouldStop() {
         return isStopRequested() || (!opModeIsActive());
+    }
+
+    void changeColor(RevBlinkinLedDriver.BlinkinPattern pattern) {
+        blinkinLed.setPattern(pattern);
     }
 
     //enum stuff

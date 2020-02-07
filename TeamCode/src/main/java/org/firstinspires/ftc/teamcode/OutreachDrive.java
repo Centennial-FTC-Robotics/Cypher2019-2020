@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -11,6 +12,7 @@ public class OutreachDrive extends CypherMethods {
         final int miliTillReady = 250;
         super.runOpMode();
         waitForStart();
+        changeColor(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_RAINBOW_PALETTE);
 
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -65,10 +67,10 @@ public class OutreachDrive extends CypherMethods {
             telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
-                    controlIntakeMotors(0.9);
+                    controlIntakeMotors(0.7);
                     break;
                 case OUT:
-                    controlIntakeMotors(-0.5);
+                    controlIntakeMotors(-0.2);
                     break;
                 case STOP:
                     controlIntakeMotors(0);

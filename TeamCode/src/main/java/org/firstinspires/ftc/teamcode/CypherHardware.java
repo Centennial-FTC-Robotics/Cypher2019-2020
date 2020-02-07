@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -35,6 +36,10 @@ public abstract class CypherHardware extends LinearOpMode {
     double initialRoll;
     VuforiaLocalizer vuforia;
 
+    RevBlinkinLedDriver blinkinLed;
+
+
+
     @Override
     public void runOpMode() throws InterruptedException {
         getHardwareDevices();
@@ -58,6 +63,9 @@ public abstract class CypherHardware extends LinearOpMode {
         rFoundation = hardwareMap.servo.get("foundation2");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        blinkinLed = hardwareMap.get(RevBlinkinLedDriver.class, "ledthingy");
+
     }
 
     private void initHardware() {
