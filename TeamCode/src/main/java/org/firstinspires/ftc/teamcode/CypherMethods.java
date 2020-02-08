@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -17,18 +17,18 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 public abstract class CypherMethods extends CypherHardware {
 
-    protected final DcMotor[] driveMotors = new DcMotor[4];
+    protected final DcMotorEx[] driveMotors = new DcMotorEx[4];
     private final double ticksPerRotation = 383.6;
     private final double wheelDiameter = 3.937;
     private final double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
     private final double distanceInWheelRotation = wheelDiameter * Math.PI;
     private final double ticksPerInch = distanceInWheelRotation / ticksPerWheelRotation;
-    private final DcMotor[] strafeNeg = new DcMotor[2];
-    private final DcMotor[] strafePos = new DcMotor[2];
-    private final DcMotor[] leftMotors = new DcMotor[2];
-    private final DcMotor[] rightMotors = new DcMotor[2];
-    private final DcMotor[] vSlides = new DcMotor[2];
-    private final DcMotor[] wheelIntakeMotors = new DcMotor[2];
+    private final DcMotorEx[] strafeNeg = new DcMotorEx[2];
+    private final DcMotorEx[] strafePos = new DcMotorEx[2];
+    private final DcMotorEx[] leftMotors = new DcMotorEx[2];
+    private final DcMotorEx[] rightMotors = new DcMotorEx[2];
+    private final DcMotorEx[] vSlides = new DcMotorEx[2];
+    private final DcMotorEx[] wheelIntakeMotors = new DcMotorEx[2];
     private final Servo[] foundationServos = new Servo[2];
 
     //TODO: Re-finetune these and not break
@@ -140,7 +140,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         double P = 1d / 1333;
         double I = 0;
-        double tolerance = convertInchToEncoder(1d / 3);
+        double tolerance = 1d/3;
         double minSpeed = 0.01;
         double maxSpeed = 0.2666;
         double negSpeed, posSpeed;
@@ -191,7 +191,6 @@ public abstract class CypherMethods extends CypherHardware {
 
         resetEncoders();
         double P = 1/1333d;
-        double rotateP = 1/2666d;
         double I = 0;
         double tolerance = 5;
         double angleTolerance = 10;
@@ -247,16 +246,61 @@ public abstract class CypherMethods extends CypherHardware {
         setDriveMotors(0);
     }
 
+    protected void betterSelfCorrectStrafe(double forward, double left) {
+        int forwardMovement = convertInchToEncoder(forward);
+        int leftMovement = convertInchToEncoder(left);
+
+        int negTarget = forwardMovement - leftMovement;
+        int posTarget = forwardMovement + leftMovement;
+
+        double P = 1d/1333;
+        double turnP = 1d/2000;
+        double tolerance = 1d/3;
+        double turnTolerance = 2d/3;
+        double minSpeed = 0.01;
+        double minTurnSpeed = minSpeed;
+        double maxSpeed = 0.5;
+        double maxTurnSpeed = 0.3;
+        double negError, posError;
+        double negPos, posPos;
+        double angleError;
+        double startAngle = getRotationDimension();
+        double currentAngle;
+        double negSpeed, posSpeed, rotateSpeed;
+
+        do{
+            currentAngle = getRotationDimension();
+            negPos = getNegPos();
+            posPos = getPosPos();
+
+            negError = negPos - negTarget;
+            posError = posPos - posTarget;
+            angleError = currentAngle - startAngle;
+
+            negSpeed = clip(P * negError, minSpeed, maxSpeed);
+            posSpeed = clip(P * posError, minSpeed, maxSpeed);
+            rotateSpeed = clip(angleError* turnP, minTurnSpeed, maxTurnSpeed);
+            turnStrafe(negSpeed, posSpeed, rotateSpeed);
+        }while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance || Math.abs(angleError) > turnTolerance));
+
+    }
+    private void turnStrafe(double neg, double pos, double rotate) {
+        leftUp.setPower(neg - rotate);
+        rightUp.setPower(pos + rotate);
+        leftDown.setPower(pos - rotate);
+        rightDown.setPower(neg + rotate);
+    }
+
     protected void stopEverything() {
-        telemetry.addData("stop", null);
+        telemetry.addLine("Stopping");
         telemetry.update();
-        for (DcMotor motor : driveMotors) {
+        for (DcMotorEx motor : driveMotors) {
             motor.setPower(0);
         }
-        for (DcMotor motor : vSlides) {
+        for (DcMotorEx motor : vSlides) {
             motor.setPower(0);
         }
-        for (DcMotor motor : wheelIntakeMotors) {
+        for (DcMotorEx motor : wheelIntakeMotors) {
             motor.setPower(0);
         }
         swivel.setPower(0);
@@ -265,39 +309,39 @@ public abstract class CypherMethods extends CypherHardware {
 
     //MOTOR CONTROL
     private void setDriveMotors(double leftPower, double rightPower) {
-        for (DcMotor motor : leftMotors) {
+        for (DcMotorEx motor : leftMotors) {
             motor.setPower(leftPower);
         }
-        for (DcMotor motor : rightMotors) {
+        for (DcMotorEx motor : rightMotors) {
             motor.setPower(rightPower);
         }
     }
 
 
     void setDriveMotors(double power) {
-        for (DcMotor motor : driveMotors) {
+        for (DcMotorEx motor : driveMotors) {
             motor.setPower(power);
         }
     }
 
     void setStrafeMotors(double neg, double pos) {
-        for (DcMotor motor : strafeNeg) {
+        for (DcMotorEx motor : strafeNeg) {
             motor.setPower(neg);
         }
-        for (DcMotor motor : strafePos) {
+        for (DcMotorEx motor : strafePos) {
             motor.setPower(pos);
         }
     }
 
     void resetEncoders() {
-        for (DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        for (DcMotorEx motor : driveMotors) {
+            motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
 
-        for (DcMotor motor : vSlides) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        for (DcMotorEx motor : vSlides) {
+            motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
     }
 
@@ -349,7 +393,7 @@ public abstract class CypherMethods extends CypherHardware {
         if (tfod != null) {
             tfod.activate();
         }
-        telemetry.addData("init done", null);
+        telemetry.addLine("Init done");
         telemetry.update();
     }
 
@@ -398,17 +442,17 @@ public abstract class CypherMethods extends CypherHardware {
         return angleDir;
     }
 
-    private int getNegPos() {
+    int getNegPos() {
         int average = 0;
-        for (DcMotor motor : strafeNeg) {
+        for (DcMotorEx motor : strafeNeg) {
             average += motor.getCurrentPosition();
         }
         return average / 2;
     }
 
-    private int getPosPos() {
+    int getPosPos() {
         int average = 0;
-        for (DcMotor motor : strafePos) {
+        for (DcMotorEx motor : strafePos) {
             average += motor.getCurrentPosition();
         }
         return average / 2;
@@ -416,7 +460,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     private int getVSlidePos() {
         int average = 0;
-        for (DcMotor motor : vSlides) {
+        for (DcMotorEx motor : vSlides) {
             average += motor.getCurrentPosition();
         }
         return average / 2;
@@ -428,7 +472,7 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     //CONVERSION METHODS
-    private int convertInchToEncoder(double inches) {
+    protected int convertInchToEncoder(double inches) {
         return (int) (inches / ticksPerInch);
     }
 
@@ -460,16 +504,16 @@ public abstract class CypherMethods extends CypherHardware {
 
     //ARM & SLIDES
     private void moveSlide(int pos) {
-        for (DcMotor motor : vSlides) {
+        for (DcMotorEx motor : vSlides) {
             motor.setTargetPosition(pos);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
             motor.setPower(.3);
         }
     }
 
     void controlSlides(double power) {
-        for (DcMotor motor : vSlides) {
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        for (DcMotorEx motor : vSlides) {
+            motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             if ((getVSlidePos() >= VSlideMax && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
                 motor.setPower(0);
             } else {

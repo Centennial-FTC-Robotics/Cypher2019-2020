@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
@@ -462,12 +463,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
             testAutoMove(0, -10);
             controlFoundation(FoundationState.DRAG);
             ElapsedTime timer = new ElapsedTime();
-            while (timer.seconds() < 1);
+            while (timer.seconds() < 1) ;
             testAutoMove(44, 0);
             turnRelative(75 * factor);
             timer.reset();
             controlFoundation(FoundationState.RELEASE);
-            while (timer.seconds() < 1);
+            while (timer.seconds() < 1) ;
             if (side == Side.BRIDGE)
                 testAutoMove(26 * factor, 0);
             else {
@@ -593,9 +594,62 @@ public abstract class CypherAutoMethods extends CypherMethods {
         } catch (StopException e) {
             stopEverything();
         }
-
     }
 
+    protected void testPIDThingy(double forward, double left) throws StopException {
+        int forwardMovement = convertInchToEncoder(forward);
+        int leftMovement = convertInchToEncoder(left);
+        double kP = 1d/1333;
+        double kI = 0;
+        double kD = 0;
+        double tolerance = 1d/3;
+        double deltaTime, oldTime = 0;
+        double minSpeed = 0.01;
+        double maxSpeed = 0.5;
+        ElapsedTime runtime = new ElapsedTime();
+
+        /*
+        Value in index 0 is for the neg motors
+        Value in index 1 is for the pos motors
+        Using arrays for this and not different variables to stop us from having 50 different
+        variables and arrays are also just cool
+         */
+        double[] proportional = new double[2];
+        double[] integral = new double[2];
+        double[] integralPrior = new double[2];
+        double[] derivative = new double[2];
+        double[] speed = new double[2];
+        double[] pos = new double[2];
+        double[] error = new double[2];
+        double[] oldError = {0,0};
+        double[] target = {forwardMovement - leftMovement, forwardMovement + leftMovement};
+        do {
+            pos[0] = getNegPos();
+            pos[1] = getPosPos();
+            deltaTime = runtime.seconds() - oldTime;
+            for(int i = 0; i < 2; i++) {
+                error[i] = target[i] - pos[i];
+                proportional[i] = kP * error[i];
+                integral[i] = integralPrior[i] + error[i]*deltaTime;
+                derivative[i] = (error[i] - oldError[i]/deltaTime);
+                speed[i] = clip(proportional[i]*kP + integral[i]*kI + derivative[i]*kD, minSpeed,maxSpeed);
+                oldError[i] = error[i];
+                integralPrior[i] = integral[i];
+            }
+
+            telemetry.addData("neg error", error[0]);
+            telemetry.addData("pos error", error[1]);
+            telemetry.addData("neg speed", speed[0]);
+            telemetry.addData("pos speed", speed[1]);
+            telemetry.addData("neg integral", integral[0]);
+            telemetry.addData("pos integral", integral[1]);
+            telemetry.addData("forward", forwardMovement);
+            telemetry.addData("left", leftMovement);
+            telemetry.update();
+            oldTime = runtime.seconds();
+
+        } while(opModeIsActive() && ( Math.abs(error[0]) > tolerance || Math.abs(error[1]) > tolerance));
+    }
 
     protected enum Team {
         RED, BLUE
