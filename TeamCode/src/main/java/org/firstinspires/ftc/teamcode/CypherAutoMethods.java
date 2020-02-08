@@ -8,7 +8,7 @@ import java.util.List;
 
 public abstract class CypherAutoMethods extends CypherMethods {
 
-    private final Tile currentPos = new Tile(0, 0); //always start here; changed from protected to private to lose warning
+    protected final Tile currentPos = new Tile(0, 0); //always start here; changed from protected to private to lose warning
     private final Tile redFoundation = new Tile(5, 5, 1, 3);
     private final Tile redBuildSite = new Tile(6, 6, 2, 1);
     private final Tile redQuarry = new Tile(5, 2, 3, 2);
@@ -290,7 +290,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 
-    private void skystoneFindPls(int factor) throws StopException { //changed from protected to private, so warnings can stop yelling
+    protected void skystoneFindPls(int factor) throws StopException { //changed from protected to private, so warnings can stop yelling
         ElapsedTime timer = new ElapsedTime();
         final double tolerance = 50;
         boolean skystoneFound = false;
@@ -455,7 +455,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         getFoundation(factor, Side.BRIDGE);
     }
 
-    private void getFoundation(int factor, Side side) { //changed from protected to private, so warnings can stop yelling
+    protected void getFoundation(int factor, Side side) { //changed from protected to private, so warnings can stop yelling
         try {
             //turnRelative(180);
             testAutoMove(-30, 0);
