@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -623,7 +624,11 @@ public abstract class CypherAutoMethods extends CypherMethods {
         double[] error = new double[2];
         double[] oldError = {0,0};
         double[] target = {forwardMovement - leftMovement, forwardMovement + leftMovement};
+        setCacheMode(LynxModule.BulkCachingMode.MANUAL);
         do {
+            for(LynxModule hub : hubs) {
+                hub.clearBulkCache();
+            }
             pos[0] = getNegPos();
             pos[1] = getPosPos();
             deltaTime = runtime.seconds() - oldTime;
@@ -649,6 +654,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
             oldTime = runtime.seconds();
 
         } while(opModeIsActive() && ( Math.abs(error[0]) > tolerance || Math.abs(error[1]) > tolerance));
+        setDriveMotors(0);
+        setCacheMode(LynxModule.BulkCachingMode.AUTO);
     }
 
     protected enum Team {

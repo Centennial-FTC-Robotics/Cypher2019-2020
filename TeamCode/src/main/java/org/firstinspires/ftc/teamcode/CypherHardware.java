@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -9,6 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
 
 public abstract class CypherHardware extends LinearOpMode {
     static final String TFOD_MODEL_ASSET = "Skystone.tflite";
@@ -35,9 +38,9 @@ public abstract class CypherHardware extends LinearOpMode {
     double initialPitch;
     double initialRoll;
     VuforiaLocalizer vuforia;
-
     RevBlinkinLedDriver blinkinLed;
 
+    List<LynxModule> hubs;
 
 
     @Override
@@ -61,10 +64,11 @@ public abstract class CypherHardware extends LinearOpMode {
         arm = hardwareMap.servo.get("armservo");
         lFoundation = hardwareMap.servo.get("foundation");
         rFoundation = hardwareMap.servo.get("foundation2");
-
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-
         blinkinLed = hardwareMap.get(RevBlinkinLedDriver.class, "ledthingy");
+
+        hubs = hardwareMap.getAll(LynxModule.class);
+
 
     }
 
@@ -84,6 +88,9 @@ public abstract class CypherHardware extends LinearOpMode {
         rightIntake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         leftIntake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
+        for(LynxModule hub : hubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
 
     }
 

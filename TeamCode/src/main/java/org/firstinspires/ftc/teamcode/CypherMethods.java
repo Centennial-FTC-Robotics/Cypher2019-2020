@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -150,8 +151,12 @@ public abstract class CypherMethods extends CypherHardware {
 
         int negTarget = forwardMovement - leftMovement;
         int posTarget = forwardMovement + leftMovement;
-
+        setCacheMode(LynxModule.BulkCachingMode.MANUAL);
         do {
+            for(LynxModule hub : hubs) {
+                hub.clearBulkCache();
+            }
+
             if (shouldStop()) {
                 throw new StopException("stap");
             }
@@ -182,6 +187,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance));
         setDriveMotors(0);
+        setCacheMode(LynxModule.BulkCachingMode.AUTO);
     }
 
     //TODO: DRIVER ENHANCEMNT SELF CORRECTING STRAFE: do test
@@ -282,7 +288,7 @@ public abstract class CypherMethods extends CypherHardware {
             rotateSpeed = clip(angleError* turnP, minTurnSpeed, maxTurnSpeed);
             turnStrafe(negSpeed, posSpeed, rotateSpeed);
         }while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance || Math.abs(angleError) > turnTolerance));
-
+        setDriveMotors(0);
     }
     private void turnStrafe(double neg, double pos, double rotate) {
         leftUp.setPower(neg - rotate);
@@ -570,19 +576,22 @@ public abstract class CypherMethods extends CypherHardware {
 
     double clip(double num, double min, double max) {
         int sign;
-        if (num < 0) {
+        if (num < 0)
             sign = -1;
-        } else {
+        else
             sign = 1;
-        }
-        if (Math.abs(num) < min) {
+        if (Math.abs(num) < min)
             return min * sign;
-        } else if (Math.abs(num) > max) {
+        else if (Math.abs(num) > max)
             return max * sign;
-        } else {
+        else
             return num;
-        }
+    }
 
+    protected void setCacheMode(LynxModule.BulkCachingMode mode) {
+        for(LynxModule hub : hubs) {
+            hub.setBulkCachingMode(mode);
+        }
     }
 
     boolean notInitController() {
