@@ -641,6 +641,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 speed[i] = clip(proportional[i] + integral[i]  + derivative[i] , minSpeed, maxSpeed);
                 oldError[i] = error[i];
             }
+            setStrafeMotors(speed[0], speed[1]);
 
             telemetry.addData("neg error", error[0]);
             telemetry.addData("pos error", error[1]);
