@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
@@ -13,20 +14,14 @@ public class betterEncoder extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         resetEncoders();
-        try {
-            initEverything();
-        } catch (StopException e) {
-            stopEverything();
-        }
+        initEverything();
         waitForStart();
-        try {
-            skystoneFindPls(-1);
-        } catch (StopException e) {
-            stopEverything();
-        }
+
+        skystoneFindPls(-1);
+
     }
 
-    private void skystoneFindPls(int factor) throws StopException {
+    private void skystoneFindPls(int factor) {
         final double tolerance = 200;
         if (opModeIsActive()) {
             while (opModeIsActive()) {

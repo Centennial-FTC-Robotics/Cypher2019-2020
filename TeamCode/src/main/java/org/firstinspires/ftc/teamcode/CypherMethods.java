@@ -88,7 +88,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    private void turnAbsolute(double targetAngle) throws StopException {
+    private void turnAbsolute(double targetAngle)  {
         double currentAngle;
         int direction;
         double turnRate;
@@ -99,9 +99,8 @@ public abstract class CypherMethods extends CypherHardware {
         double P = 1d / 1200;
 
         do {
-            if (shouldStop()) {
-                throw new StopException("stap");
-            }
+            if(shouldStop())
+                stopEverything();
             //currentAngle = getRotationDimension('Z');
             currentAngle = getRotationDimension();
             error = getAngleDist(currentAngle, targetAngle);
@@ -117,13 +116,13 @@ public abstract class CypherMethods extends CypherHardware {
         setDriveMotors(0);
     }
 
-    void turnRelative(double target) throws StopException {
+    void turnRelative(double target)  {
         //turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension('Z') + target));
         turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension() + target));
     }
 
     //cause diagonal strafe no work we just move forward then to the side
-    protected void testAutoMove(double forward, double left) throws StopException {
+    protected void testAutoMove(double forward, double left)  {
         if (left < forward) {
             actualMove(0, left);
             actualMove(forward, 0);
@@ -133,7 +132,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    private void actualMove(double forward, double left) throws StopException {
+    private void actualMove(double forward, double left)  {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
 
@@ -156,10 +155,8 @@ public abstract class CypherMethods extends CypherHardware {
             for(LynxModule hub : hubs) {
                 hub.clearBulkCache();
             }
-
-            if (shouldStop()) {
-                throw new StopException("stap");
-            }
+            if(shouldStop())
+                stopEverything();
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
 
@@ -191,7 +188,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //TODO: DRIVER ENHANCEMNT SELF CORRECTING STRAFE: do test
-    void selfCorrectStrafe(double forward, double left) throws StopException {
+    void selfCorrectStrafe(double forward, double left)  {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
 
@@ -215,9 +212,8 @@ public abstract class CypherMethods extends CypherHardware {
         int posTarget = forwardMovement + leftMovement;
 
         do {
-            if (shouldStop()) {
-                throw new StopException("stap");
-            }
+            if (shouldStop())
+                stopEverything();
             //currentAngle = getRotationDimension('Z');
             currentAngle = getRotationDimension();
             angleError = currentAngle - startAngle;
@@ -225,6 +221,8 @@ public abstract class CypherMethods extends CypherHardware {
             if (Math.abs(angleError) > angleTolerance) {
                 turnAbsolute(startAngle);
             }
+            if(shouldStop())
+                stopEverything();
 
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
@@ -275,6 +273,8 @@ public abstract class CypherMethods extends CypherHardware {
         double negSpeed, posSpeed, rotateSpeed;
 
         do{
+            if(shouldStop())
+                stopEverything();
             currentAngle = getRotationDimension();
             negPos = getNegPos();
             posPos = getPosPos();
@@ -311,6 +311,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
         swivel.setPower(0);
         HSlide.setPower(0);
+        stop();
     }
 
     //MOTOR CONTROL
@@ -353,7 +354,7 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     //INITIALIZE STUFF
-    private void initializeIMU() throws StopException {
+    private void initializeIMU()  {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.mode = BNO055IMU.SensorMode.IMU;
@@ -363,9 +364,9 @@ public abstract class CypherMethods extends CypherHardware {
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
-        while (!imu.isGyroCalibrated()) {
+        while (!imu.isGyroCalibrated() && opModeIsActive()) {
             if (isStopRequested()) {
-                throw new StopException("stap");
+                stopEverything();
             }
         }
         resetOrientation();
@@ -391,7 +392,7 @@ public abstract class CypherMethods extends CypherHardware {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    protected void initEverything() throws StopException {
+    protected void initEverything()  {
         initializeIMU();
         initVuforia();
         initTfod();
@@ -566,11 +567,9 @@ public abstract class CypherMethods extends CypherHardware {
 
     protected void waitMili(double mili) {
         ElapsedTime time = new ElapsedTime();
-        while (time.milliseconds() < mili) {
-            if (shouldStop()) {
+        while (time.milliseconds() < mili && opModeIsActive()) {
+            if(shouldStop())
                 stopEverything();
-                break;
-            }
         }
     }
 

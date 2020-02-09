@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
+import java.util.Queue;
 
 public abstract class CypherAutoMethods extends CypherMethods {
 
@@ -25,9 +26,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
         changeColor(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_WAVES);
     }
 
-    //TODO: Find place to put this method\
-    //ha no
-    void emergencyMove(String side, String color) throws StopException {
+
+    void emergencyMove(String side, String color) {
         ElapsedTime timer = new ElapsedTime();
         double factor;
 
@@ -46,10 +46,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
         timer.reset();
         do {
             if (shouldStop()) {
-                throw new StopException("stap");
+                stopEverything();
             }
             setStrafeMotors(-0.4 * factor, 0.4 * factor);
-        } while (timer.seconds() < 2);
+        } while (timer.seconds() < 2 && opModeIsActive());
         setDriveMotors(0);
     }
 
@@ -64,60 +64,58 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 break;
         }
         Tile oldPos;
-        try {
-            moveToPos(currentPos.getX() - .5 * factor, currentPos.getY(), dir); //move forward a small bit
-            turnRelative(180); //turn around so we can pick up foundation
-            dir = 90 * factor;
-            if (factor == 1)
-                moveToPos(redFoundation, dir); //go to foundation
-            else
-                moveToPos(blueFoundation, dir);
-            waitMoveFoundation(FoundationState.DRAG);
+        moveToPos(currentPos.getX() - .5 * factor, currentPos.getY(), dir); //move forward a small bit
+        turnRelative(180); //turn around so we can pick up foundation
+        dir = 90 * factor;
+        if (factor == 1)
+            moveToPos(redFoundation, dir); //go to foundation
+        else
+            moveToPos(blueFoundation, dir);
+        waitMoveFoundation(FoundationState.DRAG);
 
-            if (factor == 1)
-                moveToPos(redBuildSite, dir);
-            else
-                moveToPos(blueBuildSite, dir);
-            waitMoveFoundation(FoundationState.RELEASE);
-            moveFoundation(0);
-            if (factor == 1)
-                moveToPos(redQuarry, dir); //go to red quarry
-            else
-                moveToPos(blueQuarry, dir);
-            turnRelative(-90 * factor);
+        if (factor == 1)
+            moveToPos(redBuildSite, dir);
+        else
+            moveToPos(blueBuildSite, dir);
+        waitMoveFoundation(FoundationState.RELEASE);
+        moveFoundation(0);
+        if (factor == 1)
+            moveToPos(redQuarry, dir); //go to red quarry
+        else
+            moveToPos(blueQuarry, dir);
+        turnRelative(-90 * factor);
+        dir = 180;
+
+        for (int i = 0; i < 2; i++) { //repeat twice for 2 skystones
+
+            skystoneFindPls(factor); //center with skystone
+            currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
+            oldPos = new Tile(currentPos);
+            moveToPos(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
+
+            //pick up skystone and move into it
+            controlIntakeMotors(1);
+            testAutoMove(2, 0);
+            currentPos.add(0, convertInchToTile(-2));
+
+            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+            moveToPos(currentPos.getX(), currentPos.getY() + 2, dir); //move to other side
+
+            turnRelative(-90 * factor); //turn to release skystone and not have it in the way
+            dir = -90 * factor;
+            waitControlIntake(-1); //release skystone
+            controlIntakeMotors(0);
+            turnRelative(90 * factor); //turn back
             dir = 180;
-
-            for (int i = 0; i < 2; i++) { //repeat twice for 2 skystones
-
-                skystoneFindPls(factor); //center with skystone
-                currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
-                oldPos = new Tile(currentPos);
-                moveToPos(currentPos.getX() - convertInchToTile(factor), currentPos.getY(), dir); //move to be right behind/infront/whatever of skystone
-
-                //pick up skystone and move into it
-                controlIntakeMotors(1);
-                testAutoMove(2, 0);
-                currentPos.add(0, convertInchToTile(-2));
-
-                moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
-                moveToPos(currentPos.getX(), currentPos.getY() + 2, dir); //move to other side
-
-                turnRelative(-90 * factor); //turn to release skystone and not have it in the way
-                dir = -90 * factor;
-                waitControlIntake(-1); //release skystone
-                controlIntakeMotors(0);
-                turnRelative(90 * factor); //turn back
-                dir = 180;
-                if (i == 0) //if that was the first skystone move back to where we got the first one to look for second ome
-                    moveToPos(oldPos, dir);
-            }
-            if (factor == 1)
-                moveToPos(redBridge, dir); //go to red bridge
-            else
-                moveToPos(blueBridge, dir); //or blue bridge
-        } catch (StopException e) {
-            stopEverything();
+            if (i == 0) //if that was the first skystone move back to where we got the first one to look for second ome
+                moveToPos(oldPos, dir);
         }
+        if (factor == 1)
+            moveToPos(redBridge, dir); //go to red bridge
+        else
+            moveToPos(blueBridge, dir); //or blue bridge
+        stopEverything();
+
     }
 
     protected void loadingAuto(String side, int amount) {
@@ -130,100 +128,97 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 factor = -1;
                 break;
         }
-        try {
-            testAutoMove(0, -6);
-            currentPos.add(convertInchToTile(6) * factor, 0);
-            for (int i = 0; i < amount; i++) {
-                resetEncoders();
-                skystoneFindPls(factor);
-                currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
-                Tile oldPos = new Tile(currentPos);
-                resetEncoders();
-                testAutoMove(-6, 0);
-                testAutoMove(0, -40 * factor);
-                currentPos.add(convertInchToTile(-10) * factor, convertInchToTile(-6));
-                waitControlIntake(1);
-                testAutoMove(3, 0);
-                currentPos.add(convertInchToTile(3), 0);
+        testAutoMove(0, -6);
+        currentPos.add(convertInchToTile(6) * factor, 0);
+        for (int i = 0; i < amount; i++) {
+            resetEncoders();
+            skystoneFindPls(factor);
+            currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
+            Tile oldPos = new Tile(currentPos);
+            resetEncoders();
+            testAutoMove(-6, 0);
+            testAutoMove(0, -40 * factor);
+            currentPos.add(convertInchToTile(-10) * factor, convertInchToTile(-6));
+            waitControlIntake(1);
+            testAutoMove(3, 0);
+            currentPos.add(convertInchToTile(3), 0);
 
 
-                moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
-                moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
+            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+            moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
 
-                turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
-                dir = -90 * factor; //change dir
-                waitControlIntake(-1); //spit it out
+            turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
+            dir = -90 * factor; //change dir
+            waitControlIntake(-1); //spit it out
 
-                turnRelative(180);
-                dir *= -1;
-                if (i == 0) { //if its the first skystone move foundation
-                    if (factor == 1) {
-                        moveToPos(redFoundation, dir);
+            turnRelative(180);
+            dir *= -1;
+            if (i == 0) { //if its the first skystone move foundation
+                if (factor == 1) {
+                    moveToPos(redFoundation, dir);
 
-                    } else {
-                        moveToPos(blueFoundation, dir);
-                    }
-                    waitMoveFoundation(FoundationState.DRAG);
-                    if (factor == 1) {
-                        moveToPos(redBuildSite, dir);
-                    } else {
-                        moveToPos(blueBuildSite, dir);
-                    }
-                    waitMoveFoundation(FoundationState.RELEASE);
+                } else {
+                    moveToPos(blueFoundation, dir);
                 }
-                if (factor == 1)
-                    moveToPos(new Tile(6, 5 - convertInchToTile(1d / 3), 2, 1), dir);
-                else
-                    moveToPos(new Tile(1, 5 + convertInchToTile(1d / 3), 2, 1), dir);
-
-                if (i == 0) {
-                    moveToPos(currentPos.getX(), oldPos.getY(), dir);
+                waitMoveFoundation(FoundationState.DRAG);
+                if (factor == 1) {
+                    moveToPos(redBuildSite, dir);
+                } else {
+                    moveToPos(blueBuildSite, dir);
                 }
+                waitMoveFoundation(FoundationState.RELEASE);
+            }
+            if (factor == 1)
+                moveToPos(new Tile(6, 5 - convertInchToTile(1d / 3), 2, 1), dir);
+            else
+                moveToPos(new Tile(1, 5 + convertInchToTile(1d / 3), 2, 1), dir);
 
-                turnRelative(90 * factor);
-                dir = 180;
+            if (i == 0) {
+                moveToPos(currentPos.getX(), oldPos.getY(), dir);
             }
-            if (factor == 1) {
-                moveToPos(currentPos.getX(), redBridge.getY(), dir);
-            } else {
-                moveToPos(currentPos.getX(), blueBridge.getY(), dir);
-            }
-        } catch (StopException e) {
-            stopEverything();
+
+            turnRelative(90 * factor);
+            dir = 180;
         }
+        if (factor == 1) {
+            moveToPos(currentPos.getX(), redBridge.getY(), dir);
+        } else {
+            moveToPos(currentPos.getX(), blueBridge.getY(), dir);
+        }
+
 
     }
 
-    private void moveToPos(double x2, double y2, int dir) throws StopException {
+    private void moveToPos(double x2, double y2, int dir) {
         moveToPos(new Tile(x2, y2), dir);
     }
 
-    private void moveToPos(Tile end, int dir) throws StopException {
+    private void moveToPos(Tile end, int dir) {
         double[] move = getDist(currentPos, end, dir);
         testAutoMove(move[0], move[1]);
         currentPos.setLocation(end);
     }
 
-    private void waitControlIntake(double power) throws StopException {
+    private void waitControlIntake(double power) {
         ElapsedTime time = new ElapsedTime();
         controlIntakeMotors(power);
-        while (time.milliseconds() < 500) {
+        while (time.milliseconds() < 500 && opModeIsActive()) {
             if (shouldStop()) {
-                throw new StopException("stap");
+                stopEverything();
             }
         }
     }
 
-    private void waitMoveFoundation(FoundationState state) throws StopException {
+    private void waitMoveFoundation(FoundationState state) {
         ElapsedTime time = new ElapsedTime();
         if (state.equals(FoundationState.DRAG)) {
             moveFoundation(0.1);
         } else {
             moveFoundation(1);
         }
-        while (time.milliseconds() < 200) {
+        while (time.milliseconds() < 200 && opModeIsActive()) {
             if (shouldStop()) {
-                throw new StopException("stap");
+                stopEverything();
             }
         }
     }
@@ -292,7 +287,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 
-    protected void skystoneFindPls(int factor) throws StopException { //changed from protected to private, so warnings can stop yelling
+    protected void skystoneFindPls(int factor) { //changed from protected to private, so warnings can stop yelling
         ElapsedTime timer = new ElapsedTime();
         final double tolerance = 50;
         boolean skystoneFound = false;
@@ -301,7 +296,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             int max, counter = 0;
             do {
                 if (shouldStop()) {
-                    throw new StopException("stap");
+                    stopEverything();
                 }
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
@@ -314,7 +309,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                         for (Recognition recognition : updatedRecognitions) {
                             counter++;
                             if (shouldStop()) {
-                                throw new StopException("stap");
+                                stopEverything();
                             }
 
                             //testing and a small bit of fine tuning
@@ -356,11 +351,11 @@ public abstract class CypherAutoMethods extends CypherMethods {
                         }
                     }
                 }
-            } while (!skystoneFound);
+            } while (!skystoneFound && timer.seconds() < 10 && opModeIsActive());
         }
     }
 
-    protected void skystonePrintPls(int factor) throws StopException {
+    protected void skystonePrintPls(int factor) {
         ElapsedTime timer = new ElapsedTime();
         final double tolerance = 50;
         boolean isSkystone = false;
@@ -370,7 +365,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             int max, counter = 0;
             do {
                 if (shouldStop()) {
-                    throw new StopException("stap");
+
                 }
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
@@ -382,7 +377,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                         for (Recognition recognition : updatedRecognitions) {
                             counter++;
                             if (shouldStop()) {
-                                throw new StopException("stap");
+                                stopEverything();
                             }
 
                             //done needs testing and a small bit of fine tuning
@@ -422,7 +417,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                         }
                     }
                 }
-            } while (!isSkystone);
+            } while (!isSkystone && opModeIsActive());
 
         }
     }
@@ -436,21 +431,14 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
 
     protected void emergRedLoading() {
-        try {
-            turnRelative(-90);
-            testAutoMove(34, 0);
-        } catch (StopException e) {
-            stopEverything();
-        }
+        turnRelative(-90);
+        testAutoMove(34, 0);
     }
 
     protected void emergRedBuilding() {
-        try {
-            turnRelative(90);
-            testAutoMove(34, 0);
-        } catch (StopException e) {
-            stopEverything();
-        }
+        turnRelative(90);
+        testAutoMove(34, 0);
+
     }
 
     protected void getFoundation(int factor) {
@@ -458,31 +446,33 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void getFoundation(int factor, Side side) { //changed from protected to private, so warnings can stop yelling
-        try {
-            //turnRelative(180);
-            testAutoMove(-30, 0);
-            testAutoMove(0, -10);
-            controlFoundation(FoundationState.DRAG);
-            ElapsedTime timer = new ElapsedTime();
-            while (timer.seconds() < 1) ;
-            testAutoMove(44, 0);
-            turnRelative(75 * factor);
-            timer.reset();
-            controlFoundation(FoundationState.RELEASE);
-            while (timer.seconds() < 1) ;
-            if (side == Side.BRIDGE)
-                testAutoMove(26 * factor, 0);
-            else {
-                testAutoMove(-26 * factor, 20 * factor);
-            }
-            //turnRelative(90);
-        } catch (StopException e) {
-            stopEverything();
-            //no u
+        //turnRelative(180);
+        testAutoMove(-30, 0);
+        testAutoMove(0, -10);
+        controlFoundation(FoundationState.DRAG);
+        ElapsedTime timer = new ElapsedTime();
+        while (timer.seconds() < 1 && opModeIsActive()) {
+            if(shouldStop())
+                stopEverything();
         }
+        testAutoMove(44, 0);
+        turnRelative(75 * factor);
+        timer.reset();
+        controlFoundation(FoundationState.RELEASE);
+        while (timer.seconds() < 1 && opModeIsActive()) {
+            if(shouldStop())
+                stopEverything();
+        }
+        if (side == Side.BRIDGE)
+            testAutoMove(26 * factor, 0);
+        else {
+            testAutoMove(-26 * factor, 20 * factor);
+        }
+        //turnRelative(90);
+
     }
 
-    protected void park(Team team, Side side) throws StopException {
+    protected void park(Team team, Side side) {
         //highly doubtful team is needed but if so put it in; also prob just need testautomove only
         switch (team) {
             case RED:
@@ -515,7 +505,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
         if (team == Team.BLUE) {
             factor = -1;
         }
-        try {
             //move forward a small bit so the robot can see the stones
             currentPos.add(convertInchToTile(12) * factor, 0); //add the amount we travelled to the trash thing that holds current pos
             //for the amount of stones were supposed to find (should be 2 max)
@@ -592,18 +581,16 @@ public abstract class CypherAutoMethods extends CypherMethods {
             } else {
                 moveToPos(currentPos.getX(), blueBridge.getY(), dir);
             }
-        } catch (StopException e) {
-            stopEverything();
-        }
+
     }
 
-    protected void testPIDThingy(double forward, double left) throws StopException {
+    protected void testPIDThingy(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
         double kP = 1d/1333;
-        double kI = 0;
+        double kI = 1d/2500;
         double kD = 0;
-        double tolerance = 1d/3;
+        double tolerance = 1d / 3;
         double deltaTime, oldTime = 0;
         double minSpeed = 0.01;
         double maxSpeed = 0.5;
@@ -617,29 +604,29 @@ public abstract class CypherAutoMethods extends CypherMethods {
          */
         double[] proportional = new double[2];
         double[] integral = new double[2];
-        double[] integralPrior = new double[2];
         double[] derivative = new double[2];
         double[] speed = new double[2];
         double[] pos = new double[2];
         double[] error = new double[2];
-        double[] oldError = {0,0};
+        double[] oldError = {0, 0};
         double[] target = {forwardMovement - leftMovement, forwardMovement + leftMovement};
         setCacheMode(LynxModule.BulkCachingMode.MANUAL);
         do {
-            for(LynxModule hub : hubs) {
+            for (LynxModule hub : hubs) {
                 hub.clearBulkCache();
             }
+            if(shouldStop())
+                stopEverything();
             pos[0] = getNegPos();
             pos[1] = getPosPos();
-            deltaTime = runtime.seconds() - oldTime;
-            for(int i = 0; i < 2; i++) {
+            deltaTime = Math.abs(runtime.seconds() - oldTime);
+            for (int i = 0; i < 2; i++) {
                 error[i] = target[i] - pos[i];
                 proportional[i] = kP * error[i];
-                integral[i] = integralPrior[i] + error[i]*deltaTime;
-                derivative[i] = (error[i] - oldError[i]/deltaTime);
-                speed[i] = clip(proportional[i]*kP + integral[i]*kI + derivative[i]*kD, minSpeed,maxSpeed);
+                integral[i] += (error[i] * deltaTime) * kI;
+                derivative[i] = (error[i] - oldError[i] / deltaTime) * kD;
+                speed[i] = clip(proportional[i] + integral[i]  + derivative[i] , minSpeed, maxSpeed);
                 oldError[i] = error[i];
-                integralPrior[i] = integral[i];
             }
 
             telemetry.addData("neg error", error[0]);
@@ -653,7 +640,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             telemetry.update();
             oldTime = runtime.seconds();
 
-        } while(opModeIsActive() && ( Math.abs(error[0]) > tolerance || Math.abs(error[1]) > tolerance));
+        } while (opModeIsActive() && (Math.abs(error[0]) > tolerance || Math.abs(error[1]) > tolerance));
         setDriveMotors(0);
         setCacheMode(LynxModule.BulkCachingMode.AUTO);
     }
