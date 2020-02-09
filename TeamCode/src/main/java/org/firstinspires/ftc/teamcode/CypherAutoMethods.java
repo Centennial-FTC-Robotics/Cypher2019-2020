@@ -313,7 +313,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                             }
 
                             //testing and a small bit of fine tuning
-                            if (recognition.getLabel().equals(LABEL_FIRST_ELEMENT       )) {
+                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
                                 if (!skystoneFound) {
                                     oldRight = recognition.getRight();
                                     oldTop = recognition.getTop();
@@ -323,9 +323,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     telemetry.addData("SKYSTONE", true);
                                     telemetry.addData("left", recognition.getLeft());
                                     telemetry.addData("right", recognition.getRight());
-                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 200) > tolerance) {
+                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 150) > tolerance) {
                                         telemetry.addData("moving", "to skystone.........");
-                                        if (recognition.getRight() > recognition.getTop() + 200) {
+                                        if (recognition.getRight() > recognition.getTop() + 150) {
                                             setDriveMotors(0.1);
                                             telemetry.addData("moving", "forward");
                                         } else {
@@ -598,8 +598,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected void testPIDThingy(double forward, double left)  {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
-        double kP = 1d/1333;
-        double kI = 1d/2500;
+        double kP = 1d/2222;
+        double kI = 1d/3000;
         double kD = 0;
         double tolerance = 1d / 3;
         double deltaTime, oldTime = 0;
@@ -623,6 +623,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setCacheMode(LynxModule.BulkCachingMode.MANUAL);
         resetEncoders();
         do {
+            time = runtime.seconds();
             for (LynxModule hub : hubs) {
                 hub.clearBulkCache();
             }
@@ -630,17 +631,17 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 stopEverything();
             pos[0] = getNegPos();
             pos[1] = getPosPos();
-            deltaTime = Math.abs(runtime.seconds() - oldTime);
+            deltaTime = Math.abs(time - oldTime);
             for (int i = 0; i < 2; i++) {
                 error[i] = target[i] - pos[i];
                 proportional[i] = kP * error[i];
                 integral[i] += error[i] * deltaTime;
                 derivative[i] = (oldError[i] - error[i])/ deltaTime;
-                speed[i] = clip(proportional[i] + integral[i] * kI + derivative[i] * kD , minSpeed, maxSpeed);
+                speed[i] = clip(proportional[i] /* + integral[i] * kI */+ derivative[i] * kD , minSpeed, maxSpeed);
                 oldError[i] = error[i]; 
             }
             setStrafeMotors(speed[0], speed[1]);
-
+            telemetry.addData("delta time", deltaTime);
             telemetry.addData("neg error", error[0]);
             telemetry.addData("pos error", error[1]);
             telemetry.addData("neg speed", speed[0]);
@@ -652,9 +653,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
             telemetry.addData("forward", forwardMovement);
             telemetry.addData("left", leftMovement);
             telemetry.update();
-            oldTime = runtime.seconds();
+            oldTime = time;
 
         } while (opModeIsActive() && (Math.abs(error[0]) > tolerance || Math.abs(error[1]) > tolerance));
+
         setDriveMotors(0);
         setCacheMode(LynxModule.BulkCachingMode.AUTO);
     }
