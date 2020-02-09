@@ -8,7 +8,7 @@ public class BetterPIDTester extends  CypherAutoMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
-        testPIDThingy(10, 0);
+        testPIDThingy(22.75 * 2, 0);
 
     }
 }

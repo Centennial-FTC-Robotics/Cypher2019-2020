@@ -103,7 +103,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
             turnRelative(-90 * factor); //turn to release skystone and not have it in the way
             dir = -90 * factor;
-            waitControlIntake(-1); //release skystone
+            waitControlIntake(-.5); //release skystone
             controlIntakeMotors(0);
             turnRelative(90 * factor); //turn back
             dir = 180;
@@ -137,19 +137,19 @@ public abstract class CypherAutoMethods extends CypherMethods {
             Tile oldPos = new Tile(currentPos);
             resetEncoders();
             testAutoMove(-6, 0);
-            testAutoMove(0, -40 * factor);
-            currentPos.add(convertInchToTile(-10) * factor, convertInchToTile(-6));
-            waitControlIntake(1);
+            testAutoMove(0, 40 * factor);
+            currentPos.add(convertInchToTile(-6) * factor, convertInchToTile(40 * factor));
+            waitControlIntake(.7);
             testAutoMove(3, 0);
             currentPos.add(convertInchToTile(3), 0);
 
 
-            moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
+            moveToPos(currentPos.getX() - factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
             moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
 
             turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
             dir = -90 * factor; //change dir
-            waitControlIntake(-1); //spit it out
+            waitControlIntake(-.5); //spit it out
 
             turnRelative(180);
             dir *= -1;
@@ -313,7 +313,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                             }
 
                             //testing and a small bit of fine tuning
-                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                            if (recognition.getLabel().equals(LABEL_FIRST_ELEMENT       )) {
                                 if (!skystoneFound) {
                                     oldRight = recognition.getRight();
                                     oldTop = recognition.getTop();
@@ -323,9 +323,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
                                     telemetry.addData("SKYSTONE", true);
                                     telemetry.addData("left", recognition.getLeft());
                                     telemetry.addData("right", recognition.getRight());
-                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 50) > tolerance) {
+                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 200) > tolerance) {
                                         telemetry.addData("moving", "to skystone.........");
-                                        if (recognition.getRight() > recognition.getTop() + 150) {
+                                        if (recognition.getRight() > recognition.getTop() + 200) {
                                             setDriveMotors(0.1);
                                             telemetry.addData("moving", "forward");
                                         } else {
@@ -519,7 +519,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 testAutoMove(0, -60 * factor);
                 currentPos.add(convertInchToTile(-36) * factor, convertInchToTile(-6)); //add it to the position of the robot
                 //grab that stone and move forward so its actually grabbed
-                waitControlIntake(1);
+                waitControlIntake(.7);
                 testAutoMove(3, 0);
                 //add that to the current pos
                 currentPos.add(convertInchToTile(-3), 0);
@@ -546,7 +546,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
                 turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
                 dir = -90 * factor; //change dir
-                waitControlIntake(-1); //spit it out
+                waitControlIntake(-.5); //spit it out
 
                 turnRelative(180);
                 dir *= -1;
@@ -583,19 +583,28 @@ public abstract class CypherAutoMethods extends CypherMethods {
             }
 
     }
+    @Override
+    protected void testAutoMove(double forward, double left) {
+        if (left < forward) {
+            testPIDThingy(0, left);
+            testPIDThingy(forward, 0);
+        } else {
+            testPIDThingy(forward, 0);
+            testPIDThingy(0, left);
+        }
+    }
 
-    protected void testPIDThingy(double forward, double left) {
+    public void testPIDThingy(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
-        double kP = 1d/1333;
-        double kI = 1d/2500;
+        double kP = 1d/3000;
+        double kI = 1d/10000;
         double kD = 0;
-        double tolerance = 1d / 3;
+        double tolerance = 3;
         double deltaTime, oldTime = 0;
-        double minSpeed = 0.01;
+        double minSpeed = 0.03;
         double maxSpeed = 0.5;
         ElapsedTime runtime = new ElapsedTime();
-
         /*
         Value in index 0 is for the neg motors
         Value in index 1 is for the pos motors
@@ -611,6 +620,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         double[] oldError = {0, 0};
         double[] target = {forwardMovement - leftMovement, forwardMovement + leftMovement};
         setCacheMode(LynxModule.BulkCachingMode.MANUAL);
+        resetEncoders();
         do {
             for (LynxModule hub : hubs) {
                 hub.clearBulkCache();
@@ -623,18 +633,21 @@ public abstract class CypherAutoMethods extends CypherMethods {
             for (int i = 0; i < 2; i++) {
                 error[i] = target[i] - pos[i];
                 proportional[i] = kP * error[i];
-                integral[i] += (error[i] * deltaTime) * kI;
-                derivative[i] = (error[i] - oldError[i] / deltaTime) * kD;
-                speed[i] = clip(proportional[i] + integral[i]  + derivative[i] , minSpeed, maxSpeed);
-                oldError[i] = error[i];
+                integral[i] += error[i] * deltaTime;
+                derivative[i] = (oldError[i] - error[i])/ deltaTime;
+                speed[i] = clip(proportional[i] + integral[i] * kI + derivative[i] * kD , minSpeed, maxSpeed);
+                oldError[i] = error[i]; 
             }
+            setStrafeMotors(speed[0], speed[1]);
 
             telemetry.addData("neg error", error[0]);
             telemetry.addData("pos error", error[1]);
             telemetry.addData("neg speed", speed[0]);
             telemetry.addData("pos speed", speed[1]);
-            telemetry.addData("neg integral", integral[0]);
-            telemetry.addData("pos integral", integral[1]);
+            telemetry.addData("neg P", proportional[0]);
+            telemetry.addData("pos P", proportional[1]);
+            telemetry.addData("neg integral", integral[0] * kI);
+            telemetry.addData("pos integral", integral[1] * kI);
             telemetry.addData("forward", forwardMovement);
             telemetry.addData("left", leftMovement);
             telemetry.update();
