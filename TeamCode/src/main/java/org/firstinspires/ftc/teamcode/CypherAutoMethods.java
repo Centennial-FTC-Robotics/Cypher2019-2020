@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
-import java.util.Queue;
 
 public abstract class CypherAutoMethods extends CypherMethods {
 
@@ -635,8 +633,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 error[i] = target[i] - pos[i];
                 proportional[i] = kP * error[i];
                 integral[i] += error[i] * deltaTime;
-                derivative[i] = (oldError[i] - error[i])/ deltaTime;
-                speed[i] = clip(proportional[i] + integral[i] * kI + derivative[i] * kD , minSpeed, maxSpeed);
+                derivative[i] = (error[i] - oldError[i]) / deltaTime; //highly sure you mixed up errors or so
+                speed[i] = clip(proportional[i] + integral[i] * kI + derivative[i] * kD, minSpeed, maxSpeed);
                 oldError[i] = error[i]; 
             }
             setStrafeMotors(speed[0], speed[1]);
