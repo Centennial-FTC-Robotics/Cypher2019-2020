@@ -594,13 +594,14 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
-    public void testPIDThingy(double forward, double left) {
+
+    protected void testPIDThingy(double forward, double left)  {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
-        double kP = 1d/3000;
-        double kI = 1d/10000;
+        double kP = 1d/1333;
+        double kI = 1d/2500;
         double kD = 0;
-        double tolerance = 3;
+        double tolerance = 1d / 3;
         double deltaTime, oldTime = 0;
         double minSpeed = 0.03;
         double maxSpeed = 0.5;
