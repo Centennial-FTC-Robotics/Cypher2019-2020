@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -88,7 +89,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    private void turnAbsolute(double targetAngle)  {
+    private void turnAbsolute(double targetAngle) {
         double currentAngle;
         int direction;
         double turnRate;
@@ -99,7 +100,7 @@ public abstract class CypherMethods extends CypherHardware {
         double P = 1d / 1200;
 
         do {
-            if(shouldStop())
+            if (shouldStop())
                 stopEverything();
             //currentAngle = getRotationDimension('Z');
             currentAngle = getRotationDimension();
@@ -116,13 +117,13 @@ public abstract class CypherMethods extends CypherHardware {
         setDriveMotors(0);
     }
 
-    void turnRelative(double target)  {
+    void turnRelative(double target) {
         //turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension('Z') + target));
         turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension() + target));
     }
 
     //cause diagonal strafe no work we just move forward then to the side
-    protected void testAutoMove(double forward, double left)  {
+    protected void testAutoMove(double forward, double left) {
         if (left < forward) {
             actualMove(0, left);
             actualMove(forward, 0);
@@ -132,7 +133,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    private void actualMove(double forward, double left)  {
+    private void actualMove(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
 
@@ -140,7 +141,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         double P = 1d / 1333;
         double I = 0;
-        double tolerance = 1d/3;
+        double tolerance = 1d / 3;
         double minSpeed = 0.01;
         double maxSpeed = 0.2666;
         double negSpeed, posSpeed;
@@ -152,10 +153,10 @@ public abstract class CypherMethods extends CypherHardware {
         int posTarget = forwardMovement + leftMovement;
         setCacheMode(LynxModule.BulkCachingMode.MANUAL);
         do {
-            for(LynxModule hub : hubs) {
+            for (LynxModule hub : hubs) {
                 hub.clearBulkCache();
             }
-            if(shouldStop())
+            if (shouldStop())
                 stopEverything();
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
@@ -188,12 +189,12 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //TODO: DRIVER ENHANCEMNT SELF CORRECTING STRAFE: do test
-    void selfCorrectStrafe(double forward, double left)  {
+    void selfCorrectStrafe(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
 
         resetEncoders();
-        double P = 1/1333d;
+        double P = 1 / 1333d;
         double I = 0;
         double tolerance = 5;
         double angleTolerance = 10;
@@ -221,7 +222,7 @@ public abstract class CypherMethods extends CypherHardware {
             if (Math.abs(angleError) > angleTolerance) {
                 turnAbsolute(startAngle);
             }
-            if(shouldStop())
+            if (shouldStop())
                 stopEverything();
 
             currentNegPos = getNegPos();
@@ -257,10 +258,10 @@ public abstract class CypherMethods extends CypherHardware {
         int negTarget = forwardMovement - leftMovement;
         int posTarget = forwardMovement + leftMovement;
 
-        double P = 1d/1333;
-        double turnP = 1d/2000;
-        double tolerance = 1d/3;
-        double turnTolerance = 2d/3;
+        double P = 1d / 1333;
+        double turnP = 1d / 2000;
+        double tolerance = 1d / 3;
+        double turnTolerance = 2d / 3;
         double minSpeed = 0.01;
         double minTurnSpeed = minSpeed;
         double maxSpeed = 0.5;
@@ -272,8 +273,8 @@ public abstract class CypherMethods extends CypherHardware {
         double currentAngle;
         double negSpeed, posSpeed, rotateSpeed;
 
-        do{
-            if(shouldStop())
+        do {
+            if (shouldStop())
                 stopEverything();
             currentAngle = getRotationDimension();
             negPos = getNegPos();
@@ -285,11 +286,12 @@ public abstract class CypherMethods extends CypherHardware {
 
             negSpeed = clip(P * negError, minSpeed, maxSpeed);
             posSpeed = clip(P * posError, minSpeed, maxSpeed);
-            rotateSpeed = clip(angleError* turnP, minTurnSpeed, maxTurnSpeed);
+            rotateSpeed = clip(angleError * turnP, minTurnSpeed, maxTurnSpeed);
             turnStrafe(negSpeed, posSpeed, rotateSpeed);
-        }while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance || Math.abs(angleError) > turnTolerance));
+        } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance || Math.abs(angleError) > turnTolerance));
         setDriveMotors(0);
     }
+
     private void turnStrafe(double neg, double pos, double rotate) {
         leftUp.setPower(neg - rotate);
         rightUp.setPower(pos + rotate);
@@ -311,7 +313,6 @@ public abstract class CypherMethods extends CypherHardware {
         }
         swivel.setPower(0);
         HSlide.setPower(0);
-        stop();
     }
 
     //MOTOR CONTROL
@@ -354,45 +355,49 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     //INITIALIZE STUFF
-    private void initializeIMU()  {
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-        imu.initialize(parameters);
-        while (!imu.isGyroCalibrated() && opModeIsActive()) {
-            if (isStopRequested()) {
-                stopEverything();
-            }
+    private void initializeIMU() {
+        if (!isStopRequested()) {
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+            parameters.mode = BNO055IMU.SensorMode.IMU;
+            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
+            parameters.loggingEnabled = true;
+            parameters.loggingTag = "IMU";
+            parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+            imu.initialize(parameters);
+            while (!imu.isGyroCalibrated() && !isStopRequested());
+            resetOrientation();
+        } else {
+            stopEverything();
         }
-        resetOrientation();
     }
 
     protected void initVuforia() {
-
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection = CameraDirection.BACK;
-
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        if (!isStopRequested())
+            vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        else
+            stopEverything();
 
     }
 
     protected void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minimumConfidence = 0.8;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+        if(!isStopRequested()) {
+            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfodParameters.minimumConfidence = 0.8;
+            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+        } else {
+            stopEverything();
+        }
     }
 
-    protected void initEverything()  {
+    protected void initEverything() {
         initializeIMU();
         initVuforia();
         initTfod();
@@ -568,7 +573,7 @@ public abstract class CypherMethods extends CypherHardware {
     protected void waitMili(double mili) {
         ElapsedTime time = new ElapsedTime();
         while (time.milliseconds() < mili && opModeIsActive()) {
-            if(shouldStop())
+            if (shouldStop())
                 stopEverything();
         }
     }
@@ -588,7 +593,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     protected void setCacheMode(LynxModule.BulkCachingMode mode) {
-        for(LynxModule hub : hubs) {
+        for (LynxModule hub : hubs) {
             hub.setBulkCachingMode(mode);
         }
     }
