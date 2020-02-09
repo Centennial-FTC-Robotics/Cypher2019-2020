@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -36,7 +35,8 @@ public abstract class CypherMethods extends CypherHardware {
     //TODO: Re-finetune these and not break
     //slides break thats how they work
     //TODO: suggest put limit max range based on residual speed/distance when motors "stop"; something line "risky" and safe
-    private final int VSlideMax = 760;
+    private final int VSlideMaxRisk = 760;
+    private final int VSlideMaxSafe = 760;
     private final int VSlideMin = 5;
 
     protected int dir;
@@ -526,7 +526,7 @@ public abstract class CypherMethods extends CypherHardware {
     void controlSlides(double power) {
         for (DcMotorEx motor : vSlides) {
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            if ((getVSlidePos() >= VSlideMax && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
+            if ((getVSlidePos() >= VSlideMaxRisk && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
                 motor.setPower(0);
             } else {
                 motor.setPower(clip(power, 0, .15));
@@ -537,8 +537,8 @@ public abstract class CypherMethods extends CypherHardware {
     void moveSlides(int factor) {
         final int moveBy = 150 * factor;
         int a = getVSlidePos() + moveBy;
-        if (a >= VSlideMax) {
-            moveSlide(VSlideMax);
+        if (a >= VSlideMaxRisk) {
+            moveSlide(VSlideMaxRisk);
         } else if (a <= VSlideMin) {
             moveSlide(VSlideMin);
         } else {
