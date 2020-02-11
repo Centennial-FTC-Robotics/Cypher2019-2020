@@ -614,10 +614,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
         double[] integral = new double[2];
         double[] derivative = new double[2];
         double[] speed = new double[2];
+        double[] speedNoClip = new double[2];
         double[] pos = new double[2];
         double[] error = new double[2];
         double[] oldError = {0, 0};
         double[] target = {forwardMovement - leftMovement, forwardMovement + leftMovement};
+        int errorSign, speedSign;
         setCacheMode(LynxModule.BulkCachingMode.MANUAL);
         resetEncoders();
         do {
@@ -631,11 +633,30 @@ public abstract class CypherAutoMethods extends CypherMethods {
             deltaTime = Math.abs(runtime.seconds() - oldTime);
             for (int i = 0; i < 2; i++) {
                 error[i] = target[i] - pos[i];
+                if(error[i] > 0)
+                    errorSign = 1;
+                else
+                    errorSign = -1;
                 proportional[i] = kP * error[i];
                 integral[i] += error[i] * deltaTime;
                 derivative[i] = (error[i] - oldError[i]) / deltaTime; //highly sure you mixed up errors or so - idek how it works tbh lol
-                speed[i] = clip(proportional[i] + integral[i] * kI + derivative[i] * kD, minSpeed, maxSpeed);
-                oldError[i] = error[i]; 
+                speedNoClip[i] = proportional[i] + integral[i] * kI + derivative[i] * kD;
+                speed[i] = clip(speedNoClip[i], minSpeed, maxSpeed);
+                if(speed[i] > 0)
+                    speedSign = 1;
+                else
+                    speedSign = -1;
+                //prevents integral part from increasing when the motor speed is already being clipped
+                //if that comment made no sense talk to me because i dont feel like explaining it here
+                if(speedNoClip[i] != speed[i] && speedSign == errorSign) {
+                    integral[i] -= error[i] * deltaTime;
+                    //dont listen to the warning, the integral part was changed so it is NOT the same value
+                    //trying to listen to it and changing the value will result in it yelling at you for the same thing
+                    //TL;DR IntelliJ bad
+                    speedNoClip[i] = proportional[i] + integral[i] * kI + derivative[i] * kD;
+                    speed[i] = clip(speedNoClip[i], minSpeed, maxSpeed);
+                }
+                oldError[i] = error[i];
             }
             setStrafeMotors(speed[0], speed[1]);
 
