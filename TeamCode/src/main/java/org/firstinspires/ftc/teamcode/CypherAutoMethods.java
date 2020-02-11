@@ -143,7 +143,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
 
             moveToPos(currentPos.getX() - factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
-            moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
+            moveToPos(currentPos.getX(), 4, dir); //move to other side
 
             turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
             dir = -90 * factor; //change dir
@@ -171,10 +171,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
             else
                 moveToPos(new Tile(1, 5 + convertInchToTile(1d / 3), 2, 1), dir);
 
-            if (i == 0) {
+            if (i == 0)
                 moveToPos(currentPos.getX(), oldPos.getY(), dir);
-            }
-
             turnRelative(90 * factor);
             dir = 180;
         }
@@ -598,7 +596,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         int leftMovement = convertInchToEncoder(left);
         double kP = 1d/2222;
         double kI = 1d/3000;
-        double kD = 0;
+        double kD = 1d/2000;
         double tolerance = 1d / 3;
         double deltaTime, oldTime = 0;
         double minSpeed = 0.03;

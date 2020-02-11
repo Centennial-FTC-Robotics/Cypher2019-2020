@@ -37,6 +37,7 @@ public class mainDrive extends CypherMethods {
             double hSlide = gamepad2.right_stick_x;
 
             //timer thingy
+            telemetry.addData("slides",getVSlidePos());
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {
                     controller1Timer.reset();
@@ -65,11 +66,11 @@ public class mainDrive extends CypherMethods {
             telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
-                    controlIntakeMotors(0.8);
+                    controlIntakeMotors(0.5);
                     changeColor(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
                     break;
                 case OUT:
-                    controlIntakeMotors(-0.4);
+                    controlIntakeMotors(-0.3);
                     changeColor(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
                     break;
                 case STOP:

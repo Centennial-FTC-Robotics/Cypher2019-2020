@@ -470,7 +470,7 @@ public abstract class CypherMethods extends CypherHardware {
         return average / 2;
     }
 
-    private int getVSlidePos() {
+    int getVSlidePos() {
         int average = 0;
         for (DcMotorEx motor : vSlides) {
             average += motor.getCurrentPosition();
@@ -526,11 +526,11 @@ public abstract class CypherMethods extends CypherHardware {
     void controlSlides(double power) {
         for (DcMotorEx motor : vSlides) {
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            if ((getVSlidePos() >= VSlideMaxRisk && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
-                motor.setPower(0);
-            } else {
+           // if ((getVSlidePos() >= VSlideMaxRisk && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
+             //   motor.setPower(0);
+            //} else {
                 motor.setPower(clip(power, 0, .15));
-            }
+            //}
         }
     }
 
