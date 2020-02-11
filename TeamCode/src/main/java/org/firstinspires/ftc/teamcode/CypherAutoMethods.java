@@ -363,7 +363,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             int max, counter = 0;
             do {
                 if (shouldStop()) {
-
+                    stopEverything();
                 }
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
@@ -471,7 +471,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void park(Team team, Side side) {
-        //highly doubtful team is needed but if so put it in; also prob just need testautomove only
         switch (team) {
             case RED:
                 switch (side) {
@@ -597,8 +596,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
         double kP = 1d/2222;
-        double kI = 1d/3000;
-        double kD = 0;
+        double kI = 1d / 3000;
+        double kD = 1d / 2000;
         double tolerance = 1d / 3;
         double deltaTime, oldTime = 0;
         double minSpeed = 0.03;
