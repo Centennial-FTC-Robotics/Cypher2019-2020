@@ -143,7 +143,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
 
             moveToPos(currentPos.getX() - factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
-            moveToPos(currentPos.getX(), 4, dir); //move to other side
+           // moveToPos(currentPos.getX(), 4, dir); //move to other side
+            testAutoMove(-22.75*3,0); //move to other side
+            currentPos.add(0,22.75*3);
 
             turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
             dir = -90 * factor; //change dir
@@ -579,7 +581,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             }
 
     }
-    @Override
+   /*@Override
     protected void testAutoMove(double forward, double left) {
         if (left < forward) {
             testPIDThingy(0, left);
@@ -590,13 +592,17 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
+    */
+
+
+
 
     protected void testPIDThingy(double forward, double left)  {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
         double kP = 1d/2222;
         double kI = 1d/3000;
-        double kD = 1d/2000;
+        double kD = 0;
         double tolerance = 1d / 3;
         double deltaTime, oldTime = 0;
         double minSpeed = 0.03;

@@ -11,6 +11,7 @@ public class BlueBridgeStoneAuto extends CypherAutoMethods {
         initEverything();
 
         waitForStart();
+        currentPos.setLocation(2,1);
         loadingAuto("blue", 1);
     }
 }

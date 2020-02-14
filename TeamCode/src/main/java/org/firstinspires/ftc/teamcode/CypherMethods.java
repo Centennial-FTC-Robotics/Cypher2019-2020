@@ -141,7 +141,7 @@ public abstract class CypherMethods extends CypherHardware {
 
         double P = 1d / 1333;
         double I = 0;
-        double tolerance = 1d / 3;
+        double tolerance = 5;
         double minSpeed = 0.01;
         double maxSpeed = 0.2666;
         double negSpeed, posSpeed;
