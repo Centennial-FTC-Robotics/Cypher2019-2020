@@ -75,7 +75,7 @@ public abstract class CypherHardware extends LinearOpMode {
     private void initHardware() {
         rightDown.setDirection(DcMotorEx.Direction.REVERSE);
         rightUp.setDirection(DcMotorEx.Direction.REVERSE);
-        vLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        //vLeft.setDirection(DcMotorEx.Direction.REVERSE);
         lFoundation.setDirection(Servo.Direction.REVERSE);
         leftIntake.setDirection(DcMotorEx.Direction.REVERSE);
 
