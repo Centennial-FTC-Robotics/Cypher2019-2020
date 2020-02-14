@@ -616,13 +616,58 @@ public abstract class CypherAutoMethods extends CypherMethods {
         double[] error = new double[2];
         double[] oldError = {0, 0};
         double[] target = {forwardMovement - leftMovement, forwardMovement + leftMovement};
+        boolean a = gamepad1.a;
+        boolean b = gamepad1.b;
+        boolean x = gamepad1.x;
+        boolean y = gamepad1.y;
+        boolean right = gamepad1.right_bumper;
+        boolean lef = gamepad1.left_bumper;
+        boolean cont = gamepad1.start;
+        ElapsedTime controllerTimer = new ElapsedTime();
         setCacheMode(LynxModule.BulkCachingMode.MANUAL);
         resetEncoders();
         do {
+            if (a) {
+                kI += 0.0005;
+                controllerTimer.reset();
+            }
+            if (y) {
+                kI += 0.0001;
+                controllerTimer.reset();
+
+            }
+            if (right) {
+                kI += 0.005;
+                controllerTimer.reset();
+
+            }
+            if (b) {
+                kI -= 0.0005;
+                controllerTimer.reset();
+
+            }
+            if (x) {
+                kI -= 0.0001;
+                controllerTimer.reset();
+
+            }
+            if (lef) {
+                kI -= 0.001;
+                controllerTimer.reset();
+
+            }
+            /*if (cont) {
+                //findP(0, 22.75 * factor, P); unsure why this is here will delete if not resolved
+                factor *= -1;
+                controllerTimer.reset();
+
+            }*/
+            telemetry.addData("P", kI);
+            telemetry.update();
             for (LynxModule hub : hubs) {
                 hub.clearBulkCache();
             }
-            if(shouldStop())
+            if (shouldStop())
                 stopEverything();
             pos[0] = getNegPos();
             pos[1] = getPosPos();
@@ -633,7 +678,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 integral[i] += error[i] * deltaTime;
                 derivative[i] = (error[i] - oldError[i]) / deltaTime; //highly sure you mixed up errors or so - idek how it works tbh lol
                 speed[i] = clip(proportional[i] + integral[i] * kI + derivative[i] * kD, minSpeed, maxSpeed);
-                oldError[i] = error[i]; 
+                oldError[i] = error[i];
             }
             setStrafeMotors(speed[0], speed[1]);
 
