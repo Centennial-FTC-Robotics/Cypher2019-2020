@@ -75,7 +75,29 @@ public abstract class CypherMethods extends CypherHardware {
     //MOVEMENT
 
     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
-        double magnitude = Math.cbrt(forwardPower * forwardPower + leftPower * leftPower + rotate * rotate);
+        //smooth controls
+        /*consider changing cbrt to sqrt; not sure if this will actually improve the controls,
+        but it will definitely decrease the values because using a sqrt would yield a larger number,
+        and dividing by a larger number yields an overall smaller value.
+         */
+
+        /*
+        some ideas for magnitude values:
+        1.) Option One:
+        double magnitude = Math.log(Math.abs(leftPower + forwardPower + rotate);
+        2.) Option Two:
+         double magnitude = Math.sqrt(leftPower * leftPower + forwardPower * forwardPower + rotate * rotate) / Math.abs(leftPower + forwardPower + rotate);
+        3.) Option Three:
+         double magnitude = 3 / 1 + Math.exp(-100(Math.abs(forwardPower + forwardPower + rotate)));
+        4.) Option Four:
+        double magnitude = 3;
+        5.) Option Five:
+        double magnitude = Math.pow(3, Math.log(Math.abs(x + y + z) / Math.log(2));
+
+        I'll add more for testing maybe
+         */
+        double magnitude = Math.sqrt(forwardPower * forwardPower + leftPower * leftPower + rotate * rotate);
+        //double magnitude = Math.abs(leftPower + forwardPower + rotate);
         if (magnitude > 1) {
             strafeNeg[0].setPower(((-leftPower + forwardPower - rotate) / magnitude) * factor);
             strafePos[0].setPower(((forwardPower + leftPower + rotate) / magnitude) * factor);
@@ -346,7 +368,6 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
-
         for (DcMotorEx motor : vSlides) {
             motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
