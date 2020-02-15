@@ -19,24 +19,31 @@ public class mainDrive extends CypherMethods {
         IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
-        //controller 1 stuff
-        boolean intakeIn = gamepad1.a && notInitController();
-        boolean intakeOut = gamepad1.x;
-        boolean intakeStop = gamepad1.b && notInitController();
-        double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
-        double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
-        double rotate = actualControl(gamepad1.right_stick_x, .3);
-        //controller 2 stuff
-        boolean arm = gamepad2.b && notInitController();
-        boolean toggleFoundation = gamepad2.y;
-        boolean slow = gamepad2.left_bumper;
-        double vSlide = gamepad2.left_stick_y;
-        double hSlide = gamepad2.right_stick_x;
+        boolean intakeIn, intakeOut, intakeStop;
+        double leftPower, forwardPower, rotate, driveSlow;
+        boolean arm, toggleFoundation, slideSlow;
+        double hSlide, vSlide;
         while (opModeIsActive()) {
+            //controller 1 stuff\
+             intakeIn = gamepad1.a && notInitController();
+             intakeOut = gamepad1.x;
+             intakeStop = gamepad1.b && notInitController();
+             leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
+             forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
+             rotate = actualControl(gamepad1.right_stick_x, .3);
+             driveSlow = gamepad1.left_trigger;
+            //controller 2 stuff
+             arm = gamepad2.b && notInitController();
+             toggleFoundation = gamepad2.y;
+             slideSlow = gamepad2.left_bumper;
+             vSlide = -gamepad2.left_stick_y;
+             hSlide = gamepad2.right_stick_x;
             telemetry.addData("foundation state", foundationState);
 
             //timer thingy
             telemetry.addData("slides", getVSlidePos());
+            telemetry.addData("left slide", vLeft.getPower());
+            telemetry.addData("right slide", vRight.getPower());
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {
                     controller1Timer.reset();
@@ -78,7 +85,7 @@ public class mainDrive extends CypherMethods {
                     break;
             }
             //Speed Control-------------------------------------------------------------------------
-            if (gamepad1.left_trigger > 0) {
+            if (driveSlow > 0) {
                 telemetry.addData("SLOW MODE ACTIVATED", " ");
                 factor = 0.258;
             } else {
@@ -108,7 +115,7 @@ public class mainDrive extends CypherMethods {
                             break;
                     }
 
-                    if (slow)
+                    if (slideSlow)
                         slideFactor = 0.4;
                     else
                         slideFactor = 1;

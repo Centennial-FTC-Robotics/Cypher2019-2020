@@ -7,6 +7,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -28,7 +29,6 @@ public abstract class CypherHardware extends LinearOpMode {
     DcMotorEx leftIntake;
     DcMotorEx rightIntake;
     CRServo HSlide;
-    CRServo swivel;
     Servo lFoundation;
     Servo rFoundation;
     Servo arm;
@@ -60,7 +60,6 @@ public abstract class CypherHardware extends LinearOpMode {
         leftIntake = hardwareMap.get(DcMotorEx.class,"leftintake");
         rightIntake = hardwareMap.get(DcMotorEx.class,"rightintake");
         HSlide = hardwareMap.crservo.get("hslide");
-        swivel = hardwareMap.crservo.get("swivelservo");
         arm = hardwareMap.servo.get("armservo");
         lFoundation = hardwareMap.servo.get("foundation");
         rFoundation = hardwareMap.servo.get("foundation2");
@@ -75,7 +74,8 @@ public abstract class CypherHardware extends LinearOpMode {
     private void initHardware() {
         rightDown.setDirection(DcMotorEx.Direction.REVERSE);
         rightUp.setDirection(DcMotorEx.Direction.REVERSE);
-        //vLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        vLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        vRight.setDirection(DcMotorEx.Direction.REVERSE);
         lFoundation.setDirection(Servo.Direction.REVERSE);
         leftIntake.setDirection(DcMotorEx.Direction.REVERSE);
 

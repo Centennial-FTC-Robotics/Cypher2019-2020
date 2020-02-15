@@ -135,11 +135,13 @@ public abstract class CypherAutoMethods extends CypherMethods {
             Tile oldPos = new Tile(currentPos);
             resetEncoders();
             testAutoMove(-6, 0);
+            //bruh i love you syke
+            //dont care
             testAutoMove(0, 40 * factor);
             currentPos.add(convertInchToTile(-6) * factor, convertInchToTile(40 * factor));
             waitControlIntake(.7);
-            testAutoMove(3, 0);
-            currentPos.add(convertInchToTile(3), 0);
+            testAutoMove(10, 0);
+            currentPos.add(convertInchToTile(0), 3);
 
 
             moveToPos(currentPos.getX() - factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
@@ -200,7 +202,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     private void waitControlIntake(double power) {
         ElapsedTime time = new ElapsedTime();
         controlIntakeMotors(power);
-        while (time.milliseconds() < 500 && opModeIsActive()) {
+        while (time.milliseconds() < 120 && opModeIsActive()) {
             if (shouldStop()) {
                 stopEverything();
             }
@@ -311,47 +313,62 @@ public abstract class CypherAutoMethods extends CypherMethods {
                             }
 
                             //testing and a small bit of fine tuning
-                            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                                if (!skystoneFound) {
-                                    oldRight = recognition.getRight();
-                                    oldTop = recognition.getTop();
-                                    skystoneFound = true;
-                                }
-                                if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
-                                    telemetry.addData("SKYSTONE", true);
-                                    telemetry.addData("left", recognition.getLeft());
-                                    telemetry.addData("right", recognition.getRight());
-                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 200) > tolerance) {
-                                        telemetry.addData("moving", "to skystone.........");
-                                        if (recognition.getRight() > recognition.getTop() + 200) {
-                                            setDriveMotors(0.1);
-                                            telemetry.addData("moving", "forward");
-                                        } else {
-                                            setDriveMotors(-0.1);
-                                            telemetry.addData("moving", "backwards");
-                                        }
-                                        //auTO NEEDS TO WORK BY SATERDAY!
-                                        //ok boomer
-                                        //alright, happy Saterday Holidays!
-                                    } else {
-                                        telemetry.addData("moving", "to the side.........");
+                            if (containsSkystone(updatedRecognitions)) {
+                                if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                                    if (!skystoneFound) {
+                                        oldRight = recognition.getRight();
+                                        oldTop = recognition.getTop();
                                         skystoneFound = true;
-                                        break;
                                     }
-                                    oldRight = recognition.getRight();
-                                    oldTop = recognition.getTop();
+                                    if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
+                                        telemetry.addData("SKYSTONE", true);
+                                        telemetry.addData("left", recognition.getLeft());
+                                        telemetry.addData("right", recognition.getRight());
+                                        if (Math.abs(recognition.getRight() - recognition.getTop() + 150) > tolerance) {
+                                            telemetry.addData("moving", "to skystone.........");
+                                            if (recognition.getRight() > recognition.getTop() + 150) {
+                                                setDriveMotors(0.1);
+                                                telemetry.addData("moving", "forward");
+                                            } else {
+                                                setDriveMotors(-0.1);
+                                                telemetry.addData("moving", "backwards");
+                                            }
+                                            //auTO NEEDS TO WORK BY SATERDAY!
+                                            //ok boomer
+                                            //alright, happy Saterday Holidays!
+                                        } else {
+                                            telemetry.addData("moving", "to the side.........");
+                                            skystoneFound = true;
+                                            break;
+                                        }
+                                        oldRight = recognition.getRight();
+                                        oldTop = recognition.getTop();
+                                    }
+                                } else if (counter == max) {
+                                    telemetry.addData("not skystone", true);
+                                    break;
                                 }
-                            } else if (counter == max) {
-                                telemetry.addData("not skystone", true);
-                                break;
+                                telemetry.update();
+                            } else {
+                                testAutoMove(-6, 0);
                             }
-                            telemetry.update();
+
                         }
                     }
                 }
-            } while (!skystoneFound && timer.seconds() < 10 && opModeIsActive());
+
+            } while (!skystoneFound && timer.seconds() < 10 && opModeIsActive()) ;
         }
     }
+
+    private boolean containsSkystone(List<Recognition> recognitions) {
+        for(Recognition recognition: recognitions) {
+            if(recognition.getLabel().equals(LABEL_SECOND_ELEMENT))
+                return true;
+        }
+        return false;
+    }
+
 
     protected void skystonePrintPls(int factor) {
         ElapsedTime timer = new ElapsedTime();

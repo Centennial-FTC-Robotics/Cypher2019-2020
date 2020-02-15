@@ -334,7 +334,6 @@ public abstract class CypherMethods extends CypherHardware {
         for (DcMotorEx motor : wheelIntakeMotors) {
             motor.setPower(0);
         }
-        swivel.setPower(0);
         HSlide.setPower(0);
     }
 
@@ -369,10 +368,12 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
+        /*
         for (DcMotorEx motor : vSlides) {
             motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
+         */
     }
 
 
@@ -546,14 +547,9 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void controlSlides(double power) {
-        for (DcMotorEx motor : vSlides) {
-            motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-           // if ((getVSlidePos() >= VSlideMaxRisk && power < 0) || (getVSlidePos() <= VSlideMin && power > 0)) {
-             //   motor.setPower(0);
-            //} else {
-                motor.setPower(clip(power, 0, .15));
-            //}
-        }
+        power = clip(power, 0, .8);
+       vLeft.setPower(power);
+       vRight.setPower(power*(1d/4));
     }
 
     void moveSlides(int factor) {
