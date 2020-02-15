@@ -75,7 +75,7 @@ public abstract class CypherMethods extends CypherHardware {
     //MOVEMENT
 
     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
-        //smooth controls
+        //TODO: smooth controls
         /*consider changing cbrt to sqrt; not sure if this will actually improve the controls,
         but it will definitely decrease the values because using a sqrt would yield a larger number,
         and dividing by a larger number yields an overall smaller value.
@@ -97,7 +97,7 @@ public abstract class CypherMethods extends CypherHardware {
         I'll add more for testing maybe
          */
         double magnitude = Math.sqrt(forwardPower * forwardPower + leftPower * leftPower + rotate * rotate);
-        //double magnitude = Math.abs(leftPower + forwardPower + rotate);
+        //double magnitude = Math.abs(leftPower + forwardPower + rotate); Use this for cbrt, etc
         if (magnitude > 1) {
             strafeNeg[0].setPower(((-leftPower + forwardPower - rotate) / magnitude) * factor);
             strafePos[0].setPower(((forwardPower + leftPower + rotate) / magnitude) * factor);
@@ -273,6 +273,7 @@ public abstract class CypherMethods extends CypherHardware {
         setDriveMotors(0);
     }
 
+    //TODO: Maybe test this one instead>
     protected void betterSelfCorrectStrafe(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);

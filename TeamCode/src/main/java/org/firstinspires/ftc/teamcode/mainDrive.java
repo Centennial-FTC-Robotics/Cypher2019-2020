@@ -19,25 +19,24 @@ public class mainDrive extends CypherMethods {
         IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
-
+        //controller 1 stuff
+        boolean intakeIn = gamepad1.a && notInitController();
+        boolean intakeOut = gamepad1.x;
+        boolean intakeStop = gamepad1.b && notInitController();
+        double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
+        double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
+        double rotate = actualControl(gamepad1.right_stick_x, .3);
+        //controller 2 stuff
+        boolean arm = gamepad2.b && notInitController();
+        boolean toggleFoundation = gamepad2.y;
+        boolean slow = gamepad2.left_bumper;
+        double vSlide = gamepad2.left_stick_y;
+        double hSlide = gamepad2.right_stick_x;
         while (opModeIsActive()) {
             telemetry.addData("foundation state", foundationState);
-            //controller 1 stuff
-            boolean intakeIn = gamepad1.a && notInitController();
-            boolean intakeOut = gamepad1.x;
-            boolean intakeStop = gamepad1.b && notInitController();
-            double leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
-            double forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
-            double rotate = actualControl(gamepad1.right_stick_x, .3);
-            //controller 2 stuff
-            boolean arm = gamepad2.b && notInitController();
-            boolean toggleFoundation = gamepad2.y;
-            boolean slow = gamepad2.left_bumper;
-            double vSlide = gamepad2.left_stick_y;
-            double hSlide = gamepad2.right_stick_x;
 
             //timer thingy
-            telemetry.addData("slides",getVSlidePos());
+            telemetry.addData("slides", getVSlidePos());
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {
                     controller1Timer.reset();
@@ -62,7 +61,7 @@ public class mainDrive extends CypherMethods {
                     }
                 }
             }
-            //Servo Intake Control------------------------------------------------------------------
+            //Motor Intake Control------------------------------------------------------------------
             telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
