@@ -28,16 +28,15 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotorEx[] strafePos = new DcMotorEx[2];
     private final DcMotorEx[] leftMotors = new DcMotorEx[2];
     private final DcMotorEx[] rightMotors = new DcMotorEx[2];
-    private final DcMotorEx[] vSlides = new DcMotorEx[2];
+    final DcMotorEx[] vSlides = new DcMotorEx[2];
     private final DcMotorEx[] wheelIntakeMotors = new DcMotorEx[2];
     private final Servo[] foundationServos = new Servo[2];
 
     //TODO: Re-finetune these and not break
     //slides break thats how they work
-    //TODO: suggest put limit max range based on residual speed/distance when motors "stop"; something line "risky" and safe
-    private final int VSlideMaxRisk = 760;
-    private final int VSlideMaxSafe = 760;
-    private final int VSlideMin = 5;
+    //private final int VSlideMaxRisk = 1600;
+    private final int VSlideMaxSafe = 1400;
+    private final int VSlideMin = 10;
 
     protected int dir;
 
@@ -145,6 +144,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //cause diagonal strafe no work we just move forward then to the side
+
     protected void testAutoMove(double forward, double left) {
         if (left < forward) {
             actualMove(0, left);
@@ -163,9 +163,9 @@ public abstract class CypherMethods extends CypherHardware {
 
         double P = 1d / 1333;
         double I = 0;
-        double tolerance = 5;
+        double tolerance = 15;
         double minSpeed = 0.01;
-        double maxSpeed = 0.2666;
+        double maxSpeed = 0.2333333333333333333333333333;
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double negError, posError;
@@ -545,18 +545,43 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setPower(.3);
         }
     }
+    void controlSlides(double power, double factorThingyKillMeNow) {
+        power = clip(power, 0, .8);
+        if ((getVSlidePos() >= VSlideMaxSafe && power > 0) || (getVSlidePos() <= VSlideMin && power < 0)) {
+            vLeft.setPower(0);
+            vRight.setPower(0);
+        } else {
+            if(power > 0) {
+                vLeft.setPower(power);
+                vRight.setPower(power * factorThingyKillMeNow);
+            } else {
+                vLeft.setPower(power);
+                vRight.setPower(power);
+            }
+        }
+    }
 
     void controlSlides(double power) {
         power = clip(power, 0, .8);
-       vLeft.setPower(power);
-       vRight.setPower(power*(1d/4));
+        if ((getVSlidePos() >= VSlideMaxSafe && power > 0) || (getVSlidePos() <= VSlideMin && power < 0)) {
+            vLeft.setPower(0);
+            vRight.setPower(0);
+        } else {
+            if(power > 0) {
+                vLeft.setPower(power);
+                vRight.setPower(power * (1d/5));
+            } else {
+                vLeft.setPower(power);
+                vRight.setPower(power* 1.2);
+            }
+        }
     }
 
     void moveSlides(int factor) {
         final int moveBy = 150 * factor;
         int a = getVSlidePos() + moveBy;
-        if (a >= VSlideMaxRisk) {
-            moveSlide(VSlideMaxRisk);
+        if (a >= VSlideMaxSafe) {
+            moveSlide(VSlideMaxSafe);
         } else if (a <= VSlideMin) {
             moveSlide(VSlideMin);
         } else {
@@ -576,8 +601,8 @@ public abstract class CypherMethods extends CypherHardware {
         if (state.equals(FoundationState.RELEASE)) {
             moveFoundation(1);
         } else {
-            lFoundation.setPosition(0.05);
-            rFoundation.setPosition(0);
+            lFoundation.setPosition(0.1);
+            rFoundation.setPosition(0.05);
         }
 
     }

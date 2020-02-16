@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
-public class mainDrive extends CypherMethods {
+@Disabled
+public class mainDriveOther extends CypherMethods {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -23,7 +25,6 @@ public class mainDrive extends CypherMethods {
         double leftPower, forwardPower, rotate, driveSlow;
         boolean arm, toggleFoundation, slideSlow;
         double hSlide, vSlide;
-        boolean toggleThingy;
         while (opModeIsActive()) {
             //controller 1 stuff\
              intakeIn = gamepad1.a && notInitController();
@@ -74,13 +75,12 @@ public class mainDrive extends CypherMethods {
             telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
-                    controlIntakeMotors(-0.5);
+                    controlIntakeMotors(0.5);
                     changeColor(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
                     break;
                 case OUT:
-                    controlIntakeMotors(0.3);
-                    changeColor(RevBlinkinLedDriver.
-                            BlinkinPattern.YELLOW);
+                    controlIntakeMotors(-0.3);
+                    changeColor(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
                     break;
                 case STOP:
                     controlIntakeMotors(0);
@@ -126,7 +126,7 @@ public class mainDrive extends CypherMethods {
 
                 //Arm Control---------------------------------------------------------------------------
                 controlArm(hSlide);
-                controlSlides(vSlide * slideFactor);
+                controlSlides(vSlide * slideFactor, 1d/5);
 
                 telemetry.update();
             }

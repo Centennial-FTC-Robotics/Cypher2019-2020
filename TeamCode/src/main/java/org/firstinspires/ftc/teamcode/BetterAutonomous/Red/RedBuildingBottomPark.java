@@ -15,7 +15,7 @@ public class RedBuildingBottomPark extends CypherAutoMethods {
             /* Assuming the foundation claws are facing away from the foundation,
             the robot needs to move 12 to the right and 0 backwards since
             it needs to park top in this path
-             */
+            */
 
         testAutoMove(0, 12);
 
