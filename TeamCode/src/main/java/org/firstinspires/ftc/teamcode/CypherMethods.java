@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -69,6 +70,9 @@ public abstract class CypherMethods extends CypherHardware {
         foundationServos[0] = lFoundation;
         foundationServos[1] = rFoundation;
         resetEncoders();
+        setCacheMode(LynxModule.BulkCachingMode.OFF);
+        runWithoutEncoders();
+
     }
 
     //MOVEMENT
@@ -363,11 +367,18 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
+    void runWithoutEncoders() {
+        for(DcMotorEx motor : driveMotors) {
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+    }
+
     void resetEncoders() {
         for (DcMotorEx motor : driveMotors) {
             motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
+        leftDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         /*
         for (DcMotorEx motor : vSlides) {
             motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -486,11 +497,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     int getPosPos() {
-        int average = 0;
-        for (DcMotorEx motor : strafePos) {
-            average += motor.getCurrentPosition();
-        }
-        return average / 2;
+        return rightUp.getCurrentPosition();
     }
 
     int getVSlidePos() {

@@ -25,6 +25,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         changeColor(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_WAVES);
+        setCacheMode(LynxModule.BulkCachingMode.AUTO);
+        resetEncoders();
+
     }
 
 
@@ -490,8 +493,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
             if (shouldStop())
                 stopEverything();
         }
-        testAutoMove(30, 0);
-        turnRelative(98 * factor);
+        testAutoMove(40, 0);
+        turnRelative(110 * factor);
         timer.reset();
         controlFoundation(FoundationState.RELEASE);
         while (timer.seconds() < 1 && opModeIsActive()) {
@@ -499,11 +502,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 stopEverything();
         }
         if (side == Side.BRIDGE)
-            testAutoMove(-30 * factor, 0);
+            testAutoMove(30, 0);
         else {
-            testAutoMove(-30 * factor, 20);
+            testAutoMove(30, 20);
         }
         //turnRelative(90);
+        //bruh its charged oh my
 
     }
 

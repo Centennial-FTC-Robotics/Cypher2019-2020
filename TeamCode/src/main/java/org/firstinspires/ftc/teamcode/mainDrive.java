@@ -20,32 +20,42 @@ public class mainDrive extends CypherMethods {
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
         boolean intakeIn, intakeOut, intakeStop;
-        double leftPower, forwardPower, rotate, driveSlow;
-        boolean arm, toggleFoundation, slideSlow;
+        double leftPower, forwardPower, rotate, driveSlow, slideSlow;
+        boolean arm, toggleFoundation;
         double hSlide, vSlide;
-        boolean toggleThingy;
+        boolean slowIntake;
+        double slowwwwIntake;
+        resetEncoders();
+
         while (opModeIsActive()) {
-            //controller 1 stuff\
-             intakeIn = gamepad1.a && notInitController();
-             intakeOut = gamepad1.x;
-             intakeStop = gamepad1.b && notInitController();
-             leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
-             forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
-             rotate = actualControl(gamepad1.right_stick_x, .3);
-             driveSlow = gamepad1.left_trigger;
+            //controller 1 stuff
+            intakeIn = gamepad1.a && notInitController();
+            intakeOut = gamepad1.x;
+            intakeStop = gamepad1.b && notInitController();
+            leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
+            forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
+            rotate = actualControl(gamepad1.right_stick_x, .3);
+            driveSlow = gamepad1.left_trigger;
             //controller 2 stuff
-             arm = gamepad2.a && notInitController();
-             toggleFoundation = gamepad2.y;
-             slideSlow = gamepad2.left_bumper;
-             vSlide = -gamepad2.left_stick_y;
-             hSlide = gamepad2.right_stick_x;
+            arm = gamepad2.a && notInitController();
+            toggleFoundation = gamepad2.y;
+            slideSlow = gamepad2.left_trigger;
+            vSlide = -gamepad2.left_stick_y;
+            hSlide = gamepad2.right_stick_x;
             telemetry.addData("foundation state", foundationState);
+
+            slowwwwIntake = gamepad1.right_trigger;
 
 
             //timer thingy
             telemetry.addData("slides", getVSlidePos());
             telemetry.addData("left slide", vLeft.getPower());
             telemetry.addData("right slide", vRight.getPower());
+            if (slowwwwIntake > 0) {
+                slowIntake = true;
+            } else {
+                slowIntake = false;
+            }
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {
                     controller1Timer.reset();
@@ -74,11 +84,17 @@ public class mainDrive extends CypherMethods {
             telemetry.addData("state", inState);
             switch (inState) {
                 case IN:
-                    controlIntakeMotors(-0.5);
+                    if (!slowIntake)
+                        controlIntakeMotors(-0.5);
+                    else
+                        controlIntakeMotors(-0.2);
                     changeColor(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
                     break;
                 case OUT:
-                    controlIntakeMotors(0.3);
+                    if (!slowIntake)
+                        controlIntakeMotors(0.3);
+                    else
+                        controlIntakeMotors(0.2);
                     changeColor(RevBlinkinLedDriver.
                             BlinkinPattern.YELLOW);
                     break;
@@ -95,6 +111,8 @@ public class mainDrive extends CypherMethods {
                 telemetry.addData("NORMAL MODE", " ");
                 factor = 0.87535463;
             }
+
+
             telemetry.addData("factor", factor);
             //Driving-------------------------------------------------------------------------------
             manDriveMotors(forwardPower, leftPower, rotate, factor);
@@ -118,7 +136,7 @@ public class mainDrive extends CypherMethods {
                             break;
                     }
 
-                    if (slideSlow)
+                    if (slideSlow > 0)
                         slideFactor = 0.4;
                     else
                         slideFactor = 1;
