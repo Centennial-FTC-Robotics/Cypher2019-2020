@@ -120,7 +120,7 @@ public abstract class CypherMethods extends CypherHardware {
         double turnRate;
         double minSpeed = 0.09;
         double maxSpeed = 0.7;
-        double tolerance = 7;
+        double tolerance = 1.5;
         double error;
         double P = 1d / 1200;
 
