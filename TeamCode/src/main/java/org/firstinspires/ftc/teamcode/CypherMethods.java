@@ -114,7 +114,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    private void turnAbsolute(double targetAngle) {
+    void turnAbsolute(double targetAngle) {
         double currentAngle;
         int direction;
         double turnRate;
@@ -214,112 +214,7 @@ public abstract class CypherMethods extends CypherHardware {
         setCacheMode(LynxModule.BulkCachingMode.AUTO);
     }
 
-    //TODO: DRIVER ENHANCEMNT SELF CORRECTING STRAFE: do test
-    void selfCorrectStrafe(double forward, double left) {
-        int forwardMovement = convertInchToEncoder(forward);
-        int leftMovement = convertInchToEncoder(left);
-
-        resetEncoders();
-        double P = 1 / 1333d;
-        double I = 0;
-        double tolerance = 5;
-        double angleTolerance = 10;
-        double minSpeed = 0.01;
-        double maxSpeed = 0.5;
-        double negSpeed, posSpeed;
-        double currentNegPos, currentPosPos;
-        double currentAngle;
-        double negError, posError;
-        double negSum = 0, posSum = 0;
-        double angleError;
-        double startAngle = getRotationDimension();
-        //double startAngle = getRotationDimension('Z');
-
-        int negTarget = forwardMovement - leftMovement;
-        int posTarget = forwardMovement + leftMovement;
-
-        do {
-            if (shouldStop())
-                stopEverything();
-            //currentAngle = getRotationDimension('Z');
-            currentAngle = getRotationDimension();
-            angleError = currentAngle - startAngle;
-
-            if (Math.abs(angleError) > angleTolerance) {
-                turnAbsolute(startAngle);
-            }
-            if (shouldStop())
-                stopEverything();
-
-            currentNegPos = getNegPos();
-            currentPosPos = getPosPos();
-
-            negError = currentNegPos - negTarget;
-            posError = currentPosPos - posTarget;
-
-            negSum += negError;
-            posSum += posError;
-            negSpeed = clip(P * negError + I * negSum, minSpeed, maxSpeed);
-            posSpeed = clip(P * posError + I * posSum, minSpeed, maxSpeed);
-
-            setStrafeMotors(negSpeed, posSpeed);
-
-            telemetry.addData("neg current", currentNegPos);
-            telemetry.addData("pos current", currentPosPos);
-            telemetry.addData("neg error", negError);
-            telemetry.addData("pos error", posError);
-            telemetry.addData("neg speed", negSpeed);
-            telemetry.addData("pos speed", posSpeed);
-            telemetry.addData("forward", forwardMovement);
-            telemetry.addData("left", leftMovement);
-            telemetry.update();
-        } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance));
-        setDriveMotors(0);
-    }
-
-    //TODO: Maybe test this one instead>
-    protected void betterSelfCorrectStrafe(double forward, double left) {
-        int forwardMovement = convertInchToEncoder(forward);
-        int leftMovement = convertInchToEncoder(left);
-
-        int negTarget = forwardMovement - leftMovement;
-        int posTarget = forwardMovement + leftMovement;
-
-        double P = 1d / 1333;
-        double turnP = 1d / 2000;
-        double tolerance = 1d / 3;
-        double turnTolerance = 2d / 3;
-        double minSpeed = 0.01;
-        double minTurnSpeed = minSpeed;
-        double maxSpeed = 0.5;
-        double maxTurnSpeed = 0.3;
-        double negError, posError;
-        double negPos, posPos;
-        double angleError;
-        double startAngle = getRotationDimension();
-        double currentAngle;
-        double negSpeed, posSpeed, rotateSpeed;
-
-        do {
-            if (shouldStop())
-                stopEverything();
-            currentAngle = getRotationDimension();
-            negPos = getNegPos();
-            posPos = getPosPos();
-
-            negError = negPos - negTarget;
-            posError = posPos - posTarget;
-            angleError = currentAngle - startAngle;
-
-            negSpeed = clip(P * negError, minSpeed, maxSpeed);
-            posSpeed = clip(P * posError, minSpeed, maxSpeed);
-            rotateSpeed = clip(angleError * turnP, minTurnSpeed, maxTurnSpeed);
-            turnStrafe(negSpeed, posSpeed, rotateSpeed);
-        } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance || Math.abs(angleError) > turnTolerance));
-        setDriveMotors(0);
-    }
-
-    private void turnStrafe(double neg, double pos, double rotate) {
+    void turnStrafe(double neg, double pos, double rotate) {
         leftUp.setPower(neg - rotate);
         rightUp.setPower(pos + rotate);
         leftDown.setPower(pos - rotate);
@@ -455,7 +350,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //GETTING STUFF LIKE MOTOR POSITION, ORIENTATION, AND STUFF LIKE THAT IDK
-    private double getRotationDimension() {
+    double getRotationDimension() {
         return AngleUnit.normalizeDegrees(rawDimension() - initialHeading);
     }
 
@@ -584,6 +479,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
+    //Todo: Is this for auto?
     void moveSlides(int factor) {
         final int moveBy = 150 * factor;
         int a = getVSlidePos() + moveBy;
