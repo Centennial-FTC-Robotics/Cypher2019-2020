@@ -27,19 +27,19 @@ public class mainDriveOther extends CypherMethods {
         double hSlide, vSlide;
         while (opModeIsActive()) {
             //controller 1 stuff\
-             intakeIn = gamepad1.a && notInitController();
-             intakeOut = gamepad1.x;
-             intakeStop = gamepad1.b && notInitController();
-             leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
-             forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
-             rotate = actualControl(gamepad1.right_stick_x, .3);
-             driveSlow = gamepad1.left_trigger;
+            intakeIn = gamepad1.a && notInitController();
+            intakeOut = gamepad1.x;
+            intakeStop = gamepad1.b && notInitController();
+            leftPower = actualControl(gamepad1.left_stick_x, 0.4) * .8;
+            forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
+            rotate = actualControl(gamepad1.right_stick_x, .3);
+            driveSlow = gamepad1.left_trigger;
             //controller 2 stuff
-             arm = gamepad2.a && notInitController();
-             toggleFoundation = gamepad2.y;
-             slideSlow = gamepad2.left_bumper;
-             vSlide = -gamepad2.left_stick_y;
-             hSlide = gamepad2.right_stick_x;
+            arm = gamepad2.a && notInitController();
+            toggleFoundation = gamepad2.y;
+            slideSlow = gamepad2.left_bumper;
+            vSlide = -gamepad2.left_stick_y;
+            hSlide = gamepad2.right_stick_x;
             telemetry.addData("foundation state", foundationState);
 
 
@@ -126,7 +126,7 @@ public class mainDriveOther extends CypherMethods {
 
                 //Arm Control---------------------------------------------------------------------------
                 controlArm(hSlide);
-                controlSlides(vSlide * slideFactor, 1d/5);
+                controlSlides(vSlide * slideFactor, 1d / 5);
 
                 telemetry.update();
             }

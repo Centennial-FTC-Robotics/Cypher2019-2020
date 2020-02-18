@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 public abstract class CypherMethods extends CypherHardware {
 
     protected final DcMotorEx[] driveMotors = new DcMotorEx[4];
+    final DcMotorEx[] vSlides = new DcMotorEx[2];
     private final double ticksPerRotation = 383.6;
     private final double wheelDiameter = 3.937;
     private final double ticksPerWheelRotation = ticksPerRotation; //MULTIPLY BY 2 FOR ACTUAL ROBOT hktdzffd
@@ -29,7 +30,6 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotorEx[] strafePos = new DcMotorEx[2];
     private final DcMotorEx[] leftMotors = new DcMotorEx[2];
     private final DcMotorEx[] rightMotors = new DcMotorEx[2];
-    final DcMotorEx[] vSlides = new DcMotorEx[2];
     private final DcMotorEx[] wheelIntakeMotors = new DcMotorEx[2];
     private final Servo[] foundationServos = new Servo[2];
 
@@ -78,29 +78,7 @@ public abstract class CypherMethods extends CypherHardware {
     //MOVEMENT
 
     void manDriveMotors(double forwardPower, double leftPower, double rotate, double factor) {
-        //TODO: smooth controls
-        /*consider changing cbrt to sqrt; not sure if this will actually improve the controls,
-        but it will definitely decrease the values because using a sqrt would yield a larger number,
-        and dividing by a larger number yields an overall smaller value.
-         */
-
-        /*
-        some ideas for magnitude values:
-        1.) Option One:
-        double magnitude = Math.log(Math.abs(leftPower + forwardPower + rotate);
-        2.) Option Two:
-         double magnitude = Math.sqrt(leftPower * leftPower + forwardPower * forwardPower + rotate * rotate) / Math.abs(leftPower + forwardPower + rotate);
-        3.) Option Three:
-         double magnitude = 3 / 1 + Math.exp(-100(Math.abs(forwardPower + forwardPower + rotate)));
-        4.) Option Four:
-        double magnitude = 3;
-        5.) Option Five:
-        double magnitude = Math.pow(3, Math.log(Math.abs(x + y + z) / Math.log(2));
-
-        I'll add more for testing maybe
-         */
         double magnitude = Math.sqrt(forwardPower * forwardPower + leftPower * leftPower + rotate * rotate);
-        //double magnitude = Math.abs(leftPower + forwardPower + rotate); Use this for cbrt, etc
         if (magnitude > 1) {
             strafeNeg[0].setPower(((-leftPower + forwardPower - rotate) / magnitude) * factor);
             strafePos[0].setPower(((forwardPower + leftPower + rotate) / magnitude) * factor);
@@ -263,7 +241,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void runWithoutEncoders() {
-        for(DcMotorEx motor : driveMotors) {
+        for (DcMotorEx motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
     }
@@ -295,7 +273,7 @@ public abstract class CypherMethods extends CypherHardware {
             parameters.loggingTag = "IMU";
             parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
             imu.initialize(parameters);
-            while (!imu.isGyroCalibrated() && !isStopRequested());
+            while (!imu.isGyroCalibrated() && !isStopRequested()) ;
             resetOrientation();
         } else {
             stopEverything();
@@ -314,7 +292,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     protected void initTfod() {
-        if(!isStopRequested()) {
+        if (!isStopRequested()) {
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
@@ -447,13 +425,14 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setPower(.3);
         }
     }
+
     void controlSlides(double power, double factorThingyKillMeNow) {
         power = clip(power, 0, .8);
         if ((getVSlidePos() >= VSlideMaxSafe && power > 0) || (getVSlidePos() <= VSlideMin && power < 0)) {
             vLeft.setPower(0);
             vRight.setPower(0);
         } else {
-            if(power > 0) {
+            if (power > 0) {
                 vLeft.setPower(power);
                 vRight.setPower(power * factorThingyKillMeNow);
             } else {
@@ -469,12 +448,12 @@ public abstract class CypherMethods extends CypherHardware {
             vLeft.setPower(0);
             vRight.setPower(0);
         } else {
-            if(power > 0) {
+            if (power > 0) {
                 vLeft.setPower(power);
-                vRight.setPower(power * (1d/5));
+                vRight.setPower(power * (1d / 5));
             } else {
                 vLeft.setPower(power);
-                vRight.setPower(power* 1.2);
+                vRight.setPower(power * 1.2);
             }
         }
     }

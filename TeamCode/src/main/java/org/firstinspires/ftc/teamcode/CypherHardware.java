@@ -7,7 +7,6 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.*;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -50,15 +49,15 @@ public abstract class CypherHardware extends LinearOpMode {
     }
 
     private void getHardwareDevices() {
-        leftUp = hardwareMap.get(DcMotorEx.class,"upleft");
-        rightUp = hardwareMap.get(DcMotorEx.class,"upright");
-        rightDown = hardwareMap.get(DcMotorEx.class,"backright");
-        leftDown = hardwareMap.get(DcMotorEx.class,"backleft");
-        vLeft = hardwareMap.get(DcMotorEx.class,"vleft");
-        vRight = hardwareMap.get(DcMotorEx.class,"vright");
+        leftUp = hardwareMap.get(DcMotorEx.class, "upleft");
+        rightUp = hardwareMap.get(DcMotorEx.class, "upright");
+        rightDown = hardwareMap.get(DcMotorEx.class, "backright");
+        leftDown = hardwareMap.get(DcMotorEx.class, "backleft");
+        vLeft = hardwareMap.get(DcMotorEx.class, "vleft");
+        vRight = hardwareMap.get(DcMotorEx.class, "vright");
 
-        leftIntake = hardwareMap.get(DcMotorEx.class,"leftintake");
-        rightIntake = hardwareMap.get(DcMotorEx.class,"rightintake");
+        leftIntake = hardwareMap.get(DcMotorEx.class, "leftintake");
+        rightIntake = hardwareMap.get(DcMotorEx.class, "rightintake");
         HSlide = hardwareMap.crservo.get("hslide");
         arm = hardwareMap.servo.get("armservo");
         lFoundation = hardwareMap.servo.get("foundation");
@@ -88,7 +87,7 @@ public abstract class CypherHardware extends LinearOpMode {
         rightIntake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         leftIntake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        for(LynxModule hub : hubs) {
+        for (LynxModule hub : hubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 

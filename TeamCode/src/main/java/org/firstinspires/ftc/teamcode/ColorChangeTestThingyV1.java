@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 @Autonomous
 public class ColorChangeTestThingyV1 extends CypherMethods {
@@ -10,7 +9,7 @@ public class ColorChangeTestThingyV1 extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             changeColor(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
             telemetry.addData("color is", "dark blue");
             telemetry.update();

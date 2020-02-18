@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.BadAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 
 @Autonomous(name = "Red Team Loading Zone Left", group = "Auto")

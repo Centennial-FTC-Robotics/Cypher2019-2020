@@ -10,7 +10,7 @@ public class BlueBuildingZone extends CypherAutoMethods {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-            initEverything();
+        initEverything();
 
 
         waitForStart();

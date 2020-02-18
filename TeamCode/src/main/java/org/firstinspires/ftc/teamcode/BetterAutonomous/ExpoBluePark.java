@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.BetterAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
+
 @Autonomous
 public class ExpoBluePark extends CypherAutoMethods {
     @Override
@@ -10,6 +10,6 @@ public class ExpoBluePark extends CypherAutoMethods {
         super.runOpMode();
         initEverything();
         waitForStart();
-        testAutoMove(0,-20);
+        testAutoMove(0, -20);
     }
 }

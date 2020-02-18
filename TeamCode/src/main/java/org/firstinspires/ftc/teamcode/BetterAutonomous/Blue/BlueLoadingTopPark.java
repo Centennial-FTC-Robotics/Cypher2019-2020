@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.BetterAutonomous.Blue;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 
 @Autonomous(name = "Blue Loading Top Park", group = "Blue Loading Auto")

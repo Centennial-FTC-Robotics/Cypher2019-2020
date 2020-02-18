@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.BetterAutonomous.Red;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 
 @Autonomous(name = "Red Loading Top Park", group = "Red Loading Auto")

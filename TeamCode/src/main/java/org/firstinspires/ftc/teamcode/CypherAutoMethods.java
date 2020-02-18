@@ -146,13 +146,13 @@ public abstract class CypherAutoMethods extends CypherMethods {
             //bruh i love you syke
             //dont care
             testAutoMove(0, -40);
-            currentPos.add(0 , convertInchToTile(40 * factor));
+            currentPos.add(0, convertInchToTile(40 * factor));
             waitControlIntake(.7);
             testAutoMove(12, 0);
-            currentPos.add(convertInchToTile(0), 12*factor);
+            currentPos.add(convertInchToTile(0), 12 * factor);
 
 
-            testAutoMove(0,-12);
+            testAutoMove(0, -12);
             // moveToPos(currentPos.getX(), 4, dir); //move to other side
             if (!useSlides) {
                 testAutoMove(-22.75 * 3, 0); //move to other side
@@ -184,10 +184,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 dir = 180;
                 moveIntakedStone();
                 ElapsedTime time = new ElapsedTime();
-                while(time.seconds() < 4) {
+                while (time.seconds() < 4) {
 
                 }
-
 
 
             }
@@ -401,7 +400,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             int max, counter = 0;
             do {
                 if (shouldStop()) {
-
+                    stopEverything();
                 }
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
@@ -477,14 +476,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     }
 
-    protected void getFoundation(int factor) {
-        getFoundation(factor, Side.BRIDGE);
-    }
-
     protected void getFoundation(int factor, Side side) { //changed from protected to private, so warnings can stop yelling
         //turnRelative(180);
         testAutoMove(-30, 0);
-        testAutoMove(0, -10*factor);
+        testAutoMove(0, -10 * factor);
         controlFoundation(FoundationState.DRAG);
         ElapsedTime timer = new ElapsedTime();
         while (timer.seconds() < 1 && opModeIsActive()) {
@@ -859,33 +854,33 @@ public abstract class CypherAutoMethods extends CypherMethods {
             motor.setTargetPosition(pos);
             motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         }
-            if(pos > getVSlidePos()) {
-                vLeft.setPower(-.2);
-                vRight.setPower(-.2 * (1d/5));
-            } else {
-                vLeft.setPower(.2);
-                vRight.setPower(.2 * 1.2);
-            }
+        if (pos > getVSlidePos()) {
+            vLeft.setPower(-.2);
+            vRight.setPower(-.2 * (1d / 5));
+        } else {
+            vLeft.setPower(.2);
+            vRight.setPower(.2 * 1.2);
+        }
     }
 
     private void releaseIntake() {
         moveSlidesToPos(100);
-        while(opModeIsActive() && (vLeft.isBusy() || vRight.isBusy())) {
-            if(shouldStop()) {
+        while (opModeIsActive() && (vLeft.isBusy() || vRight.isBusy())) {
+            if (shouldStop()) {
                 stopEverything();
             }
         }
         ElapsedTime time = new ElapsedTime();
-        while(opModeIsActive() && time.seconds() < 2) {
-            if(shouldStop())
+        while (opModeIsActive() && time.seconds() < 2) {
+            if (shouldStop())
                 stopEverything();
             HSlide.setPower(.5);
         }
         HSlide.setPower(0);
         moveSlidesToPos(getVSlidePos() - 100);
 
-        while(opModeIsActive() && (vLeft.isBusy() || vRight.isBusy())) {
-            if(shouldStop()) {
+        while (opModeIsActive() && (vLeft.isBusy() || vRight.isBusy())) {
+            if (shouldStop()) {
                 stopEverything();
             }
         }
