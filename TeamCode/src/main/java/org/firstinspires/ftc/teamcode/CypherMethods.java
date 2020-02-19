@@ -33,8 +33,6 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotorEx[] wheelIntakeMotors = new DcMotorEx[2];
     private final Servo[] foundationServos = new Servo[2];
 
-    //TODO: Re-finetune these and not break
-    //slides break thats how they work
     //private final int VSlideMaxRisk = 1600;
     private final int VSlideMaxSafe = 1400;
     private final int VSlideMin = 10;
@@ -458,7 +456,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    //Todo: Is this for auto?
+    
     void moveSlides(int factor) {
         final int moveBy = 150 * factor;
         int a = getVSlidePos() + moveBy;

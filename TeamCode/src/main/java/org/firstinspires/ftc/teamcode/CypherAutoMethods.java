@@ -124,7 +124,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void loadingAuto(String side, int amount, boolean useSlides) {
-        releaseIntake();
+        //releaseIntake(); //DONT U DARE UNCOMMENT THIS LINE IT WILL BREAK THE SLIDES NO TOUCH THIS
         int factor = 1;
         switch (side) {
             case "red":
@@ -569,10 +569,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
                     moveToPos(1, currentPos.getY(), dir); //move to above the wall side on red
             }
 
-                /*TODO: add part to drop off stone and move foundation
-                  TODO: and park on the specified side
-                  TODO: and like work in general
-                  TODO: Are we still using actual auton tho? if not then put in unused methods
+                /* TODO:
+                  add part to drop off stone and move foundation
+                  and park on the specified side
+                  and like work in general
                  */
             moveToPos(currentPos.getX(), blueBridge.getY() + 1.5, dir); //move to other side
 
@@ -616,7 +616,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     }
 
-    //TODO: SELF CORRECTING STRAFE: do test
     void selfCorrectStrafe(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
@@ -679,7 +678,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setDriveMotors(0);
     }
 
-    //TODO: Maybe test this one instead>
     protected void betterSelfCorrectStrafe(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
