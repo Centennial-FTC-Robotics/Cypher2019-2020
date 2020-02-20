@@ -39,6 +39,8 @@ public abstract class CypherMethods extends CypherHardware {
 
     protected int dir;
 
+    protected static double TILE_LENGTH = 22.75;
+
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -126,7 +128,7 @@ public abstract class CypherMethods extends CypherHardware {
     //cause diagonal strafe no work we just move forward then to the side
 
     protected void testAutoMove(double forward, double left) {
-        if (left < forward) {
+        if (Math.abs(left) < Math.abs(forward)) {
             actualMove(0, left);
             actualMove(forward, 0);
         } else {
@@ -456,7 +458,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    
+
     void moveSlides(int factor) {
         final int moveBy = 150 * factor;
         int a = getVSlidePos() + moveBy;

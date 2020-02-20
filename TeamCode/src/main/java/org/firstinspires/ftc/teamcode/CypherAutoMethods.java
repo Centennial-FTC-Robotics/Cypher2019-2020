@@ -4,6 +4,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
@@ -55,7 +56,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setDriveMotors(0);
     }
 
-    protected void buildingAuto(String side) {
+   /* protected void buildingAuto(String side) {
         int factor = 1;
         switch (side) {
             case "red":
@@ -119,44 +120,39 @@ public abstract class CypherAutoMethods extends CypherMethods {
         stopEverything();
     }
 
-    protected void loadingAuto(String side, int amount) {
-        loadingAuto(side, amount, false);
+    */
+
+    protected void loadingAuto(Team team, int amount) {
+        loadingAuto(team, amount, false);
     }
 
-    protected void loadingAuto(String side, int amount, boolean useSlides) {
+    protected void loadingAuto(Team team, int amount, boolean useSlides) {
         //releaseIntake(); //DONT U DARE UNCOMMENT THIS LINE IT WILL BREAK THE SLIDES NO TOUCH THIS
         int factor = 1;
-        switch (side) {
-            case "red":
+        switch (team) {
+            case RED:
                 factor = 1;
                 break;
-            case "blue":
+            case BLUE:
                 factor = -1;
                 break;
         }
-        testAutoMove(0, -6);
-        currentPos.add(convertInchToTile(6) * factor, 0);
+        testAutoMove(6, -6);
         for (int i = 0; i < amount; i++) {
             resetEncoders();
             skystoneFindPls(factor);
-            currentPos.add(0, -convertInchToTile(convertEncoderToInch(getPos()))); //find how far we travelled to find skystone
-            Tile oldPos = new Tile(currentPos);
+            double distTravelled = convertEncoderToInch(getPos());
             resetEncoders();
-            testAutoMove(-6, 0);
-            //bruh i love you syke
-            //dont care
+
             testAutoMove(0, -40);
-            currentPos.add(0, convertInchToTile(40 * factor));
             waitControlIntake(.7);
-            testAutoMove(12, 0);
-            currentPos.add(convertInchToTile(0), 12 * factor);
+            testAutoMove(16, 0);
 
 
             testAutoMove(0, -12);
             // moveToPos(currentPos.getX(), 4, dir); //move to other side
+            testAutoMove(-22.75 * 3 - distTravelled, 0); //move to other side
             if (!useSlides) {
-                testAutoMove(-22.75 * 3, 0); //move to other side
-                currentPos.add(0, 22.75 * 3);
                 turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
                 dir = -90 * factor; //change dir
                 waitControlIntake(-.5); //spit it out
@@ -165,46 +161,33 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
 
                 if (i == 0) { //if its the first skystone move foundation
-                    if (factor == 1) {
-                        moveToPos(redFoundation, dir);
-                    } else {
-                        moveToPos(blueFoundation, dir);
-                    }
+                    testAutoMove(TILE_LENGTH * 2, 0);
                     waitMoveFoundation(FoundationState.DRAG);
-                    if (factor == 1) {
-                        moveToPos(redBuildSite, dir);
-                    } else {
-                        moveToPos(blueBuildSite, dir);
-                    }
+                    testAutoMove(-TILE_LENGTH * 1.5, 0);
+                    turnAbsolute(-90);
                     waitMoveFoundation(FoundationState.RELEASE);
                 }
             } else {
-                moveToPos(currentPos.getX(), redFoundation.getY(), dir);
+                testAutoMove(TILE_LENGTH * 2, 0);
                 turnRelative(180);
                 dir = 180;
-                moveIntakedStone();
+                //moveIntakedStone();
                 ElapsedTime time = new ElapsedTime();
-                while (time.seconds() < 4) {
-
+                while (time.seconds() < 4 && opModeIsActive()) {
+                    if (shouldStop())
+                        stopEverything();
                 }
-
-
             }
-            if (factor == 1)
-                moveToPos(new Tile(6, 5 - convertInchToTile(1d / 3), 2, 1), dir);
-            else
-                moveToPos(new Tile(1, 5 + convertInchToTile(1d / 3), 2, 1), dir);
+            testAutoMove(0, -20 * factor);
+            if (amount == 1 && i == 0) {
+                //this will matter if we ever get 2 stone auto
+                //will be what the robot should do to get a 2nd stone
+                //might need to improve getting the 1st stone so that the robot will know what # stone it is
+                //and then figure out where the 2nd stone is from that
+            }
+        }
+            testAutoMove(TILE_LENGTH  * 2, 0); //change this if we ever do a 2 stone auto lmao
 
-            if (i == 0)
-                moveToPos(currentPos.getX(), oldPos.getY(), dir);
-            turnRelative(90 * factor);
-            dir = 180;
-        }
-        if (factor == 1) {
-            moveToPos(currentPos.getX(), redBridge.getY(), dir);
-        } else {
-            moveToPos(currentPos.getX(), blueBridge.getY(), dir);
-        }
 
 
     }

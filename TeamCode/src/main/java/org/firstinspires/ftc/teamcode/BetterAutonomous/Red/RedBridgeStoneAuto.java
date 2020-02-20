@@ -10,6 +10,6 @@ public class RedBridgeStoneAuto extends CypherAutoMethods {
         initEverything();
 
         waitForStart();
-        loadingAuto("red", 1);
+        loadingAuto(Team.RED, 1);
     }
 }

@@ -15,6 +15,6 @@ public class RedOneSkystone extends CypherAutoMethods {
         waitForStart();
 
         currentPos.setLocation(1, 2);
-        loadingAuto("red", 1);
+        loadingAuto(Team.RED, 1);
     }
 }

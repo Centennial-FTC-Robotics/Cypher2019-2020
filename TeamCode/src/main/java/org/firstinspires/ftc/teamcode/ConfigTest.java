@@ -13,7 +13,7 @@ public class ConfigTest extends CypherMethods {
         waitForStart();
         while (opModeIsActive()) {
             for (DcMotor motor : driveMotors) {
-                telemetry.addData("pos", motor.getCurrentPosition());
+                telemetry.addData("pos for " + motor.getPortNumber(), motor.getCurrentPosition());
             }
             telemetry.update();
         }

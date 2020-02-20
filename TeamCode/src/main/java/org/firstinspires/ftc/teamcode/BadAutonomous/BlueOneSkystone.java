@@ -15,6 +15,6 @@ public class BlueOneSkystone extends CypherAutoMethods {
         waitForStart();
 
         currentPos.setLocation(1, 2);
-        loadingAuto("blue", 1);
+        loadingAuto(Team.BLUE, 1);
     }
 }
