@@ -25,6 +25,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         changeColor(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_WAVES);
         setCacheMode(LynxModule.BulkCachingMode.AUTO);
         resetEncoders();
+        //controlFoundation(FoundationState.RELEASE); maybe resets servos???? builders would preferably want it
 
     }
 

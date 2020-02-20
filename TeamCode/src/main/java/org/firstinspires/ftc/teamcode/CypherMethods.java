@@ -199,9 +199,6 @@ public abstract class CypherMethods extends CypherHardware {
         rightDown.setPower(neg + rotate);
     }
 
-    void resetServos() {
-
-    }
 
     protected void stopEverything() {
         telemetry.addLine("Stopping");
