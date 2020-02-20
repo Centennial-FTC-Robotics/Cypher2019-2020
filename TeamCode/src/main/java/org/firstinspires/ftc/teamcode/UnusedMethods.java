@@ -85,5 +85,114 @@ public class RedBottomMoveFoundationRight extends CypherAutoMethods {
     }
 }
  */
+/*
+    protected void testPIDThingy(double forward, double left) {
+        int forwardMovement = convertInchToEncoder(forward);
+        int leftMovement = convertInchToEncoder(left);
+        double kP = 1d / 2222;
+        double kI = 1d / 3000;
+        double kD = 0;
+        double tolerance = 1d / 3;
+        double deltaTime, oldTime = 0;
+        double minSpeed = 0.03;
+        double maxSpeed = 0.5;
+        ElapsedTime runtime = new ElapsedTime();
 
+        Value in index 0 is for the neg motors
+        Value in index 1 is for the pos motors
+        Using arrays for this and not different variables to stop us from having 50 different
+        variables and arrays are also just cool
+
+        double[] proportional = new double[2];
+        double[] integral = new double[2];
+        double[] derivative = new double[2];
+        double[] speed = new double[2];
+        double[] pos = new double[2];
+        double[] error = new double[2];
+        double[] oldError = {0, 0};
+        double[] target = {forwardMovement - leftMovement, forwardMovement + leftMovement};
+        boolean a = gamepad1.a;
+        boolean b = gamepad1.b;
+        boolean x = gamepad1.x;
+        boolean y = gamepad1.y;
+        boolean right = gamepad1.right_bumper;
+        boolean lef = gamepad1.left_bumper;
+        boolean cont = gamepad1.start;
+        ElapsedTime controllerTimer = new ElapsedTime();
+        setCacheMode(LynxModule.BulkCachingMode.MANUAL);
+        resetEncoders();
+        do {
+            if (a) {
+                kI += 0.0005;
+                controllerTimer.reset();
+            }
+            if (y) {
+                kI += 0.0001;
+                controllerTimer.reset();
+
+            }
+            if (right) {
+                kI += 0.005;
+                controllerTimer.reset();
+
+            }
+            if (b) {
+                kI -= 0.0005;
+                controllerTimer.reset();
+
+            }
+            if (x) {
+                kI -= 0.0001;
+                controllerTimer.reset();
+
+            }
+            if (lef) {
+                kI -= 0.001;
+                controllerTimer.reset();
+
+            }
+            /*if (cont) {
+                //findP(0, 22.75 * factor, P); unsure why this is here will delete if not resolved
+                factor *= -1;
+                controllerTimer.reset();
+
+            }
+            telemetry.addData("P", kI);
+            telemetry.update();
+            for (LynxModule hub : hubs) {
+                hub.clearBulkCache();
+            }
+            if (shouldStop())
+                stopEverything();
+            pos[0] = getNegPos();
+            pos[1] = getPosPos();
+            deltaTime = Math.abs(runtime.seconds() - oldTime);
+            for (int i = 0; i < 2; i++) {
+                error[i] = target[i] - pos[i];
+                proportional[i] = kP * error[i];
+                integral[i] += error[i] * deltaTime;
+                derivative[i] = (error[i] - oldError[i]) / deltaTime; //highly sure you mixed up errors or so - idek how it works tbh lol
+                speed[i] = clip(proportional[i] + integral[i] * kI + derivative[i] * kD, minSpeed, maxSpeed);
+                oldError[i] = error[i];
+            }
+            setStrafeMotors(speed[0], speed[1]);
+
+            telemetry.addData("neg error", error[0]);
+            telemetry.addData("pos error", error[1]);
+            telemetry.addData("neg speed", speed[0]);
+            telemetry.addData("pos speed", speed[1]);
+            telemetry.addData("neg P", proportional[0]);
+            telemetry.addData("pos P", proportional[1]);
+            telemetry.addData("neg integral", integral[0] * kI);
+            telemetry.addData("pos integral", integral[1] * kI);
+            telemetry.addData("forward", forwardMovement);
+            telemetry.addData("left", leftMovement);
+            telemetry.update();
+            oldTime = runtime.seconds();
+
+        } while (opModeIsActive() && (Math.abs(error[0]) > tolerance || Math.abs(error[1]) > tolerance));
+        setDriveMotors(0);
+        setCacheMode(LynxModule.BulkCachingMode.AUTO);
+    }
+*/
 }
