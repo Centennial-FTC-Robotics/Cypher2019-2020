@@ -176,15 +176,12 @@ public abstract class CypherMethods extends CypherHardware {
 
 
             setStrafeMotors(negSpeed, posSpeed);
-
+            telemetry.addLine("auto move telemetry");
+            telemetry.addData("left down power", leftDown.getPower());
             telemetry.addData("neg current", currentNegPos);
             telemetry.addData("pos current", currentPosPos);
             telemetry.addData("neg error", negError);
             telemetry.addData("pos error", posError);
-            telemetry.addData("neg speed", negSpeed);
-            telemetry.addData("pos speed", posSpeed);
-            telemetry.addData("forward", forwardMovement);
-            telemetry.addData("left", leftMovement);
             telemetry.update();
 
         } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance));
@@ -371,7 +368,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     int getPosPos() {
-        return rightUp.getCurrentPosition();
+        return rightUp.getCurrentPosition(); //should be the average of rightUp and backLeft but encoder for backLeft no work so this is the best we can do
     }
 
     int getVSlidePos() {
@@ -499,6 +496,13 @@ public abstract class CypherMethods extends CypherHardware {
     protected void waitMili(double mili) {
         ElapsedTime time = new ElapsedTime();
         while (time.milliseconds() < mili && opModeIsActive()) {
+            if (shouldStop())
+                stopEverything();
+        }
+    }
+    protected void waitSec(double secs) {
+        ElapsedTime time = new ElapsedTime();
+        while (time.seconds() < secs && opModeIsActive()) {
             if (shouldStop())
                 stopEverything();
         }

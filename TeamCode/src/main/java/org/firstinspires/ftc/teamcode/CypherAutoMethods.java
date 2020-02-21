@@ -148,9 +148,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
             testAutoMove(16, 0);
 
 
-            testAutoMove(0, 12);
+            testAutoMove(0, -12);
             // moveToPos(currentPos.getX(), 4, dir); //move to other side
-            testAutoMove(-22.75 * 3 - distTravelled, 0); //move to other side
+            testAutoMove(22.75 * 3 - distTravelled, 0); //move to other side
             if (!useSlides) {
                 turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
                 dir = -90 * factor; //change dir
@@ -160,9 +160,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
 
                 if (i == 0) { //if its the first skystone move foundation
-                    testAutoMove(TILE_LENGTH * 2, 0);
+                    testAutoMove(-TILE_LENGTH * 2, 0);
                     waitMoveFoundation(FoundationState.DRAG);
-                    testAutoMove(-TILE_LENGTH * 1.5, 0);
+                    testAutoMove(TILE_LENGTH * 1.5, 0);
                     turnAbsolute(-90);
                     waitMoveFoundation(FoundationState.RELEASE);
                 }
@@ -172,13 +172,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 dir = 180;
                 //moveIntakedStone();
                 ElapsedTime time = new ElapsedTime();
-                while (time.seconds() < 4 && opModeIsActive()) {
-                    if (shouldStop())
-                        stopEverything();
-                }
+                waitSec(2.5);
             }
             testAutoMove(0, -20 * factor);
-            if (amount == 1 && i == 0) {
+            if (amount == 2 && i == 0) { //if were getting 2 stones and this was our first one
                 //this will matter if we ever get 2 stone auto
                 //will be what the robot should do to get a 2nd stone
                 //might need to improve getting the 1st stone so that the robot will know what # stone it is
