@@ -148,7 +148,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             testAutoMove(16, 0);
 
 
-            testAutoMove(0, -12);
+            testAutoMove(0, 12);
             // moveToPos(currentPos.getX(), 4, dir); //move to other side
             testAutoMove(-22.75 * 3 - distTravelled, 0); //move to other side
             if (!useSlides) {
