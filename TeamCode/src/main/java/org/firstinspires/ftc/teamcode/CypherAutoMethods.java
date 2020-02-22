@@ -1,24 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.service.quicksettings.Tile;
+
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 import java.util.List;
 
 public abstract class CypherAutoMethods extends CypherMethods {
 
-    protected final Tile currentPos = new Tile(0, 0); //always start here; changed from protected to private to lose warning
-    private final Tile redFoundation = new Tile(5, 5, 1, 3);
-    private final Tile redBuildSite = new Tile(6, 6, 2, 1);
-    private final Tile redQuarry = new Tile(5, 2, 3, 2);
-    private final Tile redBridge = new Tile(5, 3, 2, 3);
-    private final Tile blueFoundation = new Tile(redFoundation.flip());
-    private final Tile blueBuildSite = new Tile(redBuildSite.flip());
-    private final Tile blueQuarry = new Tile(redQuarry.flip());
-    private final Tile blueBridge = new Tile(redBridge.flip());
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -44,43 +38,43 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 factor = -1;
                 break;
         }
-        testAutoMove(6, -6);
+        testAutoMove(6, -6); //move forward and strafe a bit
         for (int i = 0; i < amount; i++) {
             resetEncoders();
-            skystoneFindPls(factor);
-            double distTravelled = convertEncoderToInch(getPos());
-            resetEncoders();
-            testAutoMove(-12, 0);
-            testAutoMove(0, -30);
-            waitControlIntake(.7);
-            testAutoMove(16, 0);
+            skystoneFindPls(factor); //center robot w/ skystone
+            double distTravelled = convertEncoderToInch(getPos()); //find out how far we travelled to get to the skystone
 
+            testAutoMove(-12, 0); //move backwards
+            testAutoMove(0, -30); //strafe to where the skystone is
 
-            testAutoMove(0, 12);
+            waitControlIntake(.5); //intake!!!!!
+            testAutoMove(16, 0); //move forward to intake!!!
+            controlIntakeMotors(0.2); //slow down intake but keep it spinning
+
+            testAutoMove(0, 12);//move to go towards bridge side
             // moveToPos(currentPos.getX(), 4, dir); //move to other side
-            testAutoMove((22.75 * 3) + distTravelled, 0); //move to other side
+            testAutoMove((TILE_LENGTH * 3) + distTravelled, 0); //move to other side
             if (!useSlides) {
-                turnRelative(-90 * factor); //turn to spit out block w/o it getting in way
-                dir = -90 * factor; //change dir
-                waitControlIntake(-.5); //spit it out
-                turnRelative(180);
-                dir *= -1;
-
-
-                if (i == 0) { //if its the first skystone move foundation
-                    testAutoMove(-TILE_LENGTH * 2, 0);
-                    waitMoveFoundation(FoundationState.DRAG);
-                    testAutoMove(TILE_LENGTH * 1.5, 0);
-                    turnAbsolute(-90);
-                    waitMoveFoundation(FoundationState.RELEASE);
-                }
+                turnRelative(90);//turn
+                testAutoMove(-20, 0); //bakc into foundatio
+                //drag it
+                waitMoveFoundation(FoundationState.DRAG);
+                testAutoMove(30, 0);
+                turnAbsolute(-90);
+                waitMoveFoundation(FoundationState.RELEASE);
+                //release stone
+                waitControlIntake(-0.3);
             } else {
-                testAutoMove(TILE_LENGTH * 2, 0);
-                turnRelative(180);
-                dir = 180;
+                turnRelative(90);
+                controlIntakeMotors(0);
                 //moveIntakedStone();
-                ElapsedTime time = new ElapsedTime();
                 waitSec(2.5);
+                turnRelative(180);
+                waitMoveFoundation(FoundationState.DRAG);
+                testAutoMove(30,0);
+                turnAbsolute(-90);
+                waitMoveFoundation(FoundationState.RELEASE);
+
             }
             testAutoMove(0, -20 * factor);
             if (amount == 2 && i == 0) { //if were getting 2 stones and this was our first one
@@ -90,8 +84,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 //and then figure out where the 2nd stone is from that
             }
         }
-            testAutoMove(TILE_LENGTH  * 2, 0); //change this if we ever do a 2 stone auto lmao
-
+        testAutoMove(TILE_LENGTH * 2, 0); //change this if we ever do a 2 stone auto lmao
 
 
     }
@@ -120,79 +113,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
-    protected void skystoneFindPls(int factor) { //changed from protected to private, so warnings can stop yelling
-        ElapsedTime timer = new ElapsedTime();
-        final double tolerance = 50;
-        boolean skystoneFound = false;
-        double oldRight = 0, oldTop = 0;
-        if (opModeIsActive()) {
-            int max, counter = 0;
-            do {
-                if (shouldStop()) {
-                    stopEverything();
-                }
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        // step through the list of recognitions and display boundary info.
-                        max = updatedRecognitions.size();
-                        for (Recognition recognition : updatedRecognitions) {
-                            counter++;
-                            if (shouldStop()) {
-                                stopEverything();
-                            }
 
-                            //testing and a small bit of fine tuning
-                            if (containsSkystone(updatedRecognitions)) {
-                                if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                                    if (!skystoneFound) {
-                                        oldRight = recognition.getRight();
-                                        oldTop = recognition.getTop();
-                                        skystoneFound = true;
-                                    }
-                                    if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
-                                        telemetry.addData("SKYSTONE", true);
-                                        telemetry.addData("left", recognition.getLeft());
-                                        telemetry.addData("right", recognition.getRight());
-                                        if (Math.abs(recognition.getRight() - recognition.getTop() + 125) > tolerance) {
-                                            telemetry.addData("moving", "to skystone.........");
-                                            if (recognition.getRight() > recognition.getTop() + 125) {
-                                                setDriveMotors(0.1);
-                                                telemetry.addData("moving", "forward");
-                                            } else {
-                                                setDriveMotors(-0.1);
-                                                telemetry.addData("moving", "backwards");
-                                            }
-                                            //auTO NEEDS TO WORK BY SATERDAY!
-                                            //ok boomer
-                                            //alright, happy Saterday Holidays!
-                                        } else {
-                                            telemetry.addData("moving", "to the side.........");
-                                            skystoneFound = true;
-                                            break;
-                                        }
-                                        oldRight = recognition.getRight();
-                                        oldTop = recognition.getTop();
-                                    }
-                                } else if (counter == max) {
-                                    telemetry.addData("not skystone", true);
-                                    break;
-                                }
-                                telemetry.update();
-                            } else {
-                                testAutoMove(-6, 0);
-                            }
-
-                        }
-                    }
-                }
-
-            } while (!skystoneFound && timer.seconds() < 10 && opModeIsActive());
-        }
-    }
 
     private boolean containsSkystone(List<Recognition> recognitions) {
         for (Recognition recognition : recognitions) {
@@ -677,4 +598,78 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 */
+        protected void skystoneFindPls(int factor) { //changed from protected to private, so warnings can stop yelling
+            ElapsedTime timer = new ElapsedTime();
+            final double tolerance = 50;
+            boolean skystoneFound = false;
+            double oldRight = 0, oldTop = 0;
+            if (opModeIsActive()) {
+                int max, counter = 0;
+                do {
+                    if (shouldStop()) {
+                        stopEverything();
+                    }
+                    if (tfod != null) {
+                        // getUpdatedRecognitions() will return null if no new information is available since
+                        // the last time that call was made.
+                        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                        if (updatedRecognitions != null) {
+                            telemetry.addData("# Object Detected", updatedRecognitions.size());
+                            // step through the list of recognitions and display boundary info.
+                            max = updatedRecognitions.size();
+                            for (Recognition recognition : updatedRecognitions) {
+                                counter++;
+                                if (shouldStop()) {
+                                    stopEverything();
+                                }
+
+                                //testing and a small bit of fine tuning
+                                if (containsSkystone(updatedRecognitions)) {
+                                    if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                                        if (!skystoneFound) {
+                                            oldRight = recognition.getRight();
+                                            oldTop = recognition.getTop();
+                                            skystoneFound = true;
+                                        }
+                                        if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
+                                            telemetry.addData("SKYSTONE", true);
+                                            telemetry.addData("left", recognition.getLeft());
+                                            telemetry.addData("right", recognition.getRight());
+                                            if (Math.abs(recognition.getRight() - recognition.getTop() + 125) > tolerance) {
+                                                telemetry.addData("moving", "to skystone.........");
+                                                if (recognition.getRight() > recognition.getTop() + 125) {
+                                                    setDriveMotors(0.1);
+                                                    telemetry.addData("moving", "forward");
+                                                } else {
+                                                    setDriveMotors(-0.1);
+                                                    telemetry.addData("moving", "backwards");
+                                                }
+                                                //auTO NEEDS TO WORK BY SATERDAY!
+                                                //ok boomer
+                                                //alright, happy Saterday Holidays!
+                                            } else {
+                                                telemetry.addData("moving", "to the side.........");
+                                                skystoneFound = true;
+                                                break;
+                                            }
+                                            oldRight = recognition.getRight();
+                                            oldTop = recognition.getTop();
+                                        }
+                                    } else if (counter == max) {
+                                        telemetry.addData("not skystone", true);
+                                        break;
+                                    }
+                                    telemetry.update();
+                                } else {
+                                    testAutoMove(-6, 0);
+                                }
+
+                            }
+                        }
+                    }
+
+                } while (!skystoneFound && timer.seconds() < 10 && opModeIsActive());
+            }
+        }
+
 }

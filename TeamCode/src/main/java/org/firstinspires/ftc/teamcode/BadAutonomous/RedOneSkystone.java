@@ -11,10 +11,8 @@ public class RedOneSkystone extends CypherAutoMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         initEverything();
-
         waitForStart();
 
-        currentPos.setLocation(1, 2);
         loadingAuto(Team.RED, 1);
     }
 }

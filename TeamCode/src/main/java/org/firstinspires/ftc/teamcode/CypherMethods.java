@@ -160,8 +160,7 @@ public abstract class CypherMethods extends CypherHardware {
             for (LynxModule hub : hubs) {
                 hub.clearBulkCache();
             }
-            if (shouldStop())
-                stopEverything();
+
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
 
@@ -184,6 +183,8 @@ public abstract class CypherMethods extends CypherHardware {
             telemetry.addData("pos error", posError);
             telemetry.update();
 
+            if (shouldStop())
+                stopEverything();
         } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance));
         setDriveMotors(0);
         setCacheMode(LynxModule.BulkCachingMode.AUTO);
@@ -260,7 +261,7 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     //INITIALIZE STUFF
-    private void initializeIMU() {
+    protected void initializeIMU() {
         if (!isStopRequested()) {
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
             parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -294,7 +295,7 @@ public abstract class CypherMethods extends CypherHardware {
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfodParameters.minimumConfidence = 0.8;
+            tfodParameters.minimumConfidence = 0.6;
             tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
         } else {
@@ -313,6 +314,7 @@ public abstract class CypherMethods extends CypherHardware {
         telemetry.addLine("Init done");
         telemetry.update();
     }
+
 
     private void orientationUpdate() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
