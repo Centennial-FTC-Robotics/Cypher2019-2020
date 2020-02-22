@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 @Autonomous
+@Disabled
 public class ColorChangeTestThingyV1 extends CypherMethods {
     @Override
     public void runOpMode() throws InterruptedException {

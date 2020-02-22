@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Tuner extends CypherAutoMethods {
-    //TUNER
+    //TUNER; make it accept any variable
     public void Tuner() {
         resetEncoders();
         waitForStart();

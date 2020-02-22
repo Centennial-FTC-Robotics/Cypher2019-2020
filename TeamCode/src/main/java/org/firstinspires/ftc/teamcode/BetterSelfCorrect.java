@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous
-public class BetterPIDTester extends CypherAutoMethods {
+public class BetterSelfCorrect extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();

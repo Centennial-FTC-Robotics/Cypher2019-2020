@@ -1,15 +1,17 @@
-package org.firstinspires.ftc.teamcode.BetterAutonomous.Blue;
+package org.firstinspires.ftc.teamcode.BetterAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 
-@Autonomous(name = "Blue Stone Auto Bridge", group = "Stone auto")
-public class BlueBridgeStoneAuto extends CypherAutoMethods {
+@Autonomous(name = "General Park", group = "Park")
+public class BetterParkPls extends CypherAutoMethods {
+    @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         initEverything();
 
         waitForStart();
-        loadingAuto(Team.BLUE, 1);
+        testAutoMove(0, 16);
+
     }
 }

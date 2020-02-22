@@ -1,9 +1,11 @@
-package org.firstinspires.ftc.teamcode.BetterAutonomous.Red;
+package org.firstinspires.ftc.teamcode.BadAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 
 @Autonomous(name = "Red Loading Top Park", group = "Red Loading Auto")
+@Disabled
 public class RedLoadingTopPark extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {

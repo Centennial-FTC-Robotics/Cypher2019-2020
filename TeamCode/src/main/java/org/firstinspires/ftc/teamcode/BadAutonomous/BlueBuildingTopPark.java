@@ -1,9 +1,11 @@
-package org.firstinspires.ftc.teamcode.BetterAutonomous.Blue;
+package org.firstinspires.ftc.teamcode.BadAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 
 @Autonomous(name = "Blue Building Top Park", group = "Blue Building Auto")
+@Disabled
 public class BlueBuildingTopPark extends CypherAutoMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();

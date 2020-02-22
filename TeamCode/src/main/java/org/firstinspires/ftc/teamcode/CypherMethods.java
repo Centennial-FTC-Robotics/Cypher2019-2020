@@ -71,7 +71,7 @@ public abstract class CypherMethods extends CypherHardware {
         foundationServos[1] = rFoundation;
         resetEncoders();
         setCacheMode(LynxModule.BulkCachingMode.OFF);
-        runWithoutEncoders();
+        //runWithoutEncoders();
 
     }
 
@@ -249,7 +249,7 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
-        leftDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //leftDown.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         /*
         for (DcMotorEx motor : vSlides) {
             motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -368,7 +368,12 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     int getPosPos() {
-        return rightUp.getCurrentPosition(); //should be the average of rightUp and backLeft but encoder for backLeft no work so this is the best we can do
+        int average = 0;
+        for (DcMotorEx motor : strafePos) {
+            average += motor.getCurrentPosition();
+        }
+        //return rightUp.getCurrentPosition(); //should be the average of rightUp and backLeft but encoder for backLeft no work so this is the best we can do
+        return average / 2;
     }
 
     int getVSlidePos() {
@@ -448,7 +453,7 @@ public abstract class CypherMethods extends CypherHardware {
         } else {
             if (power > 0) {
                 vLeft.setPower(power);
-                vRight.setPower(power * (1d / 5));
+                vRight.setPower(power * (1d / 3));
             } else {
                 vLeft.setPower(power);
                 vRight.setPower(power * 1.2);
