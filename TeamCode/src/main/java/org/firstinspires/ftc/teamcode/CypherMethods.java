@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -164,8 +165,8 @@ public abstract class CypherMethods extends CypherHardware {
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
 
-            negError = negTarget - currentNegPos;
-            posError = posTarget - currentPosPos;
+            negError = currentNegPos - negTarget;
+            posError = currentPosPos - posTarget;
 
             negSum += negError;
             posSum += posError;
@@ -260,6 +261,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
+
     //INITIALIZE STUFF
     protected void initializeIMU() {
         if (!isStopRequested()) {
@@ -271,50 +273,11 @@ public abstract class CypherMethods extends CypherHardware {
             parameters.loggingEnabled = true;
             parameters.loggingTag = "IMU";
             parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-            imu.initialize(parameters);
-            while (!imu.isGyroCalibrated() && !isStopRequested()) ;
             resetOrientation();
         } else {
             stopEverything();
         }
     }
-
-    protected void initVuforia() {
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
-        if (!isStopRequested())
-            vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        else
-            stopEverything();
-
-    }
-
-    protected void initTfod() {
-        if (!isStopRequested()) {
-            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfodParameters.minimumConfidence = 0.6;
-            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-        } else {
-            stopEverything();
-        }
-    }
-
-    protected void initEverything() {
-        initializeIMU();
-        initVuforia();
-        initTfod();
-
-        if (tfod != null) {
-            tfod.activate();
-        }
-        telemetry.addLine("Init done");
-        telemetry.update();
-    }
-
 
     private void orientationUpdate() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
