@@ -4,6 +4,7 @@ import android.service.quicksettings.Tile;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -23,21 +24,15 @@ public abstract class CypherAutoMethods extends CypherMethods {
         //controlFoundation(FoundationState.RELEASE); maybe resets servos???? builders would preferably want it
     }
 
-    protected void initVision() {
-        detector.activate();
+    protected void initVision(LinearOpMode opMode) {
+        detector.activate(opMode);
     }
 
     protected void initEverything() {
-        class MultiThreadInit extends Thread {
-            public void run() {
-                initializeIMU();
-            }
-        }
-        MultiThreadInit IMU = new MultiThreadInit();
-        IMU.start();
-        detector.activate();
+        initializeIMU();
+        detector.activate(this);
         while (!imu.isGyroCalibrated() && !isStopRequested()) {
-            if(shouldStop())
+            if(isStopRequested())
                 stopEverything();
         }
     }

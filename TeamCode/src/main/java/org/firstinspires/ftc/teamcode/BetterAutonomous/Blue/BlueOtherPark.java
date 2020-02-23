@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.BetterAutonomous.Blue;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.CypherAutoMethods;
 
-@Autonomous(name = "Red Building Top Park")
+@Autonomous(name = "Blue Building Top Park")
 public class BlueOtherPark extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
