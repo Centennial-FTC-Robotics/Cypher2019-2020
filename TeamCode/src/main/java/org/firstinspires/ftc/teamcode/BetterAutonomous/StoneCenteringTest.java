@@ -8,13 +8,9 @@ public class StoneCenteringTest extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        initVuforia();
-        initTfod();
-        if (tfod != null) {
-            tfod.activate();
-        }
+        initVision();
         waitForStart();
-        skystonePrintPls(1);
+        //skystonePrintPls(1);
 
 
     }
