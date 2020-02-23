@@ -49,8 +49,8 @@ public class mainDrive extends CypherMethods {
 
             //timer thingy
             telemetry.addData("slides", getVSlidePos());
-            telemetry.addData("left slide", vLeft.getPower());
-            telemetry.addData("right slide", vRight.getPower());
+            telemetry.addData("left slide", vLeft.getCurrentPosition());
+            telemetry.addData("right slide", vRight.getCurrentPosition());
             slowIntake = slowwwwIntake > 0;
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {

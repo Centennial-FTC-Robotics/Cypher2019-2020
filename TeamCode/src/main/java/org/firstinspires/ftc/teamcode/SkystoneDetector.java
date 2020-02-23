@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -21,7 +23,9 @@ public class SkystoneDetector extends CypherMethods {
 
     List<Stone> skystones = new ArrayList<>();
 
-    void activate() {
+    LinearOpMode opMode;
+    void activate(LinearOpMode opMode) {
+        this.opMode = opMode;
         initVuforia();
         initTfod();
 
@@ -31,27 +35,46 @@ public class SkystoneDetector extends CypherMethods {
 
     //this should be called when the robot can only see the stones closest to the alliance bridge
     //will make others when it can see the first like 3 stones
-    private void determineOrder() {
+    void debug() {
         List<Recognition> recognitions = tfod.getUpdatedRecognitions();
-        if(!containsSkystone(recognitions)) {
-            firstSkystone = new Stone(3, true);
-        } else {
-            float skystoneDiff = 0, regStoneDiff = 0;
+        if(recognitions != null) {
+            telemetry.addData("# detected", recognitions.size());
+            float diff;
             for(Recognition recognition : recognitions) {
-                if(recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                    skystoneDiff = recognition.getTop() - recognition.getRight();
-                } else {
-                    regStoneDiff = recognition.getTop() - recognition.getRight();
-                }
-            }
-            if(skystoneDiff > regStoneDiff) {
-                firstSkystone = new Stone(2,true);
-            } else {
-                firstSkystone = new Stone(1,true);
+                diff = recognition.getTop() - recognition.getRight();
+                telemetry.addData(recognition.getLabel(), diff);
             }
         }
-        secondSkystone = findOther(firstSkystone);
-        skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone,secondSkystone)));
+    }
+    void determineOrder() {
+        if (tfod != null) {
+            List<Recognition> recognitions = tfod.getUpdatedRecognitions();
+            if (recognitions != null) {
+                if (!containsSkystone(recognitions)) {
+                    firstSkystone = new Stone(3, true);
+                } else {
+                    float skystoneDiff = 0, regStoneDiff = 0;
+                    for (Recognition recognition : recognitions) {
+                        if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                            skystoneDiff = recognition.getTop() - recognition.getRight();
+                        } else {
+                            regStoneDiff = recognition.getTop() - recognition.getRight();
+                        }
+                    }
+                    if (skystoneDiff > regStoneDiff) {
+                        firstSkystone = new Stone(2, true);
+                    } else {
+                        firstSkystone = new Stone(1, true);
+                    }
+                }
+                secondSkystone = findOther(firstSkystone);
+                skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone, secondSkystone)));
+            }
+        }
+    }
+
+    int[] getSkystonePositions() {
+        return new int[] {firstSkystone.pos, secondSkystone.pos};
     }
 
     //should be able to sort thru 3 stones at a time and figure out position
@@ -73,6 +96,7 @@ public class SkystoneDetector extends CypherMethods {
         }
         secondSkystone = findOther(firstSkystone);
     }
+
     private boolean containsSkystone(List<Recognition> recognitions) {
         for (Recognition recognition : recognitions) {
             if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT))
@@ -94,8 +118,8 @@ public class SkystoneDetector extends CypherMethods {
 
     private void initTfod() {
         if (!isStopRequested()) {
-            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            int tfodMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier(
+                    "tfodMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
             tfodParameters.minimumConfidence = 0.6;
             tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -110,6 +134,8 @@ public class SkystoneDetector extends CypherMethods {
             return new Stone(stone.pos - 3, true);
         return new Stone(stone.pos + 3, true);
     }
+
+
 
     private static class Stone implements Comparable<Stone> {
         int pos; //1 is closest to team bridge
