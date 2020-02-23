@@ -4,6 +4,7 @@ import android.service.quicksettings.Tile;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import java.util.List;
 
 public abstract class CypherAutoMethods extends CypherMethods {
-
+    SkystoneDetector detector = new SkystoneDetector();
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -20,7 +21,25 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setCacheMode(LynxModule.BulkCachingMode.AUTO);
         resetEncoders();
         //controlFoundation(FoundationState.RELEASE); maybe resets servos???? builders would preferably want it
+    }
 
+    protected void initVision() {
+        detector.activate();
+    }
+
+    protected void initEverything() {
+        class MultiThreadInit extends Thread {
+            public void run() {
+                initializeIMU();
+            }
+        }
+        MultiThreadInit IMU = new MultiThreadInit();
+        IMU.start();
+        detector.activate();
+        while (!imu.isGyroCalibrated() && !isStopRequested()) {
+            if(shouldStop())
+                stopEverything();
+        }
     }
 
     protected void loadingAuto(Team team, int amount) {
@@ -41,7 +60,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         testAutoMove(6, -6); //move forward and strafe a bit
         for (int i = 0; i < amount; i++) {
             resetEncoders();
-            skystoneFindPls(factor); //center robot w/ skystone
+            //skystoneFindPls(factor); //center robot w/ skystone
             double distTravelled = convertEncoderToInch(getPos()); //find out how far we travelled to get to the skystone
 
             testAutoMove(-12, 0); //move backwards
@@ -115,81 +134,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
 
 
-    private boolean containsSkystone(List<Recognition> recognitions) {
-        for (Recognition recognition : recognitions) {
-            if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT))
-                return true;
-        }
-        return false;
-    }
-
-
-    protected void skystonePrintPls(int factor) {
-        ElapsedTime timer = new ElapsedTime();
-        final double tolerance = 50;
-        boolean isSkystone = false;
-        boolean skystoneFound = false;
-        double oldRight = 0, oldTop = 0;
-        if (opModeIsActive()) {
-            int max, counter = 0;
-            do {
-                if (shouldStop()) {
-                    stopEverything();
-                }
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        // step through the list of recognitions and display boundary info.
-                        max = updatedRecognitions.size();
-                        for (Recognition recognition : updatedRecognitions) {
-                            counter++;
-                            if (shouldStop()) {
-                                stopEverything();
-                            }
-
-                            //done needs testing and a small bit of fine tuning
-                            if (recognition.getLabel().equals(LABEL_FIRST_ELEMENT)) {
-                                if (!skystoneFound) {
-                                    oldRight = recognition.getRight();
-                                    oldTop = recognition.getTop();
-                                    skystoneFound = true;
-                                }
-                                if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
-                                    if (Math.abs(recognition.getRight() - recognition.getTop() + 200) > tolerance) {
-                                        if (recognition.getRight() > recognition.getTop() + 200)
-                                            telemetry.addData("Robot would move", "forward");
-                                        else
-                                            telemetry.addData("Robot would move", "backwards");
-                                        //auTO NEEDS TO WORK BY SATERDAY!
-                                        //ok boomer
-                                        //happy saterday everyone
-                                        telemetry.update();
-                                    } else {
-                                        telemetry.addData("robot", "is centered");
-                                        telemetry.update();
-                                        isSkystone = true;
-                                        break;
-                                    }
-                                    oldRight = recognition.getRight();
-                                    oldTop = recognition.getTop();
-                                } else {
-                                    telemetry.addData("not the same", "u stoopid");
-                                    telemetry.update();
-                                }
-                            } else if (counter == max) {
-                                telemetry.addData("not skystone", true);
-                                break;
-                            }
-                            telemetry.update();
-                        }
-                    }
-                }
-            } while (!isSkystone && opModeIsActive());
-
-        }
-    }
 
     private boolean isSame(double right1, double top1, double right2, double top2) {
         double rightDiff = Math.abs(right1 - right2);
@@ -410,6 +354,15 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
+    void moveToStone(int pos) {
+        //we need to test out some values for this
+        /* whats needed
+        where will we tell the robot to go to see the first 2 or first 3 stones
+        how far does the robot need to travel backwards to get to a stone
+        how far does the robot need to strafe to knock others out of its way
+        how far does the robot need to move to actually get the stone in the intake
+         */
+    }
     protected enum Team {
         RED, BLUE
     }
@@ -417,6 +370,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     protected enum Side {
         BRIDGE, WALL
     }
+
     /* why we still this IDK
     void emergencyMove(String side, String color) {
         ElapsedTime timer = new ElapsedTime();
@@ -598,78 +552,5 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return new double[]{tilesToInch(forward), tilesToInch(left)};
     }
 */
-        protected void skystoneFindPls(int factor) { //changed from protected to private, so warnings can stop yelling
-            ElapsedTime timer = new ElapsedTime();
-            final double tolerance = 50;
-            boolean skystoneFound = false;
-            double oldRight = 0, oldTop = 0;
-            if (opModeIsActive()) {
-                int max, counter = 0;
-                do {
-                    if (shouldStop()) {
-                        stopEverything();
-                    }
-                    if (tfod != null) {
-                        // getUpdatedRecognitions() will return null if no new information is available since
-                        // the last time that call was made.
-                        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                        if (updatedRecognitions != null) {
-                            telemetry.addData("# Object Detected", updatedRecognitions.size());
-                            // step through the list of recognitions and display boundary info.
-                            max = updatedRecognitions.size();
-                            for (Recognition recognition : updatedRecognitions) {
-                                counter++;
-                                if (shouldStop()) {
-                                    stopEverything();
-                                }
-
-                                //testing and a small bit of fine tuning
-                                if (containsSkystone(updatedRecognitions)) {
-                                    if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                                        if (!skystoneFound) {
-                                            oldRight = recognition.getRight();
-                                            oldTop = recognition.getTop();
-                                            skystoneFound = true;
-                                        }
-                                        if (isSame(oldRight, oldTop, recognition.getRight(), recognition.getTop())) {
-                                            telemetry.addData("SKYSTONE", true);
-                                            telemetry.addData("left", recognition.getLeft());
-                                            telemetry.addData("right", recognition.getRight());
-                                            if (Math.abs(recognition.getRight() - recognition.getTop() + 125) > tolerance) {
-                                                telemetry.addData("moving", "to skystone.........");
-                                                if (recognition.getRight() > recognition.getTop() + 125) {
-                                                    setDriveMotors(0.1);
-                                                    telemetry.addData("moving", "forward");
-                                                } else {
-                                                    setDriveMotors(-0.1);
-                                                    telemetry.addData("moving", "backwards");
-                                                }
-                                                //auTO NEEDS TO WORK BY SATERDAY!
-                                                //ok boomer
-                                                //alright, happy Saterday Holidays!
-                                            } else {
-                                                telemetry.addData("moving", "to the side.........");
-                                                skystoneFound = true;
-                                                break;
-                                            }
-                                            oldRight = recognition.getRight();
-                                            oldTop = recognition.getTop();
-                                        }
-                                    } else if (counter == max) {
-                                        telemetry.addData("not skystone", true);
-                                        break;
-                                    }
-                                    telemetry.update();
-                                } else {
-                                    testAutoMove(-6, 0);
-                                }
-
-                            }
-                        }
-                    }
-
-                } while (!skystoneFound && timer.seconds() < 10 && opModeIsActive());
-            }
-        }
 
 }

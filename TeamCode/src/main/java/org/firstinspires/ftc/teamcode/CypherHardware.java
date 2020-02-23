@@ -18,7 +18,6 @@ public abstract class CypherHardware extends LinearOpMode {
     static final String LABEL_FIRST_ELEMENT = "Stone";
     static final String LABEL_SECOND_ELEMENT = "Skystone";
     static final String VUFORIA_KEY = " AU4rZ23/////AAABmQabsAT5w0XtilSncDA5KR0mTpDy+NwTupFf3UHJK5uNazyphbkBUROQQ2ZmBNd5GDwgLEOA5XgeSxjo+pUUbNa85M03eRdF7I/O0083+YEIEORW45bjU4jNszzo5ASNn2Irz3QROUIg3T+1D8+H0n3AAt4ZL3f4P/zs+NsXPhaAhsE0lVn8EMEuXZm0jMoNhwp/cHISVhb0c4ZMywtCwMYR61l2oJLEvxIQmMC6AzKi2W8Ce+W8a2daBITha+t4FCLQgKCGTZG65/I24bdwW6aNt+Yd3HltnWnl13IKdZ5xJ0DDdM5i6x/8oMoqQfPxbOVnQez4dio31wAi7B23d42Ef2yJzTTRh1YFCRoy2aJY";
-    protected TFObjectDetector tfod;
     DcMotorEx leftUp;
     DcMotorEx leftDown;
     DcMotorEx rightUp;
@@ -36,7 +35,6 @@ public abstract class CypherHardware extends LinearOpMode {
     double initialHeading;
     double initialPitch;
     double initialRoll;
-    VuforiaLocalizer vuforia;
     RevBlinkinLedDriver blinkinLed;
 
     List<LynxModule> hubs;
