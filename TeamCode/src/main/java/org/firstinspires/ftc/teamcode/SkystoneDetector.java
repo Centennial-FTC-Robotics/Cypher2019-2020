@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -24,24 +23,32 @@ public class SkystoneDetector extends CypherMethods {
     List<Stone> skystones = new ArrayList<>();
 
     LinearOpMode opMode;
+
+    CypherAutoMethods.Team team;
+
     void activate(LinearOpMode opMode) {
         this.opMode = opMode;
         initVuforia();
         initTfod();
 
-        if(tfod != null)
+        if (tfod != null)
             tfod.activate();
     }
+
+    void setTeam(CypherAutoMethods.Team team) {
+        this.team = team;
+    }
+
 
     //this should be called when the robot can only see the stones closest to the alliance bridge
     //will make others when it can see the first like 3 stones
     void debug() {
         List<Recognition> recognitions = tfod.getUpdatedRecognitions();
-        if(recognitions != null) {
+        if (recognitions != null) {
             telemetry.addData("# detected", recognitions.size());
             float diff;
-            for(Recognition recognition : recognitions) {
-                diff = recognition.getTop() - recognition.getRight();
+            for (Recognition recognition : recognitions) {
+                diff = findDiff(recognition);
                 telemetry.addData(recognition.getLabel(), diff);
             }
         }
@@ -56,9 +63,9 @@ public class SkystoneDetector extends CypherMethods {
                     float skystoneDiff = 0, regStoneDiff = 0;
                     for (Recognition recognition : recognitions) {
                         if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                            skystoneDiff = recognition.getTop() - recognition.getRight();
+                            skystoneDiff = findDiff(recognition);
                         } else {
-                            regStoneDiff = recognition.getTop() - recognition.getRight();
+                            regStoneDiff = findDiff(recognition);
                         }
                     }
                     if (skystoneDiff > regStoneDiff) {
@@ -73,14 +80,21 @@ public class SkystoneDetector extends CypherMethods {
         }
     }
 
+    private float findDiff(Recognition recognition) {
+        if (team == CypherAutoMethods.Team.RED)
+            return recognition.getTop() - recognition.getRight();
+        else
+            return recognition.getRight() - recognition.getTop();
+    }
+
     int[] getSkystonePositions() {
-        return new int[] {firstSkystone.pos, secondSkystone.pos};
+        return new int[]{firstSkystone.pos, secondSkystone.pos};
     }
 
     //should be able to sort thru 3 stones at a time and figure out position
     private void orderStones(List<Recognition> recognitions) {
         List<Stone> pos = new ArrayList<>();
-        for(Recognition recognition : recognitions) {
+        for (Recognition recognition : recognitions) {
             pos.add(new Stone(recognition));
         }
         Collections.sort(pos);

@@ -8,6 +8,7 @@ public class BetterSelfCorrect extends CypherAutoMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
+        initializeIMU();
         betterSelfCorrectStrafe(22.75 * 5, 0);
     }
 }

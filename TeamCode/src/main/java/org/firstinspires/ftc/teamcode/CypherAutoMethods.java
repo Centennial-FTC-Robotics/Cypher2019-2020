@@ -1,17 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.service.quicksettings.Tile;
-
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-
-import java.util.List;
 
 public abstract class CypherAutoMethods extends CypherMethods {
     SkystoneDetector detector = new SkystoneDetector();
@@ -272,12 +265,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
         int posTarget = forwardMovement + leftMovement;
 
         double P = 1d / 1333;
-        double turnP = 1d / 2000;
+        double turnP = 1d / 1000;
         double tolerance = 1d / 3;
-        double turnTolerance = 2d / 3;
+        double turnTolerance = 5;
         double minSpeed = 0.01;
         double minTurnSpeed = minSpeed;
-        double maxSpeed = 0.5;
+        double maxSpeed = 0.2;
         double maxTurnSpeed = 0.3;
         double negError, posError;
         double negPos, posPos;
@@ -349,7 +342,20 @@ public abstract class CypherAutoMethods extends CypherMethods {
         }
     }
 
-    void moveToStone(int pos) {
+    void getInPos(Team team) {
+        int factor = 1;
+        if (team == Team.RED)
+            factor = -1;
+        testAutoMove(0, -(TILE_LENGTH * (2d / 3)) * factor);
+        testAutoMove(-((1d / 3) * TILE_LENGTH), 0);
+        detector.determineOrder();
+        testAutoMove(0, -(TILE_LENGTH * (1d / 2) * factor + 4));
+        testAutoMove(-TILE_LENGTH * 2d / 3, 0);
+    }
+
+    void moveToStone(int pos, Team team) {
+        int factor = 1;
+        int target = pos - 1;
         //we need to test out some values for this
         /* whats needed
         where will we tell the robot to go to see the first 2 or first 3 stones
@@ -357,6 +363,16 @@ public abstract class CypherAutoMethods extends CypherMethods {
         how far does the robot need to strafe to knock others out of its way
         how far does the robot need to move to actually get the stone in the intake
          */
+        if (team == Team.RED)
+            factor = -1;
+        if (pos == 1) {
+            testAutoMove(TILE_LENGTH * 1d / 5, 0);
+            testAutoMove(0, TILE_LENGTH * 1d / 3);
+        } else {
+
+        }
+
+
     }
     protected enum Team {
         RED, BLUE

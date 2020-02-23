@@ -9,11 +9,13 @@ public class TestBetterDetector extends CypherAutoMethods {
         super.runOpMode();
         initVision(this);
         waitForStart();
-        while(opModeIsActive()) {
-            //detector.determineOrder();
-            detector.debug();
-            telemetry.update();
-            int[] skystonePositions = detector.getSkystonePositions();
-        }
+        detector.setTeam(Team.BLUE);
+        getInPos(Team.BLUE);
+        int[] skystonePositions = detector.getSkystonePositions();
+        telemetry.addData("first skystone", skystonePositions[0]);
+        telemetry.addData("second skystone", skystonePositions[1]);
+        telemetry.update();
+
+        moveToStone(skystonePositions[0], Team.BLUE);
     }
 }

@@ -4,19 +4,14 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 public abstract class CypherMethods extends CypherHardware {
 
@@ -165,8 +160,8 @@ public abstract class CypherMethods extends CypherHardware {
             currentNegPos = getNegPos();
             currentPosPos = getPosPos();
 
-            negError = currentNegPos - negTarget;
-            posError = currentPosPos - posTarget;
+            negError = negTarget - currentNegPos;
+            posError = posTarget - currentPosPos;
 
             negSum += negError;
             posSum += posError;
@@ -192,10 +187,10 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     void turnStrafe(double neg, double pos, double rotate) {
-        leftUp.setPower(neg - rotate);
-        rightUp.setPower(pos + rotate);
-        leftDown.setPower(pos - rotate);
-        rightDown.setPower(neg + rotate);
+        leftUp.setPower(neg + rotate);
+        rightUp.setPower(pos - rotate);
+        leftDown.setPower(pos + rotate);
+        rightDown.setPower(neg - rotate);
     }
 
 
@@ -273,10 +268,13 @@ public abstract class CypherMethods extends CypherHardware {
             parameters.loggingEnabled = true;
             parameters.loggingTag = "IMU";
             parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-            resetOrientation();
+            imu.initialize(parameters);
         } else {
             stopEverything();
         }
+        while (!imu.isGyroCalibrated() && !isStopRequested()) ;
+        resetOrientation();
+
     }
 
     private void orientationUpdate() {
