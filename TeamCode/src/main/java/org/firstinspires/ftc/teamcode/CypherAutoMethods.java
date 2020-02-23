@@ -354,8 +354,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
             negPos = getNegPos();
             posPos = getPosPos();
 
-            negError = negPos - negTarget;
-            posError = posPos - posTarget;
+            negError = negTarget - negPos;
+            posError = posTarget - posPos;
             angleError = currentAngle - startAngle;
 
             negSpeed = clip(P * negError, minSpeed, maxSpeed);
