@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -14,16 +15,14 @@ import java.util.List;
 public class SkystoneDetector extends CypherMethods {
     private TFObjectDetector tfod;
     private VuforiaLocalizer vuforia;
+    private static final float SIZE_OF_STONE = 0; //set later
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String VUFORIA_KEY = " AU4rZ23/////AAABmQabsAT5w0XtilSncDA5KR0mTpDy+NwTupFf3UHJK5uNazyphbkBUROQQ2ZmBNd5GDwgLEOA5XgeSxjo+pUUbNa85M03eRdF7I/O0083+YEIEORW45bjU4jNszzo5ASNn2Irz3QROUIg3T+1D8+H0n3AAt4ZL3f4P/zs+NsXPhaAhsE0lVn8EMEuXZm0jMoNhwp/cHISVhb0c4ZMywtCwMYR61l2oJLEvxIQmMC6AzKi2W8Ce+W8a2daBITha+t4FCLQgKCGTZG65/I24bdwW6aNt+Yd3HltnWnl13IKdZ5xJ0DDdM5i6x/8oMoqQfPxbOVnQez4dio31wAi7B23d42Ef2yJzTTRh1YFCRoy2aJY";
     static final String LABEL_FIRST_ELEMENT = "Stone";
     static final String LABEL_SECOND_ELEMENT = "Skystone";
     Stone firstSkystone, secondSkystone;
-
     List<Stone> skystones = new ArrayList<>();
-
     LinearOpMode opMode;
-
     CypherAutoMethods.Team team;
 
     void activate(LinearOpMode opMode) {
@@ -52,32 +51,59 @@ public class SkystoneDetector extends CypherMethods {
                 telemetry.addData(recognition.getLabel(), diff);
             }
         }
+        telemetry.update();
     }
-    void determineOrder() {
+
+    //figures out position of skystones assuming it can see at least the first 2 stones
+    void orderStones() {
         if (tfod != null) {
             List<Recognition> recognitions = tfod.getUpdatedRecognitions();
             if (recognitions != null) {
-                if (!containsSkystone(recognitions)) {
-                    firstSkystone = new Stone(3, true);
+                List<Stone> pos = new ArrayList<>();
+                if (recognitions.size() == 2) {
+                    determineOrder(recognitions);
                 } else {
-                    float skystoneDiff = 0, regStoneDiff = 0;
                     for (Recognition recognition : recognitions) {
-                        if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
-                            skystoneDiff = findDiff(recognition);
-                        } else {
-                            regStoneDiff = findDiff(recognition);
+                        pos.add(new Stone(recognition));
+                    }
+                    pos = findDupes(pos);
+                    Collections.sort(pos);
+
+                    int i = 1;
+                    for (Stone stone : pos) {
+                        if (stone.isSkystone) {
+                            stone.setPos(i);
+                            firstSkystone = stone;
+                            break;
                         }
+                        i++;
                     }
-                    if (skystoneDiff > regStoneDiff) {
-                        firstSkystone = new Stone(2, true);
-                    } else {
-                        firstSkystone = new Stone(1, true);
-                    }
+                    secondSkystone = findOther(firstSkystone);
                 }
-                secondSkystone = findOther(firstSkystone);
-                skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone, secondSkystone)));
             }
         }
+    }
+
+    private void determineOrder(List<Recognition> recognitions) {
+        if (!containsSkystone(recognitions)) {
+            firstSkystone = new Stone(3, true);
+        } else {
+            float skystoneDiff = 0, regStoneDiff = 0;
+            for (Recognition recognition : recognitions) {
+                if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
+                    skystoneDiff = findDiff(recognition);
+                } else {
+                    regStoneDiff = findDiff(recognition);
+                }
+            }
+            if (skystoneDiff > regStoneDiff) {
+                firstSkystone = new Stone(2, true);
+            } else {
+                firstSkystone = new Stone(1, true);
+            }
+        }
+        secondSkystone = findOther(firstSkystone);
+        skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone, secondSkystone)));
     }
 
     private float findDiff(Recognition recognition) {
@@ -87,28 +113,21 @@ public class SkystoneDetector extends CypherMethods {
             return recognition.getRight() - recognition.getTop();
     }
 
+    private float findSize(Recognition recognition) {
+        return Math.abs(recognition.getRight() - recognition.getLeft());
+    }
+
     int[] getSkystonePositions() {
         return new int[]{firstSkystone.pos, secondSkystone.pos};
     }
 
-    //should be able to sort thru 3 stones at a time and figure out position
-    private void orderStones(List<Recognition> recognitions) {
-        List<Stone> pos = new ArrayList<>();
-        for (Recognition recognition : recognitions) {
-            pos.add(new Stone(recognition));
-        }
-        Collections.sort(pos);
-
-        int i = 1;
-        for(Stone stone : pos) {
-            if (stone.isSkystone) {
-                stone.setPos(i);
-                firstSkystone = stone;
-                break;
+    private List<Stone> findDupes(List<Stone> stones) {
+        for (Stone stone : stones) {
+            if(!(findSize(stone.recognition) == SIZE_OF_STONE)) {
+                stones.add(new Stone(stone.recognition)); //maybe find a way to add to the distance of the other stone to make it better?
             }
-            i++;
         }
-        secondSkystone = findOther(firstSkystone);
+        return stones;
     }
 
     private boolean containsSkystone(List<Recognition> recognitions) {
@@ -144,11 +163,10 @@ public class SkystoneDetector extends CypherMethods {
     }
 
     private Stone findOther(Stone stone) {
-        if(stone.pos > 3)
+        if (stone.pos > 3)
             return new Stone(stone.pos - 3, true);
         return new Stone(stone.pos + 3, true);
     }
-
 
 
     private static class Stone implements Comparable<Stone> {
@@ -166,6 +184,10 @@ public class SkystoneDetector extends CypherMethods {
             this.recognition = recognition;
             dist = recognition.getTop() - recognition.getRight();
             isSkystone = recognition.getLabel().equals("Skystone");
+        }
+
+        Stone(boolean isSkystone) {
+            this.isSkystone = isSkystone;
         }
 
         void setPos(int pos) {
