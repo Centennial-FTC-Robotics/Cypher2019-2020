@@ -9,16 +9,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.util.ReadWriteFile;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
 
 public abstract class CypherMethods extends CypherHardware {
 
+    protected static double TILE_LENGTH = 22.75;
     protected final DcMotorEx[] driveMotors = new DcMotorEx[4];
     final DcMotorEx[] vSlides = new DcMotorEx[2];
     private final double ticksPerRotation = 383.6;
@@ -32,16 +30,10 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotorEx[] rightMotors = new DcMotorEx[2];
     private final DcMotorEx[] wheelIntakeMotors = new DcMotorEx[2];
     private final Servo[] foundationServos = new Servo[2];
-
-
     //will set these tmrw (tues)
     private final int vSlideMax = 10000;
     private final int vSlideMin = -15;
-
     protected int dir;
-
-    protected static double TILE_LENGTH = 22.75;
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -213,8 +205,7 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setPower(0);
         }
         HSlide.setPower(0);
-
-        writeVSlideData();
+        
     }
 
     //MOTOR CONTROL
@@ -262,7 +253,6 @@ public abstract class CypherMethods extends CypherHardware {
         }
          */
     }
-
 
 
     //INITIALIZE STUFF
@@ -396,7 +386,7 @@ public abstract class CypherMethods extends CypherHardware {
     void controlSlides(double power, int oldEncoder) {
         int encoderDiff;
         power = clip(power, 0, .8);
-        if(power > 0)
+        if (power > 0)
             encoderDiff = vLeft.getCurrentPosition();
         else
             encoderDiff = vRight.getCurrentPosition();
@@ -447,6 +437,7 @@ public abstract class CypherMethods extends CypherHardware {
                 stopEverything();
         }
     }
+
     protected void waitSec(double secs) {
         ElapsedTime time = new ElapsedTime();
         while (time.seconds() < secs && opModeIsActive()) {

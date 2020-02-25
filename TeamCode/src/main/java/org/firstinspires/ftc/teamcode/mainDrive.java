@@ -27,7 +27,7 @@ public class mainDrive extends CypherMethods {
         boolean slowIntake;
         double slowwwwIntake;
 
-        int vLeftEncoder,vRightEncoder;
+        int vLeftEncoder, vRightEncoder;
         int slideEncoder;
         resetEncoders();
         while (opModeIsActive()) {
@@ -144,7 +144,7 @@ public class mainDrive extends CypherMethods {
 
                 //Arm Control---------------------------------------------------------------------------
                 controlArm(hSlide);
-                if(vSlide > 0)
+                if (vSlide > 0)
                     slideEncoder = vLeft.getCurrentPosition();
                 else
                     slideEncoder = vRight.getCurrentPosition();

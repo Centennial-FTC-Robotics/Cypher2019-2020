@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public abstract class CypherAutoMethods extends CypherMethods {
@@ -25,7 +24,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         initializeIMU();
         detector.activate(this);
         while (!imu.isGyroCalibrated() && !isStopRequested()) {
-            if(isStopRequested())
+            if (isStopRequested())
                 stopEverything();
         }
     }
@@ -78,7 +77,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 waitSec(2.5);
                 turnRelative(180);
                 waitMoveFoundation(FoundationState.DRAG);
-                testAutoMove(30,0);
+                testAutoMove(30, 0);
                 turnAbsolute(-90);
                 waitMoveFoundation(FoundationState.RELEASE);
 
@@ -119,8 +118,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
             }
         }
     }
-
-
 
 
     private boolean isSame(double right1, double top1, double right2, double top2) {
@@ -299,16 +296,14 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
 
-
-
     void getInPos(Team team) {
         int factor = 1;
         if (team == Team.RED)
             factor = -1;
-       //testAutoMove(0, -(TILE_LENGTH * (2d / 3)) * factor);
+        //testAutoMove(0, -(TILE_LENGTH * (2d / 3)) * factor);
         //testAutoMove(-((1d / 3) * TILE_LENGTH), 0);
         detector.orderStones();
-       //testAutoMove(0, -(TILE_LENGTH * (1d / 2) * factor + 4));
+        //testAutoMove(0, -(TILE_LENGTH * (1d / 2) * factor + 4));
         //testAutoMove(-TILE_LENGTH * 2d / 3, 0);
     }
 
@@ -333,6 +328,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
 
     }
+
     protected enum Team {
         RED, BLUE
     }

@@ -8,12 +8,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.navigation.*;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.List;
 
 public abstract class CypherHardware extends LinearOpMode {
+    static int vSlideEncoder = 0;
     DcMotorEx leftUp;
     DcMotorEx leftDown;
     DcMotorEx rightUp;
@@ -32,11 +35,7 @@ public abstract class CypherHardware extends LinearOpMode {
     double initialPitch;
     double initialRoll;
     RevBlinkinLedDriver blinkinLed;
-
     List<LynxModule> hubs;
-
-    static int vSlideEncoder = 0;
-
 
     @Override
     public void runOpMode() throws InterruptedException {

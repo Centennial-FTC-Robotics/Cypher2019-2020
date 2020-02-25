@@ -37,7 +37,7 @@ public class OutreachDrive extends CypherMethods {
             boolean slow = gamepad2.left_bumper;
             double vSlide = gamepad2.left_stick_y;
             double hSlide = gamepad2.right_stick_x;
-            int vLeftEncoder,vRightEncoder;
+            int vLeftEncoder, vRightEncoder;
             int slideEncoder;
 
             //timer thingy
@@ -111,7 +111,7 @@ public class OutreachDrive extends CypherMethods {
 
                 //Arm Control---------------------------------------------------------------------------
                 controlArm(hSlide);
-                if(vSlide > 0)
+                if (vSlide > 0)
                     slideEncoder = vLeft.getCurrentPosition();
                 else
                     slideEncoder = vRight.getCurrentPosition();
@@ -120,6 +120,5 @@ public class OutreachDrive extends CypherMethods {
                 telemetry.update();
             }
         }
-        writeVSlideData();
     }
 }
