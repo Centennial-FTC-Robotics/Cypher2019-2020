@@ -16,7 +16,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
-import java.io.File;
 
 public abstract class CypherMethods extends CypherHardware {
 
@@ -42,8 +41,6 @@ public abstract class CypherMethods extends CypherHardware {
     protected int dir;
 
     protected static double TILE_LENGTH = 22.75;
-
-    File vSlideData = AppUtil.getInstance().getSettingsFile("vSlideData");
 
 
     @Override
@@ -354,24 +351,6 @@ public abstract class CypherMethods extends CypherHardware {
     int getPos() {
         return (getNegPos() + getPosPos()) / 2;
     }
-
-    void updateVSlideData() {
-        String data = ReadWriteFile.readFile(vSlideData).trim();
-        if(data.equals("")) {
-            vSlideEncoder = 0;
-        } else {
-            try{
-                vSlideEncoder = Integer.parseInt(data);
-            } catch(NumberFormatException e) {
-                vSlideEncoder = 0;
-            }
-        }
-    }
-
-    void writeVSlideData() {
-        ReadWriteFile.writeFile(vSlideData, String.valueOf(vSlideEncoder));
-    }
-
 
     //CONVERSION METHODS
     protected int convertInchToEncoder(double inches) {
