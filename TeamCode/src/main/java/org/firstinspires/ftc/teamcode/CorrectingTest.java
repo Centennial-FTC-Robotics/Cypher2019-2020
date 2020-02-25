@@ -7,6 +7,5 @@ public class CorrectingTest extends CypherAutoMethods {
         initEverything();
         waitForStart();
         selfCorrectStrafe(0, 24);
-        //betterSelfCorrectStrafe(0, 24);
     }
 }
