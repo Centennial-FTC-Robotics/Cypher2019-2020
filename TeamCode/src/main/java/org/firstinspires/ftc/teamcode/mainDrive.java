@@ -145,9 +145,9 @@ public class mainDrive extends CypherMethods {
                 //Arm Control---------------------------------------------------------------------------
                 controlArm(hSlide);
                 if (vSlide > 0)
-                    slideEncoder = vLeft.getCurrentPosition();
+                    slideEncoder = vLeftEncoder;
                 else
-                    slideEncoder = vRight.getCurrentPosition();
+                    slideEncoder = vRightEncoder;
                 controlSlides(vSlide * slideFactor, slideEncoder);
 
                 telemetry.update();

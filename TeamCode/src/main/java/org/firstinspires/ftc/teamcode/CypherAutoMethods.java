@@ -16,7 +16,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         //controlFoundation(FoundationState.RELEASE); maybe resets servos???? builders would preferably want it
     }
 
-    protected void initVision(LinearOpMode opMode) {
+     void initVision(LinearOpMode opMode) {
         detector.activate(opMode);
     }
 

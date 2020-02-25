@@ -24,6 +24,9 @@ public class SkystoneDetector extends CypherMethods {
     private TFObjectDetector tfod;
     private VuforiaLocalizer vuforia;
 
+    boolean isUncertain = false;
+    int[] possiblePos = new int[2];
+
     void activate(LinearOpMode opMode) {
         this.opMode = opMode;
         initVuforia();
@@ -31,6 +34,18 @@ public class SkystoneDetector extends CypherMethods {
 
         if (tfod != null)
             tfod.activate();
+    }
+
+    void debugStuff() {
+        if (tfod != null) {
+            List<Recognition> recognitions = tfod.getUpdatedRecognitions();
+            if (recognitions != null) {
+                for(Recognition recognition : recognitions) {
+                    opMode.telemetry.addData("size", findSize(recognition));
+                }
+                opMode.telemetry.update();
+            }
+        }
     }
 
     void setTeam(CypherAutoMethods.Team team) {
@@ -64,9 +79,6 @@ public class SkystoneDetector extends CypherMethods {
                     }
                     findDupes(pos);
                     Collections.sort(pos);
-
-                    //make a thing called check certainty
-
                     int i = 1;
                     for (Stone stone : pos) {
                         if (stone.isSkystone) {
@@ -76,9 +88,26 @@ public class SkystoneDetector extends CypherMethods {
                         }
                         i++;
                     }
+                    checkCertainty(pos);
                     secondSkystone = findOther(firstSkystone);
                 }
             }
+        }
+    }
+
+
+    private void checkCertainty(List<Stone> stones) {
+        float currentSize, oldSize;
+        oldSize = findSize(stones.get(0).recognition);
+        for(Stone stone : stones) {
+            currentSize = findSize(stone.recognition);
+            if(oldSize == currentSize && stone.isSkystone) {
+                isUncertain = true;
+                possiblePos[0] = stone.pos + 1;
+                possiblePos[1] = findOther(stone).pos + 1;
+                break;
+            }
+            oldSize = currentSize;
         }
     }
 
@@ -104,6 +133,7 @@ public class SkystoneDetector extends CypherMethods {
         skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone, secondSkystone)));
     }
 
+
     private float findDiff(Recognition recognition) {
         if (team == CypherAutoMethods.Team.RED)
             return recognition.getTop() - recognition.getRight();
@@ -112,12 +142,12 @@ public class SkystoneDetector extends CypherMethods {
     }
 
     private float findSize(Recognition recognition) {
-        return Math.abs(recognition.getRight() - recognition.getLeft());
+        return Math.abs(recognition.getTop() - recognition.getBottom());
     }
 
 
     //call this if it cna see pos 2 and pos 3
-    private void determineOrderTwoThree(List<Recognition> recognitions) {
+    private void determineOrder23(List<Recognition> recognitions) {
         if (!containsSkystone(recognitions)) {
             firstSkystone = new Stone(1, true);
         } else {
@@ -168,7 +198,7 @@ public class SkystoneDetector extends CypherMethods {
     private List<Stone> findDupes(List<Stone> stones) {
         List<Stone> dupes = new ArrayList<>();
         for (Stone stone : stones) {
-            if (Math.abs(findSize(stone.recognition) - SIZE_OF_STONE) > 250) {
+            if (Math.abs(findSize(stone.recognition) - SIZE_OF_STONE) > 150) {
                 dupes.add(new Stone(stone.recognition)); //maybe find a way to add to the distance of the other stone to make it better?
             }
         }
@@ -203,7 +233,7 @@ public class SkystoneDetector extends CypherMethods {
             int tfodMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfodParameters.minimumConfidence = 0.6;
+            tfodParameters.minimumConfidence = 0.8;
             tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
         } else {
