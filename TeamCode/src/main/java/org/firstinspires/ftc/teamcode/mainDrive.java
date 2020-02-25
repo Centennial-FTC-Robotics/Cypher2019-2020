@@ -9,7 +9,6 @@ public class mainDrive extends CypherMethods {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        //if battery is low pos disable nonessential features pls and also maybe ensure slides are disabled if disconnected okay thanks
         final int miliTillReady = 250;
         super.runOpMode();
         waitForStart();

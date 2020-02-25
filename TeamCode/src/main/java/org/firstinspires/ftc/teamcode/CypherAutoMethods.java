@@ -16,7 +16,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         //controlFoundation(FoundationState.RELEASE); maybe resets servos???? builders would preferably want it
     }
 
-     void initVision(LinearOpMode opMode) {
+    void initVision(LinearOpMode opMode) {
         detector.activate(opMode);
     }
 
@@ -127,7 +127,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return (rightDiff <= TOLERANCE) && (topDiff <= TOLERANCE);
     }
 
-
+    //what is this and why
     protected void emergRedLoading() {
         turnRelative(-90);
         testAutoMove(34, 0);
@@ -168,30 +168,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     }
 
-    protected void park(Team team, Side side) {
-        switch (team) {
-            case RED:
-                switch (side) {
-                    case BRIDGE:
-                        testAutoMove(30, 0);
-                    case WALL:
-                        testAutoMove(0, -10);
-                        testAutoMove(30, 0);
-                }
-            case BLUE:
-                switch (side) {
-                    case BRIDGE:
-                        testAutoMove(30, 0);
-                    case WALL:
-                        testAutoMove(0, 10);
-                        testAutoMove(30, 0);
-                }
-
-
-        }
-
-    }
-
     void selfCorrectStrafe(double forward, double left) {
         int forwardMovement = convertInchToEncoder(forward);
         int leftMovement = convertInchToEncoder(left);
@@ -221,6 +197,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             //currentAngle = getRotationDimension('Z');
             currentAngle = getRotationDimension();
             angleError = currentAngle - startAngle;
+            //P = tuner(P);
 
             if (Math.abs(angleError) > angleTolerance) {
                 turnAbsolute(startAngle);
@@ -516,6 +493,32 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 break;
         }
         return new double[]{tilesToInch(forward), tilesToInch(left)};
+    }
+*/
+    //we don't even use this and we use own park methods so getting rid of it prob
+    /*
+    protected void park(Team team, Side side) {
+        switch (team) {
+            case RED:
+                switch (side) {
+                    case BRIDGE:
+                        testAutoMove(30, 0);
+                    case WALL:
+                        testAutoMove(0, -10);
+                        testAutoMove(30, 0);
+                }
+            case BLUE:
+                switch (side) {
+                    case BRIDGE:
+                        testAutoMove(30, 0);
+                    case WALL:
+                        testAutoMove(0, 10);
+                        testAutoMove(30, 0);
+                }
+
+
+        }
+
     }
 */
 
