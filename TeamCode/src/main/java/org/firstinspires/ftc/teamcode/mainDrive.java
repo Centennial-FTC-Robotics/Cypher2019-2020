@@ -154,6 +154,5 @@ public class mainDrive extends CypherMethods {
                 telemetry.update();
             }
         }
-        writeVSlideData();
     }
 }
