@@ -12,7 +12,6 @@ public class mainDrive extends CypherMethods {
         //if battery is low pos disable nonessential features pls and also maybe ensure slides are disabled if disconnected okay thanks
         final int miliTillReady = 250;
         super.runOpMode();
-        updateVSlideData();
         waitForStart();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -154,6 +153,5 @@ public class mainDrive extends CypherMethods {
                 telemetry.update();
             }
         }
-        writeVSlideData();
     }
 }

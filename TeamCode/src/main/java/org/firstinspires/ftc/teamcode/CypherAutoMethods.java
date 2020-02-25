@@ -11,7 +11,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        updateVSlideData();
         changeColor(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_WAVES);
         setCacheMode(LynxModule.BulkCachingMode.AUTO);
         resetEncoders();
