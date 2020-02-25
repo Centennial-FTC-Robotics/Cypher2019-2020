@@ -11,6 +11,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
+        updateVSlideData();
         changeColor(RevBlinkinLedDriver.BlinkinPattern.CP1_2_COLOR_WAVES);
         setCacheMode(LynxModule.BulkCachingMode.AUTO);
         resetEncoders();
@@ -299,48 +300,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
 
-    private void moveIntakedStone() {
-        moveSlidesToPos(0);
-        grabServo(0);
-        moveSlidesToPos(200);
-    }
 
-    private void moveSlidesToPos(int pos) {
-        for (DcMotorEx motor : vSlides) {
-            motor.setTargetPosition(pos);
-            motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        }
-        if (pos > getVSlidePos()) {
-            vLeft.setPower(-.2);
-            vRight.setPower(-.2 * (1d / 5));
-        } else {
-            vLeft.setPower(.2);
-            vRight.setPower(.2 * 1.2);
-        }
-    }
-
-    private void releaseIntake() {
-        moveSlidesToPos(100);
-        while (opModeIsActive() && (vLeft.isBusy() || vRight.isBusy())) {
-            if (shouldStop()) {
-                stopEverything();
-            }
-        }
-        ElapsedTime time = new ElapsedTime();
-        while (opModeIsActive() && time.seconds() < 2) {
-            if (shouldStop())
-                stopEverything();
-            HSlide.setPower(.5);
-        }
-        HSlide.setPower(0);
-        moveSlidesToPos(getVSlidePos() - 100);
-
-        while (opModeIsActive() && (vLeft.isBusy() || vRight.isBusy())) {
-            if (shouldStop()) {
-                stopEverything();
-            }
-        }
-    }
 
     void getInPos(Team team) {
         int factor = 1;

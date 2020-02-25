@@ -35,6 +35,8 @@ public abstract class CypherHardware extends LinearOpMode {
 
     List<LynxModule> hubs;
 
+    static int vSlideEncoder = 0;
+
 
     @Override
     public void runOpMode() throws InterruptedException {

@@ -12,6 +12,7 @@ public class mainDrive extends CypherMethods {
         //if battery is low pos disable nonessential features pls and also maybe ensure slides are disabled if disconnected okay thanks
         final int miliTillReady = 250;
         super.runOpMode();
+        updateVSlideData();
         waitForStart();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -26,6 +27,9 @@ public class mainDrive extends CypherMethods {
         double hSlide, vSlide;
         boolean slowIntake;
         double slowwwwIntake;
+
+        int vLeftEncoder,vRightEncoder;
+        int slideEncoder;
         resetEncoders();
         while (opModeIsActive()) {
             //controller 1 stuff
@@ -36,19 +40,20 @@ public class mainDrive extends CypherMethods {
             forwardPower = actualControl(gamepad1.left_stick_y, 0.5) * .9;
             rotate = actualControl(gamepad1.right_stick_x, .3);
             driveSlow = gamepad1.left_trigger;
+            slowwwwIntake = gamepad1.right_trigger;
             //controller 2 stuff
             arm = gamepad2.a && notInitController();
             toggleFoundation = gamepad2.y;
             slideSlow = gamepad2.left_trigger;
             vSlide = -gamepad2.left_stick_y;
             hSlide = gamepad2.right_stick_x;
+            vLeftEncoder = vLeft.getCurrentPosition();
+            vRightEncoder = vRight.getCurrentPosition();
             telemetry.addData("foundation state", foundationState);
 
-            slowwwwIntake = gamepad1.right_trigger;
-
-
             //timer thingy
-            telemetry.addData("slides", getVSlidePos());
+
+            //look at these for testing tmrw and think of a way to do it
             telemetry.addData("left slide", vLeft.getCurrentPosition());
             telemetry.addData("right slide", vRight.getCurrentPosition());
             slowIntake = slowwwwIntake > 0;
@@ -140,10 +145,15 @@ public class mainDrive extends CypherMethods {
 
                 //Arm Control---------------------------------------------------------------------------
                 controlArm(hSlide);
-                controlSlides(vSlide * slideFactor);
+                if(vSlide > 0)
+                    slideEncoder = vLeft.getCurrentPosition();
+                else
+                    slideEncoder = vRight.getCurrentPosition();
+                controlSlides(vSlide * slideFactor, slideEncoder);
 
                 telemetry.update();
             }
         }
+        writeVSlideData();
     }
 }

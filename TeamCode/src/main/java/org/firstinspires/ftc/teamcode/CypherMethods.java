@@ -9,9 +9,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.ReadWriteFile;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+
+import java.io.File;
 
 public abstract class CypherMethods extends CypherHardware {
 
@@ -29,13 +34,17 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotorEx[] wheelIntakeMotors = new DcMotorEx[2];
     private final Servo[] foundationServos = new Servo[2];
 
-    //private final int VSlideMaxRisk = 1600;
-    private final int VSlideMaxSafe = 1400;
-    private final int VSlideMin = 10;
+
+    //will set these tmrw (tues)
+    private final int vSlideMax = 10000;
+    private final int vSlideMin = -15;
 
     protected int dir;
 
     protected static double TILE_LENGTH = 22.75;
+
+    File vSlideData = AppUtil.getInstance().getSettingsFile("vSlideData");
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -207,6 +216,8 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setPower(0);
         }
         HSlide.setPower(0);
+
+        writeVSlideData();
     }
 
     //MOTOR CONTROL
@@ -339,16 +350,26 @@ public abstract class CypherMethods extends CypherHardware {
         return average / 2;
     }
 
-    int getVSlidePos() {
-        int average = 0;
-        for (DcMotorEx motor : vSlides) {
-            average += motor.getCurrentPosition();
-        }
-        return average / 2;
-    }
 
     int getPos() {
         return (getNegPos() + getPosPos()) / 2;
+    }
+
+    void updateVSlideData() {
+        String data = ReadWriteFile.readFile(vSlideData).trim();
+        if(data.equals("")) {
+            vSlideEncoder = 0;
+        } else {
+            try{
+                vSlideEncoder = Integer.parseInt(data);
+            } catch(NumberFormatException e) {
+                vSlideEncoder = 0;
+            }
+        }
+    }
+
+    void writeVSlideData() {
+        ReadWriteFile.writeFile(vSlideData, String.valueOf(vSlideEncoder));
     }
 
 
@@ -392,25 +413,17 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    void controlSlides(double power, double factorThingyKillMeNow) {
-        power = clip(power, 0, .8);
-        if ((getVSlidePos() >= VSlideMaxSafe && power > 0) || (getVSlidePos() <= VSlideMin && power < 0)) {
-            vLeft.setPower(0);
-            vRight.setPower(0);
-        } else {
-            if (power > 0) {
-                vLeft.setPower(power);
-                vRight.setPower(power * factorThingyKillMeNow);
-            } else {
-                vLeft.setPower(power);
-                vRight.setPower(power);
-            }
-        }
-    }
 
-    void controlSlides(double power) {
+    void controlSlides(double power, int oldEncoder) {
+        int encoderDiff;
         power = clip(power, 0, .8);
-        if ((getVSlidePos() >= VSlideMaxSafe && power > 0) || (getVSlidePos() <= VSlideMin && power < 0)) {
+        if(power > 0)
+            encoderDiff = vLeft.getCurrentPosition();
+        else
+            encoderDiff = vRight.getCurrentPosition();
+        vSlideEncoder += encoderDiff;
+
+        if ((vSlideEncoder >= vSlideMax && power > 0) || (vSlideEncoder <= vSlideMin && power < 0)) {
             vLeft.setPower(0);
             vRight.setPower(0);
         } else {
@@ -418,25 +431,12 @@ public abstract class CypherMethods extends CypherHardware {
                 vLeft.setPower(power);
                 vRight.setPower(power * (1d / 3));
             } else {
-                vLeft.setPower(power);
-                vRight.setPower(power * 1.2);
+                vLeft.setPower(power * .8);
+                vRight.setPower(power);
             }
         }
     }
 
-
-    void moveSlides(int factor) {
-        final int moveBy = 150 * factor;
-        int a = getVSlidePos() + moveBy;
-        if (a >= VSlideMaxSafe) {
-            moveSlide(VSlideMaxSafe);
-        } else if (a <= VSlideMin) {
-            moveSlide(VSlideMin);
-        } else {
-            moveSlide(moveBy);
-        }
-
-    }
 
     //FOUNDATION THINGY
     void moveFoundation(double pos) {
