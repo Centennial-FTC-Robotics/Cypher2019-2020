@@ -8,23 +8,16 @@ public class TestBetterDetector extends CypherAutoMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         initVision(this);
-        detector.team = Team.BLUE;
+        detector.team = Team.RED;
         waitForStart();
-
-        /*
-        while (!opModeIsActive() && !isStopRequested()) {
-            detector.orderStones();
-        }
-        int[] skystonePositions = detector.getSkystonePositions();
-        telemetry.addData("first skystone", skystonePositions[0]);
-        telemetry.addData("second skystone", skystonePositions[1]);
-        telemetry.update();
-
-        moveToStone(skystonePositions[0], Team.BLUE);
-
-         */
+        getInPos(Team.RED);
         while(opModeIsActive()) {
-            detector.debugStuff();
+            int[] skystonePositions = detector.getSkystonePositions();
+            telemetry.addData("first skystone", skystonePositions[0]);
+            telemetry.addData("second skystone", skystonePositions[1]);
+            telemetry.update();
         }
+
+
     }
 }

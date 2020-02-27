@@ -30,6 +30,7 @@ public class mainDrive extends CypherMethods {
         int vLeftEncoder, vRightEncoder;
         int slideEncoder;
         resetEncoders();
+        resetVSlideEncoder();
         while (opModeIsActive()) {
             //controller 1 stuff
             intakeIn = gamepad1.a && notInitController();
@@ -49,6 +50,7 @@ public class mainDrive extends CypherMethods {
             vLeftEncoder = vLeft.getCurrentPosition();
             vRightEncoder = vRight.getCurrentPosition();
             telemetry.addData("foundation state", foundationState);
+            telemetry.addData("slides", vSlideEncoder);
 
             //timer thingy
 

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -31,8 +32,8 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotorEx[] wheelIntakeMotors = new DcMotorEx[2];
     private final Servo[] foundationServos = new Servo[2];
     //will set these tmrw (tues)
-    private final int vSlideMax = 10000;
-    private final int vSlideMin = -15;
+    private final int vSlideMax = 1000000;
+    private final int vSlideMin = -100000;
     protected int dir;
 
     @Override
@@ -205,7 +206,7 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setPower(0);
         }
         HSlide.setPower(0);
-        
+
     }
 
     //MOTOR CONTROL
@@ -252,6 +253,13 @@ public abstract class CypherMethods extends CypherHardware {
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
          */
+    }
+
+    void resetVSlideEncoder() {
+        for (DcMotorEx motor : vSlides) {
+            motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        }
     }
 
 
@@ -384,18 +392,19 @@ public abstract class CypherMethods extends CypherHardware {
 
 
     void controlSlides(double power, int oldEncoder) {
-        int encoderDiff;
+        int encoderDiff = 0;
         power = clip(power, 0, .8);
-        if (power > 0)
-            encoderDiff = vLeft.getCurrentPosition();
-        else
-            encoderDiff = vRight.getCurrentPosition();
-        vSlideEncoder += encoderDiff;
-
-        if ((vSlideEncoder >= vSlideMax && power > 0) || (vSlideEncoder <= vSlideMin && power < 0)) {
+        if ((vSlideEncoder >= vSlideMax && power > 0) || (vRight.getCurrentPosition() <= vSlideMin && power < 0)) {
             vLeft.setPower(0);
             vRight.setPower(0);
         } else {
+            if (power > 0)
+                encoderDiff = oldEncoder - vLeft.getCurrentPosition();
+            else if (power < 0)
+                encoderDiff = oldEncoder - vRight.getCurrentPosition();
+            telemetry.addData("diff", encoderDiff);
+            vSlideEncoder += encoderDiff;
+
             if (power > 0) {
                 vLeft.setPower(power);
                 vRight.setPower(power * (1d / 3));

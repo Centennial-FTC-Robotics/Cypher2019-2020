@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -40,7 +41,7 @@ public class SkystoneDetector extends CypherMethods {
         if (tfod != null) {
             List<Recognition> recognitions = tfod.getUpdatedRecognitions();
             if (recognitions != null) {
-                for(Recognition recognition : recognitions) {
+                for (Recognition recognition : recognitions) {
                     opMode.telemetry.addData("size", findSize(recognition));
                 }
                 opMode.telemetry.update();
@@ -99,9 +100,9 @@ public class SkystoneDetector extends CypherMethods {
     private void checkCertainty(List<Stone> stones) {
         float currentSize, oldSize;
         oldSize = findSize(stones.get(0).recognition);
-        for(Stone stone : stones) {
+        for (Stone stone : stones) {
             currentSize = findSize(stone.recognition);
-            if(oldSize == currentSize && stone.isSkystone) {
+            if (oldSize == currentSize && stone.isSkystone) {
                 isUncertain = true;
                 possiblePos[0] = stone.pos + 1;
                 possiblePos[1] = findOther(stone).pos + 1;
@@ -135,7 +136,7 @@ public class SkystoneDetector extends CypherMethods {
 
 
     private float findDiff(Recognition recognition) {
-        if (team == CypherAutoMethods.Team.RED)
+        if (team == CypherAutoMethods.Team.BLUE)
             return recognition.getTop() - recognition.getRight();
         else
             return recognition.getRight() - recognition.getTop();
@@ -169,25 +170,30 @@ public class SkystoneDetector extends CypherMethods {
 
 
     //call this if it can see pos 3 and 4
-    private void determineOrderMiddle(List<Recognition> recognitions) {
-        if (!containsSkystone(recognitions)) {
-            firstSkystone = new Stone(2, true);
-        } else {
-            float skystoneDiff = 0, regDiff = 0;
-            for (Recognition recognition : recognitions) {
-                if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT))
-                    skystoneDiff = findDiff(recognition);
-                else
-                    regDiff = findDiff(recognition);
-            }
-            if (skystoneDiff > regDiff)
-                firstSkystone = new Stone(1, true);
-            else
-                firstSkystone = new Stone(3, true);
-        }
+    protected void determineOrderMiddle() {
+        if (tfod != null) {
+            List<Recognition> recognitions = tfod.getUpdatedRecognitions();
+            if (recognitions != null) {
+                if (!containsSkystone(recognitions)) {
+                    firstSkystone = new Stone(2, true);
+                } else {
+                    float skystoneDiff = 0, regDiff = 0;
+                    for (Recognition recognition : recognitions) {
+                        if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT))
+                            skystoneDiff = findDiff(recognition);
+                        else
+                            regDiff = findDiff(recognition);
+                    }
+                    if (skystoneDiff > regDiff)
+                        firstSkystone = new Stone(1, true);
+                    else
+                        firstSkystone = new Stone(3, true);
+                }
 
-        secondSkystone = findOther(firstSkystone);
-        skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone, secondSkystone)));
+                secondSkystone = findOther(firstSkystone);
+                skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone, secondSkystone)));
+            }
+        }
     }
 
 

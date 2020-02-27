@@ -295,16 +295,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setDriveMotors(0);
     }
 
-
     void getInPos(Team team) {
-        int factor = 1;
+        int factor = -1;
         if (team == Team.RED)
-            factor = -1;
-        //testAutoMove(0, -(TILE_LENGTH * (2d / 3)) * factor);
-        //testAutoMove(-((1d / 3) * TILE_LENGTH), 0);
-        detector.orderStones();
-        //testAutoMove(0, -(TILE_LENGTH * (1d / 2) * factor + 4));
-        //testAutoMove(-TILE_LENGTH * 2d / 3, 0);
+            factor = 1;
+        testAutoMove(0, -(TILE_LENGTH * (2d / 3)) * factor);
+        detector.determineOrderMiddle();
     }
 
     void moveToStone(int pos, Team team) {

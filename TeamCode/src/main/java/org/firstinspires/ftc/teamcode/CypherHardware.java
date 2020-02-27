@@ -41,6 +41,7 @@ public abstract class CypherHardware extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         getHardwareDevices();
         initHardware();
+        vSlideEncoder = 0;
     }
 
     private void getHardwareDevices() {
