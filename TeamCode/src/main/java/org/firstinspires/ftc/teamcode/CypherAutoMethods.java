@@ -276,13 +276,18 @@ public abstract class CypherAutoMethods extends CypherMethods {
         int factor = -1;
         if (team == Team.RED)
             factor = 1;
+        testAutoMove(0, -(TILE_LENGTH * (1d / 2)) * factor);
+        ElapsedTime time = new ElapsedTime();
+        while (time.milliseconds() < 1500) {
+            detector.determineOrder23();
+        }
         testAutoMove(0, -(TILE_LENGTH * (2d / 3)) * factor);
-        detector.determineOrderMiddle();
     }
 
     void moveToStone(int pos, Team team) {
         int factor = 1;
         int target = pos - 1;
+        int idkWhatToCallThis;
         //we need to test out some values for this
         /* whats needed
         where will we tell the robot to go to see the first 2 or first 3 stones
@@ -292,13 +297,17 @@ public abstract class CypherAutoMethods extends CypherMethods {
          */
         if (team == Team.RED)
             factor = -1;
-        if (pos == 1) {
-            testAutoMove(TILE_LENGTH * 1d / 5, 0);
-            testAutoMove(0, TILE_LENGTH * 1d / 3);
+        if (pos < 4) {
+            idkWhatToCallThis = 4 - pos;
+            testAutoMove(factor * (idkWhatToCallThis * 6 + 3), 0);
+        } else if (pos == 3) {
+            testAutoMove(-2.5 * factor, 0);
         } else {
-
+            idkWhatToCallThis = pos - 4;
+            testAutoMove(-idkWhatToCallThis * 5 * factor, 0);
         }
 
+        testAutoMove(0, factor * (TILE_LENGTH * (2d / 3d) + 4));
 
     }
 

@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -141,7 +140,7 @@ public abstract class CypherMethods extends CypherHardware {
         double P = 1d / 1333;
         double I = 0;
         double tolerance = 15;
-        double minSpeed = 0.01;
+        double minSpeed = 0.03;
         double maxSpeed = 0.2333333333333333333333333333;
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;

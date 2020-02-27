@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -148,24 +147,29 @@ public class SkystoneDetector extends CypherMethods {
 
 
     //call this if it cna see pos 2 and pos 3
-    private void determineOrder23(List<Recognition> recognitions) {
-        if (!containsSkystone(recognitions)) {
-            firstSkystone = new Stone(1, true);
-        } else {
-            float skystoneDiff = 0, regDiff = 0;
-            for (Recognition recognition : recognitions) {
-                if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT))
-                    skystoneDiff = findDiff(recognition);
-                else
-                    regDiff = findDiff(recognition);
+    protected void determineOrder23() {
+        if (tfod != null) {
+            List<Recognition> recognitions = tfod.getUpdatedRecognitions();
+            if (recognitions != null) {
+                if (!containsSkystone(recognitions)) {
+                    firstSkystone = new Stone(1, true);
+                } else {
+                    float skystoneDiff = 0, regDiff = 0;
+                    for (Recognition recognition : recognitions) {
+                        if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT))
+                            skystoneDiff = findDiff(recognition);
+                        else
+                            regDiff = findDiff(recognition);
+                    }
+                    if (skystoneDiff > regDiff)
+                        firstSkystone = new Stone(3, true);
+                    else
+                        firstSkystone = new Stone(2, true);
+                }
+                secondSkystone = findOther(firstSkystone);
+                skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone, secondSkystone)));
             }
-            if (skystoneDiff > regDiff)
-                firstSkystone = new Stone(3, true);
-            else
-                firstSkystone = new Stone(2, true);
         }
-        secondSkystone = findOther(firstSkystone);
-        skystones.addAll(new ArrayList<>(Arrays.asList(firstSkystone, secondSkystone)));
     }
 
 
