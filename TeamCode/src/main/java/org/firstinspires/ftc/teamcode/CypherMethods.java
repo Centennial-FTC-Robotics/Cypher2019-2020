@@ -35,6 +35,8 @@ public abstract class CypherMethods extends CypherHardware {
     private final int vSlideMin = -100000;
     protected int dir;
 
+    IntakeState intakeState = IntakeState.STOP;
+
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -370,6 +372,13 @@ public abstract class CypherMethods extends CypherHardware {
     void controlIntakeMotors(double power) {
         wheelIntakeMotors[0].setPower(power);
         wheelIntakeMotors[1].setPower(power);
+
+        if(power > 0)
+            intakeState = IntakeState.IN;
+        else if(power < 0)
+            intakeState = IntakeState.OUT;
+        else
+            intakeState = IntakeState.STOP;
     }
 
     void controlArm(double power) {
@@ -438,7 +447,7 @@ public abstract class CypherMethods extends CypherHardware {
         return (a * (Math.pow(-controller, 3))) + ((1 - a) * -controller);
     }
 
-    protected void waitMili(double mili) {
+    protected void waitMilli(double mili) {
         ElapsedTime time = new ElapsedTime();
         while (time.milliseconds() < mili && opModeIsActive()) {
             if (shouldStop())

@@ -8,7 +8,7 @@ public class BlueBridgeMoveFoundation extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        initEverything();
+        initializeIMU();
 
         waitForStart();
         getFoundation(1, Side.BRIDGE);

@@ -20,7 +20,7 @@ public class SkystoneDetector extends CypherMethods {
     Stone firstSkystone, secondSkystone;
     List<Stone> skystones = new ArrayList<>();
     LinearOpMode opMode;
-    CypherAutoMethods.Team team;
+    public CypherAutoMethods.Team team;
     private TFObjectDetector tfod;
     private VuforiaLocalizer vuforia;
 
@@ -201,7 +201,7 @@ public class SkystoneDetector extends CypherMethods {
     }
 
 
-    int[] getSkystonePositions() {
+    public int[] getSkystonePositions() {
         return new int[]{firstSkystone.pos, secondSkystone.pos};
     }
 

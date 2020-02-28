@@ -16,7 +16,6 @@ public class mainDrive extends CypherMethods {
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         double factor;
         double slideFactor = 1;
-        IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
         boolean intakeIn, intakeOut, intakeStop;
@@ -60,15 +59,15 @@ public class mainDrive extends CypherMethods {
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {
                     controller1Timer.reset();
-                    inState = IntakeState.IN;
+                    intakeState = IntakeState.IN;
                 }
                 if (intakeOut) {
                     controller1Timer.reset();
-                    inState = IntakeState.OUT;
+                    intakeState = IntakeState.OUT;
                 }
                 if (intakeStop) {
                     controller1Timer.reset();
-                    inState = IntakeState.STOP;
+                    intakeState = IntakeState.STOP;
                 }
                 if (toggleFoundation) {
                     controller1Timer.reset();
@@ -82,8 +81,8 @@ public class mainDrive extends CypherMethods {
                 }
             }
             //Motor Intake Control------------------------------------------------------------------
-            telemetry.addData("state", inState);
-            switch (inState) {
+            telemetry.addData("state", intakeState);
+            switch (intakeState) {
                 case IN:
                     if (!slowIntake)
                         controlIntakeMotors(-0.5);

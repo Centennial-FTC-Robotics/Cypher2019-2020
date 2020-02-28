@@ -1,12 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public abstract class CypherAutoMethods extends CypherMethods {
-    SkystoneDetector detector = new SkystoneDetector();
+    protected SkystoneDetector detector = new SkystoneDetector();
+    int[] skystonePos = new int[2];
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -16,7 +20,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         //controlFoundation(FoundationState.RELEASE); maybe resets servos???? builders would preferably want it
     }
 
-    void initVision(LinearOpMode opMode) {
+    protected void initVision(LinearOpMode opMode) {
         detector.activate(opMode);
     }
 
@@ -34,64 +38,54 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void loadingAuto(Team team, int amount, boolean useSlides) {
+        double distTravelled;
         //releaseIntake(); //DONT U DARE UNCOMMENT THIS LINE IT WILL BREAK THE SLIDES NO TOUCH THIS
-        int factor = 1;
-        switch (team) {
-            case RED:
-                factor = 1;
-                break;
-            case BLUE:
-                factor = -1;
-                break;
+        Telemetry.Item firstSkystone, secondSkystone;
+        int factor = -1;
+        if (team == Team.RED)
+            factor = 1;
+
+
+        getInPos(team);
+        skystonePos = detector.getSkystonePositions();
+
+        //does not clear the telemetry for the stone positions!!!!!!!!
+        firstSkystone = telemetry.addData("first skystone", skystonePos[0]);
+        secondSkystone = telemetry.addData("second skystone", skystonePos[1]);
+
+        firstSkystone.setRetained(true);
+        secondSkystone.setRetained(true);
+        telemetry.update();
+
+        distTravelled = moveToStone(skystonePos[0], team);
+        testAutoMove(-(TILE_LENGTH * 3.5 + distTravelled), 0); //move to other side
+
+        turnAbsolute(90 * factor);
+        controlFoundation(FoundationState.DRAG);
+        waitMilli(300);
+        testAutoMove(25, 0);
+        controlIntakeMotors(-0.5);
+        turnRelative(90 * factor);
+        controlFoundation(FoundationState.RELEASE);
+        controlIntakeMotors(0);
+        waitMilli(300);
+        testAutoMove(0, -(TILE_LENGTH + 8) * factor);
+
+        //2nd stone time
+        if(amount == 2) {
+            testAutoMove(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.5), 0);
+            grabSkystone(team);
+
+            testAutoMove(-(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.5)), 0);
+            turnRelative(180);
+
+            controlIntakeMotors(-0.8);
+            waitMilli(200);
+
+            testAutoMove(TILE_LENGTH * 1.5, 0);
+        } else {
+            testAutoMove(40, 0);
         }
-        testAutoMove(6, -6); //move forward and strafe a bit
-        for (int i = 0; i < amount; i++) {
-            resetEncoders();
-            //skystoneFindPls(factor); //center robot w/ skystone
-            double distTravelled = convertEncoderToInch(getPos()); //find out how far we travelled to get to the skystone
-
-            testAutoMove(-12, 0); //move backwards
-            testAutoMove(0, -30); //strafe to where the skystone is
-
-            waitControlIntake(.5); //intake!!!!!
-            testAutoMove(16, 0); //move forward to intake!!!
-            controlIntakeMotors(0.2); //slow down intake but keep it spinning
-
-            testAutoMove(0, 12);//move to go towards bridge side
-            // moveToPos(currentPos.getX(), 4, dir); //move to other side
-            testAutoMove((TILE_LENGTH * 3) + distTravelled, 0); //move to other side
-            if (!useSlides) {
-                turnRelative(90);//turn
-                testAutoMove(-20, 0); //bakc into foundatio
-                //drag it
-                waitMoveFoundation(FoundationState.DRAG);
-                testAutoMove(30, 0);
-                turnAbsolute(-90);
-                waitMoveFoundation(FoundationState.RELEASE);
-                //release stone
-                waitControlIntake(-0.3);
-            } else {
-                turnRelative(90);
-                controlIntakeMotors(0);
-                //moveIntakedStone();
-                waitSec(2.5);
-                turnRelative(180);
-                waitMoveFoundation(FoundationState.DRAG);
-                testAutoMove(30, 0);
-                turnAbsolute(-90);
-                waitMoveFoundation(FoundationState.RELEASE);
-
-            }
-            testAutoMove(0, -20 * factor);
-            if (amount == 2 && i == 0) { //if were getting 2 stones and this was our first one
-                //this will matter if we ever get 2 stone auto
-                //will be what the robot should do to get a 2nd stone
-                //might need to improve getting the 1st stone so that the robot will know what # stone it is
-                //and then figure out where the 2nd stone is from that
-            }
-        }
-        testAutoMove(TILE_LENGTH * 2, 0); //change this if we ever do a 2 stone auto lmao
-
 
     }
 
@@ -272,22 +266,22 @@ public abstract class CypherAutoMethods extends CypherMethods {
         setDriveMotors(0);
     }
 
-    void getInPos(Team team) {
+    protected void getInPos(Team team) {
         int factor = -1;
         if (team == Team.RED)
             factor = 1;
         testAutoMove(0, -(TILE_LENGTH * (1d / 2)) * factor);
         ElapsedTime time = new ElapsedTime();
-        while (time.milliseconds() < 1500) {
+        while (time.milliseconds() < 750) {
             detector.determineOrder23();
         }
         testAutoMove(0, -(TILE_LENGTH * (2d / 3)) * factor);
     }
 
-    void moveToStone(int pos, Team team) {
+    protected double moveToStone(int pos, Team team) {
         int factor = 1;
-        int target = pos - 1;
         int idkWhatToCallThis;
+        double dist = 0;
         //we need to test out some values for this
         /* whats needed
         where will we tell the robot to go to see the first 2 or first 3 stones
@@ -297,18 +291,53 @@ public abstract class CypherAutoMethods extends CypherMethods {
          */
         if (team == Team.RED)
             factor = -1;
-        if (pos < 4) {
+        if (pos == 3) {
+            dist = -2.5 * factor;
+            testAutoMove(dist, 0);
+        } else if (pos < 4) {
             idkWhatToCallThis = 4 - pos;
-            testAutoMove(factor * (idkWhatToCallThis * 6 + 3), 0);
-        } else if (pos == 3) {
-            testAutoMove(-2.5 * factor, 0);
+            dist = factor * (idkWhatToCallThis * 6 + 3);
+            testAutoMove(dist, 0);
         } else {
             idkWhatToCallThis = pos - 4;
-            testAutoMove(-idkWhatToCallThis * 5 * factor, 0);
+            dist = -idkWhatToCallThis * 5 * factor;
+            testAutoMove(dist, 0);
         }
 
-        testAutoMove(0, factor * (TILE_LENGTH * (2d / 3d) + 4));
+        grabSkystone(team);
+        dist += -10 * factor;
 
+        //now u can run the proper auto!!!11!!!
+        return dist;
+    }
+
+    void grabSkystone(Team team) {
+        int factor = 1;
+        if(team == Team.RED)
+            factor = -1;
+
+        testAutoMove(0, factor * (TILE_LENGTH * (2d / 3d) + 4));
+        waitControlIntake(0.7);
+        testAutoMove(-10 * factor, 0);
+        testAutoMove(0, -factor * (TILE_LENGTH * (2d / 3d) + 10));
+        controlIntakeMotors(0.4);
+    }
+
+    //will find the dist compared to the tile in either (5,2) or (2,2)
+    //only call this when robot is facing loading zone
+    double findDistToSkystone(int pos) {
+        double dist;
+        int idkWhatToCallThis;
+        if (pos == 3) {
+            dist = -2.5;
+        } else if (pos < 4) {
+            idkWhatToCallThis = 4 - pos;
+            dist = -(idkWhatToCallThis * 6 + 3);
+        } else {
+            idkWhatToCallThis = pos - 4;
+            dist = idkWhatToCallThis * 5;
+        }
+        return dist;
     }
 
     protected enum Team {
