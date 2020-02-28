@@ -45,7 +45,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
         if (team == Team.RED)
             factor = 1;
 
-
         getInPos(team);
         skystonePos = detector.getSkystonePositions();
 
@@ -59,21 +58,22 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
         distTravelled = moveToStone(skystonePos[0], team);
         testAutoMove(-(TILE_LENGTH * 3.5 + distTravelled), 0); //move to other side
-
         turnAbsolute(90 * factor);
+        testAutoMove(-TILE_LENGTH * (3d/4),0);
+
         controlFoundation(FoundationState.DRAG);
         waitMilli(300);
         testAutoMove(25, 0);
         controlIntakeMotors(-0.5);
-        turnRelative(90 * factor);
+        turnRelative(-100 * factor);
+        testAutoMove(-20,0);
         controlFoundation(FoundationState.RELEASE);
         controlIntakeMotors(0);
         waitMilli(300);
-        testAutoMove(0, -(TILE_LENGTH + 8) * factor);
 
         //2nd stone time
         if(amount == 2) {
-            testAutoMove(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.5), 0);
+            testAutoMove(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.8), 0);
             grabSkystone(team);
 
             testAutoMove(-(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.5)), 0);
@@ -271,12 +271,12 @@ public abstract class CypherAutoMethods extends CypherMethods {
         int factor = -1;
         if (team == Team.RED)
             factor = 1;
-        testAutoMove(0, -(TILE_LENGTH * (1d / 2)) * factor);
+        testAutoMove(0, -(TILE_LENGTH * (1d / 2) + 4) * factor);
         ElapsedTime time = new ElapsedTime();
-        while (time.milliseconds() < 750) {
+        while (time.milliseconds() < 1200) {
             detector.determineOrder23();
         }
-        testAutoMove(0, -(TILE_LENGTH * (2d / 3)) * factor);
+        testAutoMove(0, -(TILE_LENGTH * (2d / 3) - 4) * factor);
     }
 
     protected double moveToStone(int pos, Team team) {
@@ -320,8 +320,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
         testAutoMove(0, factor * (TILE_LENGTH * (2d / 3d) + 4));
         waitControlIntake(0.7);
         testAutoMove(-10 * factor, 0);
-        testAutoMove(0, -factor * (TILE_LENGTH * (2d / 3d) + 10));
-        controlIntakeMotors(0.4);
+        testAutoMove(0, -factor * (TILE_LENGTH * (2d / 3d) + 5));
+        controlIntakeMotors(0);
     }
 
     //will find the dist compared to the tile in either (5,2) or (2,2)

@@ -92,11 +92,11 @@ public abstract class CypherMethods extends CypherHardware {
         double currentAngle;
         int direction;
         double turnRate;
-        double minSpeed = 0.09;
-        double maxSpeed = 0.7;
-        double tolerance = 1.5;
+        double minSpeed = 0.1;
+        double maxSpeed = 0.5;
+        double tolerance = 1;
         double error;
-        double P = 1d / 1200;
+        double P = 1d / 1000;
 
         do {
             if (shouldStop())
@@ -139,11 +139,11 @@ public abstract class CypherMethods extends CypherHardware {
 
         resetEncoders();
 
-        double P = 1d / 1333;
+        double P = 1d / 1222;
         double I = 0;
-        double tolerance = 15;
+        double tolerance = 6;
         double minSpeed = 0.03;
-        double maxSpeed = 0.2333333333333333333333333333;
+        double maxSpeed = 0.4;
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double negError, posError;
