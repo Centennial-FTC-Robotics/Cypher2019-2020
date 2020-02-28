@@ -81,8 +81,9 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
             controlIntakeMotors(-0.8);
             waitMilli(200);
+            controlIntakeMotors(0);
 
-            testAutoMove(TILE_LENGTH * 1.5, 0);
+            testAutoMove(-TILE_LENGTH * 1.5, 0);
         } else {
             testAutoMove(40, 0);
         }
