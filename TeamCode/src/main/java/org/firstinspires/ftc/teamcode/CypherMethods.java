@@ -96,7 +96,8 @@ public abstract class CypherMethods extends CypherHardware {
         double maxSpeed = 0.5;
         double tolerance = 1;
         double error;
-        double P = 1d / 1000;
+        double P = 1d / 1400;
+        int count = 0;
 
         do {
             if (shouldStop())
@@ -108,11 +109,18 @@ public abstract class CypherMethods extends CypherHardware {
             turnRate = Range.clip(P * error, minSpeed, maxSpeed);
             telemetry.addData("error", error);
             telemetry.addData("turnRate", turnRate);
+            telemetry.addData("count", count);
             telemetry.addData("current", currentAngle);
             telemetry.update();
             setDriveMotors((turnRate * direction), -(turnRate * direction));
+            if(Math.abs(error) > tolerance) {
+                count++;
+            } else if(Math.abs(error) <= tolerance) {
+                count = 0;
+            }
+
         }
-        while (opModeIsActive() && Math.abs(error) > tolerance);
+        while (opModeIsActive() && Math.abs(error) > tolerance && count < 10);
         setDriveMotors(0);
     }
 
@@ -179,8 +187,10 @@ public abstract class CypherMethods extends CypherHardware {
             telemetry.addData("pos error", posError);
             telemetry.update();
 
-            if (shouldStop())
+            if (shouldStop()) {
                 stopEverything();
+                break;
+            }
         } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance));
         setDriveMotors(0);
         setCacheMode(LynxModule.BulkCachingMode.AUTO);

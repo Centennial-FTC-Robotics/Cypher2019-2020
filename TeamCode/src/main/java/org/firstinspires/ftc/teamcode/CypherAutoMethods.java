@@ -34,13 +34,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
     }
 
     protected void loadingAuto(Team team, int amount) {
-        loadingAuto(team, amount, false);
-    }
-
-    protected void loadingAuto(Team team, int amount, boolean useSlides) {
         double distTravelled;
         //releaseIntake(); //DONT U DARE UNCOMMENT THIS LINE IT WILL BREAK THE SLIDES NO TOUCH THIS
-        Telemetry.Item firstSkystone, secondSkystone;
         int factor = -1;
         if (team == Team.RED)
             factor = 1;
@@ -49,41 +44,39 @@ public abstract class CypherAutoMethods extends CypherMethods {
         skystonePos = detector.getSkystonePositions();
 
         //does not clear the telemetry for the stone positions!!!!!!!!
-        firstSkystone = telemetry.addData("first skystone", skystonePos[0]);
-        secondSkystone = telemetry.addData("second skystone", skystonePos[1]);
-
-        firstSkystone.setRetained(true);
-        secondSkystone.setRetained(true);
+        telemetry.addData("first skystone", skystonePos[0]).setRetained(true);
+        telemetry.addData("second skystone", skystonePos[1]).setRetained(true);
         telemetry.update();
 
         distTravelled = moveToStone(skystonePos[0], team);
         testAutoMove(-(TILE_LENGTH * 3.5 + distTravelled), 0); //move to other side
         turnAbsolute(90 * factor);
-        testAutoMove(-TILE_LENGTH * (3d/4),0);
+        testAutoMove(-TILE_LENGTH * (3d / 4), 0);
 
         controlFoundation(FoundationState.DRAG);
         waitMilli(300);
         testAutoMove(25, 0);
         controlIntakeMotors(-0.5);
-        turnRelative(-100 * factor);
-        testAutoMove(-20,0);
-        controlFoundation(FoundationState.RELEASE);
+        turnAbsolute(-100 * factor);
         controlIntakeMotors(0);
+
+        testAutoMove(-20, 0);
+        controlFoundation(FoundationState.RELEASE);
         waitMilli(300);
 
         //2nd stone time
-        if(amount == 2) {
+        if (amount == 2) {
             testAutoMove(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.8), 0);
             grabSkystone(team);
 
             testAutoMove(-(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.5)), 0);
-            turnRelative(180);
+            turnAbsolute(90*factor);
 
             controlIntakeMotors(-0.8);
             waitMilli(200);
             controlIntakeMotors(0);
 
-            testAutoMove(-TILE_LENGTH * 1.5, 0);
+            testAutoMove(0,TILE_LENGTH * 1.5);
         } else {
             testAutoMove(40, 0);
         }
@@ -93,9 +86,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
     private void waitControlIntake(double power) {
         ElapsedTime time = new ElapsedTime();
         controlIntakeMotors(power);
-        while (time.milliseconds() < 120 && opModeIsActive()) {
+        while (time.milliseconds() < 40 && opModeIsActive()) {
             if (shouldStop()) {
                 stopEverything();
+                break;
             }
         }
     }
@@ -273,7 +267,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             factor = 1;
         testAutoMove(0, -(TILE_LENGTH * (1d / 2) + 4) * factor);
         ElapsedTime time = new ElapsedTime();
-        while (time.milliseconds() < 1200) {
+        while (time.milliseconds() < 700) {
             detector.determineOrder23();
         }
         testAutoMove(0, -(TILE_LENGTH * (2d / 3) - 4) * factor);
@@ -297,7 +291,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             testAutoMove(dist, 0);
         } else if (pos < 4) {
             idkWhatToCallThis = 4 - pos;
-            dist = factor * (idkWhatToCallThis * 6 + 3);
+            dist = factor * (idkWhatToCallThis * 6 - 1);
             testAutoMove(dist, 0);
         } else {
             idkWhatToCallThis = pos - 4;
@@ -314,7 +308,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     void grabSkystone(Team team) {
         int factor = 1;
-        if(team == Team.RED)
+        if (team == Team.RED)
             factor = -1;
 
         testAutoMove(0, factor * (TILE_LENGTH * (2d / 3d) + 4));
