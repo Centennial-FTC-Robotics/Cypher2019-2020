@@ -9,7 +9,7 @@ public class BlueBridgePark extends CypherAutoMethods {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
-        testAutoMove(0, -TILE_LENGTH);
-        testAutoMove(16, 0);
+        autoMove(22,0);
+        autoMove(0, 16);
     }
 }

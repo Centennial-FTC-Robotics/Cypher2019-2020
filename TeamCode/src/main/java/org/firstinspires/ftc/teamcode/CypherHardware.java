@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import java.util.List;
 
 public abstract class CypherHardware extends LinearOpMode {
-    static int vSlideEncoder = 0;
+    static int vSlideEncoder;
     DcMotorEx leftUp;
     DcMotorEx leftDown;
     DcMotorEx rightUp;
@@ -41,7 +41,6 @@ public abstract class CypherHardware extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         getHardwareDevices();
         initHardware();
-        vSlideEncoder = 0;
     }
 
     private void getHardwareDevices() {

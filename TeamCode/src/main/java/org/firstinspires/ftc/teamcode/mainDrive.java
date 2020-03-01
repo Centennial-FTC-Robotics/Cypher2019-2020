@@ -11,6 +11,8 @@ public class mainDrive extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         final int miliTillReady = 250;
         super.runOpMode();
+        updateVSlideData();
+
         waitForStart();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -49,6 +51,7 @@ public class mainDrive extends CypherMethods {
             vRightEncoder = vRight.getCurrentPosition();
             telemetry.addData("foundation state", foundationState);
             telemetry.addData("slides", vSlideEncoder);
+            telemetry.addData("slides slow", slideSlow);
 
             //timer thingy
 
@@ -85,16 +88,16 @@ public class mainDrive extends CypherMethods {
             switch (intakeState) {
                 case IN:
                     if (!slowIntake)
-                        controlIntakeMotors(-0.5);
+                        controlIntakeMotors(0.6);
                     else
-                        controlIntakeMotors(-0.2);
+                        controlIntakeMotors(0.3);
                     changeColor(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
                     break;
                 case OUT:
                     if (!slowIntake)
-                        controlIntakeMotors(0.3);
+                        controlIntakeMotors(-0.6);
                     else
-                        controlIntakeMotors(0.2);
+                        controlIntakeMotors(0.3);
                     changeColor(RevBlinkinLedDriver.
                             BlinkinPattern.YELLOW);
                     break;
@@ -126,32 +129,35 @@ public class mainDrive extends CypherMethods {
                     } else {
                         armState = ArmState.PICK;
                     }
-
-                    switch (armState) {
-                        case DROP:
-                            grabServo(1);
-                            break;
-                        case PICK:
-                            grabServo(0);
-                            break;
-                    }
-
-                    if (slideSlow > 0)
-                        slideFactor = 0.4;
-                    else
-                        slideFactor = 1;
                 }
-
-                //Arm Control---------------------------------------------------------------------------
-                controlArm(hSlide);
-                if (vSlide > 0)
-                    slideEncoder = vLeftEncoder;
-                else
-                    slideEncoder = vRightEncoder;
-                controlSlides(vSlide * slideFactor, slideEncoder);
-
-                telemetry.update();
             }
+
+            switch (armState) {
+                case DROP:
+                    grabServo(1);
+                    break;
+                case PICK:
+                    grabServo(0);
+                    break;
+            }
+
+            if (slideSlow > 0) {
+                slideFactor = 0.4;
+                telemetry.addLine("slides r now slowwwwwww");
+            } else {
+                slideFactor = 1;
+                telemetry.addLine("slides r not slow");
+            }
+
+
+            //Arm Control---------------------------------------------------------------------------
+            controlArm(hSlide);
+            controlSlides(vSlide * slideFactor);
+
+            telemetry.update();
         }
+        writeVSlideData();
     }
 }
+
+

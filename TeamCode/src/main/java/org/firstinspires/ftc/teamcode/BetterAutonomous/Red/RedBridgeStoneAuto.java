@@ -16,8 +16,9 @@ public class RedBridgeStoneAuto extends CypherAutoMethods {
         waitForStart();
         ElapsedTime runtime = new ElapsedTime();
         loadingAuto(team, 2);
+        double time = runtime.seconds();
         while(opModeIsActive()) {
-            telemetry.addData("time taken", runtime.seconds());
+            telemetry.addData("time taken", time);
             telemetry.update();
         }
     }

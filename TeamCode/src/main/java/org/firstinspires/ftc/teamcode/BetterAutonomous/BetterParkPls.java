@@ -11,7 +11,7 @@ public class BetterParkPls extends CypherAutoMethods {
         initEverything();
 
         waitForStart();
-        testAutoMove(0, 16);
+        autoMove(0, 16);
 
     }
 }

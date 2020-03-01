@@ -111,11 +111,7 @@ public class OutreachDrive extends CypherMethods {
 
                 //Arm Control---------------------------------------------------------------------------
                 controlArm(hSlide);
-                if (vSlide > 0)
-                    slideEncoder = vLeft.getCurrentPosition();
-                else
-                    slideEncoder = vRight.getCurrentPosition();
-                controlSlides(vSlide * slideFactor, slideEncoder);
+                controlSlides(vSlide * slideFactor);
 
                 telemetry.update();
             }

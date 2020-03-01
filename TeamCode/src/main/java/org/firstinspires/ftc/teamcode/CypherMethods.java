@@ -9,9 +9,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.ReadWriteFile;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+
+import java.io.File;
 
 
 public abstract class CypherMethods extends CypherHardware {
@@ -31,11 +36,12 @@ public abstract class CypherMethods extends CypherHardware {
     private final DcMotorEx[] wheelIntakeMotors = new DcMotorEx[2];
     private final Servo[] foundationServos = new Servo[2];
     //will set these tmrw (tues)
-    private final int vSlideMax = 1000000;
-    private final int vSlideMin = -100000;
-    protected int dir;
+    private final int vSlideMax = 2000;
+    private final int vSlideMin = 45;
 
     IntakeState intakeState = IntakeState.STOP;
+
+    File vSlideData = AppUtil.getInstance().getSettingsFile("vSlideData.txt");
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -93,10 +99,10 @@ public abstract class CypherMethods extends CypherHardware {
         int direction;
         double turnRate;
         double minSpeed = 0.1;
-        double maxSpeed = 0.5;
-        double tolerance = 1;
+        double maxSpeed = 0.4;
+        double tolerance = 0.5;
         double error;
-        double P = 1d / 1400;
+        double P = 1d / 1450;
         int count = 0;
 
         do {
@@ -113,14 +119,14 @@ public abstract class CypherMethods extends CypherHardware {
             telemetry.addData("current", currentAngle);
             telemetry.update();
             setDriveMotors((turnRate * direction), -(turnRate * direction));
-            if(Math.abs(error) > tolerance) {
+            if (Math.abs(error) < tolerance) {
                 count++;
-            } else if(Math.abs(error) <= tolerance) {
+            } else if (Math.abs(error) >= tolerance) {
                 count = 0;
             }
 
         }
-        while (opModeIsActive() && Math.abs(error) > tolerance && count < 10);
+        while (opModeIsActive() && Math.abs(error) > tolerance && count < 30);
         setDriveMotors(0);
     }
 
@@ -131,7 +137,7 @@ public abstract class CypherMethods extends CypherHardware {
 
     //cause diagonal strafe no work we just move forward then to the side
 
-    protected void testAutoMove(double forward, double left) {
+    protected void autoMove(double forward, double left) {
         if (Math.abs(left) < Math.abs(forward)) {
             actualMove(0, left);
             actualMove(forward, 0);
@@ -147,11 +153,11 @@ public abstract class CypherMethods extends CypherHardware {
 
         resetEncoders();
 
-        double P = 1d / 1222;
+        double P = 1d / 1400;
         double I = 0;
-        double tolerance = 6;
+        double tolerance = convertInchToEncoder(1);
         double minSpeed = 0.03;
-        double maxSpeed = 0.4;
+        double maxSpeed = 0.7;
         double negSpeed, posSpeed;
         double currentNegPos, currentPosPos;
         double negError, posError;
@@ -383,9 +389,9 @@ public abstract class CypherMethods extends CypherHardware {
         wheelIntakeMotors[0].setPower(power);
         wheelIntakeMotors[1].setPower(power);
 
-        if(power > 0)
+        if (power > 0)
             intakeState = IntakeState.IN;
-        else if(power < 0)
+        else if (power < 0)
             intakeState = IntakeState.OUT;
         else
             intakeState = IntakeState.STOP;
@@ -409,29 +415,36 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
 
-    void controlSlides(double power, int oldEncoder) {
-        int encoderDiff = 0;
-        power = clip(power, 0, .8);
-        if ((vSlideEncoder >= vSlideMax && power > 0) || (vRight.getCurrentPosition() <= vSlideMin && power < 0)) {
+    void controlSlides(double power) {
+        updateVSlide();
+        if (power > 0 && vSlideEncoder < vSlideMax) {
+            vLeft.setPower(power);
+            vRight.setPower(power);
+            telemetry.addLine("will move up");
+        } else if (power < 0 && vSlideEncoder > vSlideMin) {
+            vLeft.setPower(power);
+            vRight.setPower(power);
+            telemetry.addLine("will move down");
+
+            //2270
+            //80
+
+        } else {
             vLeft.setPower(0);
             vRight.setPower(0);
-        } else {
-            if (power > 0)
-                encoderDiff = oldEncoder - vLeft.getCurrentPosition();
-            else if (power < 0)
-                encoderDiff = oldEncoder - vRight.getCurrentPosition();
-            telemetry.addData("diff", encoderDiff);
-            vSlideEncoder += encoderDiff;
-
-            if (power > 0) {
-                vLeft.setPower(power);
-                vRight.setPower(power * (1d / 3));
-            } else {
-                vLeft.setPower(power * .8);
-                vRight.setPower(power);
-            }
         }
     }
+
+    private void updateVSlide() {
+        int left, right;
+        right = -vRight.getCurrentPosition();
+        left = vLeft.getCurrentPosition();
+
+        vSlideEncoder = (right + left) / 2;
+    }
+
+
+
 
 
     //FOUNDATION THINGY
@@ -563,18 +576,40 @@ public abstract class CypherMethods extends CypherHardware {
         return P;
     }
 
+    void updateVSlideData() {
+        String data = ReadWriteFile.readFile(vSlideData).trim();
+        telemetry.addData("slides", data).setRetained(true);
+
+        if(data.equals("")) {
+            vSlideEncoder = 0;
+        } else {
+            try{
+                vSlideEncoder = Integer.parseInt(data);
+            } catch(NumberFormatException e) {
+                vSlideEncoder = 0;
+            }
+        }
+        ReadWriteFile.writeFile(vSlideData, "");
+
+    }
+
+    void writeVSlideData() {
+        ReadWriteFile.writeFile(vSlideData, String.valueOf(vSlideEncoder));
+    }
+
+
     //enum stuff
-    enum IntakeState {
-        IN, OUT, STOP
-    }
+enum IntakeState {
+    IN, OUT, STOP
+}
 
-    enum FoundationState {
-        DRAG, RELEASE
-    }
+enum FoundationState {
+    DRAG, RELEASE
+}
 
-    enum ArmState {
-        PICK, DROP, REST
-    }
+enum ArmState {
+    PICK, DROP, REST
+}
 
 
 }

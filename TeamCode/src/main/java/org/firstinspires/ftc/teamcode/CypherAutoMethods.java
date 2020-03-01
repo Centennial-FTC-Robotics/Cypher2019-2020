@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public abstract class CypherAutoMethods extends CypherMethods {
     protected SkystoneDetector detector = new SkystoneDetector();
@@ -22,6 +19,8 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     protected void initVision(LinearOpMode opMode) {
         detector.activate(opMode);
+        telemetry.addLine("init done");
+        telemetry.update();
     }
 
     protected void initEverything() {
@@ -40,45 +39,60 @@ public abstract class CypherAutoMethods extends CypherMethods {
         if (team == Team.RED)
             factor = 1;
 
-        getInPos(team);
-        skystonePos = detector.getSkystonePositions();
+        //let the intake thingy out
+        controlIntakeMotors(0.1);
+        double angle = getRotationDimension();
+        getInPos(team); //go get ready and scan for skystones
+        double angleOther = getRotationDimension();
+        skystonePos = detector.getSkystonePositions(); //find out positions for them
 
-        //does not clear the telemetry for the stone positions!!!!!!!!
+        //does not clear the telemetry for the stone positions!1!!11!!
         telemetry.addData("first skystone", skystonePos[0]).setRetained(true);
         telemetry.addData("second skystone", skystonePos[1]).setRetained(true);
         telemetry.update();
-
-        distTravelled = moveToStone(skystonePos[0], team);
-        testAutoMove(-(TILE_LENGTH * 3.5 + distTravelled), 0); //move to other side
-        turnAbsolute(90 * factor);
-        testAutoMove(-TILE_LENGTH * (3d / 4), 0);
-
+        distTravelled = moveToStone(skystonePos[0], team); //go get it
+        turnAbsolute((angle + angleOther) / 2); //rotate back to original angle (hitting the stones messes it up a bit)
+        controlIntakeMotors(0.3);
+        autoMove(-(TILE_LENGTH * 3.7 + distTravelled) * factor, 0); //move to other side
+        turnAbsolute(90); //turn
+        //aquire foundation
+        autoMove(-TILE_LENGTH * (2d / 3) + 4, 0);
         controlFoundation(FoundationState.DRAG);
-        waitMilli(300);
-        testAutoMove(25, 0);
+        waitMilli(500);
+        grabStone(ArmState.DROP);
+        autoMove(TILE_LENGTH * 2, 0);
         controlIntakeMotors(-0.5);
-        turnAbsolute(-100 * factor);
+        if(team == Team.BLUE) {
+            turnAbsolute(180);
+        } else
+            turnAbsolute(0);
         controlIntakeMotors(0);
 
-        testAutoMove(-20, 0);
+        autoMove(-25, 0);
+        //ok who needs foundation anymore
         controlFoundation(FoundationState.RELEASE);
-        waitMilli(300);
+        waitMilli(400);
 
         //2nd stone time
         if (amount == 2) {
-            testAutoMove(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.8), 0);
-            grabSkystone(team);
+            //blah blah blah idfk code works
+            //maybe
+            autoMove(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.8), 0);
+            grabSkystone(team, 2);
+            controlIntakeMotors(0.3);
 
-            testAutoMove(-(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.5)), 0);
-            turnAbsolute(90*factor);
+            autoMove(-(findDistToSkystone(skystonePos[1]) + (TILE_LENGTH * 3.5)), 0);
+            grabStone(ArmState.DROP);
+
+            turnRelative(90); //if it breaks prob thia line right here
 
             controlIntakeMotors(-0.8);
-            waitMilli(200);
+            waitMilli(300);
             controlIntakeMotors(0);
 
-            testAutoMove(0,TILE_LENGTH * 1.5);
+            autoMove(0, -TILE_LENGTH * 1.5);
         } else {
-            testAutoMove(40, 0);
+            autoMove(40, 0);
         }
 
     }
@@ -116,29 +130,17 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return (rightDiff <= TOLERANCE) && (topDiff <= TOLERANCE);
     }
 
-    //what is this and why
-    protected void emergRedLoading() {
-        turnRelative(-90);
-        testAutoMove(34, 0);
-    }
-
-    protected void emergRedBuilding() {
-        turnRelative(90);
-        testAutoMove(34, 0);
-
-    }
-
     protected void getFoundation(int factor, Side side) { //changed from protected to private, so warnings can stop yelling
         //turnRelative(180);
-        testAutoMove(-30, 0);
-        testAutoMove(0, -10 * factor);
+        autoMove(-30, 0);
+        autoMove(0, -10 * factor);
         controlFoundation(FoundationState.DRAG);
         ElapsedTime timer = new ElapsedTime();
         while (timer.seconds() < 1 && opModeIsActive()) {
             if (shouldStop())
                 stopEverything();
         }
-        testAutoMove(25, 0);
+        autoMove(30, 0);
         turnRelative(90 * factor);
         timer.reset();
         controlFoundation(FoundationState.RELEASE);
@@ -147,10 +149,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
                 stopEverything();
         }
         if (side == Side.BRIDGE)
-            testAutoMove(40, 0);
+            autoMove(40, 0);
         else {
-            testAutoMove(0, 20);
-            testAutoMove(40, 0);
+            autoMove(0, 20);
+            autoMove(40, 0);
         }
         //turnRelative(90);
         //bruh its charged oh my
@@ -228,11 +230,10 @@ public abstract class CypherAutoMethods extends CypherMethods {
         int posTarget = forwardMovement + leftMovement;
 
         double P = 1d / 1333;
-        double turnP = 1d / 1000;
+        double turnP = 1d / 1222;
         double tolerance = 1d / 3;
-        double turnTolerance = 5;
+        double turnTolerance = 10;
         double minSpeed = 0.01;
-        double minTurnSpeed = minSpeed;
         double maxSpeed = 0.2;
         double maxTurnSpeed = 0.3;
         double negError, posError;
@@ -255,7 +256,11 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
             negSpeed = clip(P * negError, minSpeed, maxSpeed);
             posSpeed = clip(P * posError, minSpeed, maxSpeed);
-            rotateSpeed = clip(angleError * turnP, minTurnSpeed, maxTurnSpeed);
+            if (Math.abs(angleError) > tolerance) {
+                rotateSpeed = clip(angleError * turnP, minSpeed, maxTurnSpeed);
+            } else {
+                rotateSpeed = 0;
+            }
             turnStrafe(negSpeed, posSpeed, rotateSpeed);
         } while (opModeIsActive() && (Math.abs(negError) > tolerance || Math.abs(posError) > tolerance || Math.abs(angleError) > turnTolerance));
         setDriveMotors(0);
@@ -265,13 +270,17 @@ public abstract class CypherAutoMethods extends CypherMethods {
         int factor = -1;
         if (team == Team.RED)
             factor = 1;
-        testAutoMove(0, -(TILE_LENGTH * (1d / 2) + 4) * factor);
+        autoMove(0, -(TILE_LENGTH * (1d / 2) + 4));
         ElapsedTime time = new ElapsedTime();
-        while (time.milliseconds() < 700) {
-            detector.determineOrder23();
+        while (time.milliseconds() < 900) {
+            if (team == Team.BLUE)
+                detector.determineOrder();
+            else
+                detector.determineOrder23();
         }
-        testAutoMove(0, -(TILE_LENGTH * (2d / 3) - 4) * factor);
+        autoMove(0, -(TILE_LENGTH * (2d / 3) - 4));
     }
+
 
     protected double moveToStone(int pos, Team team) {
         int factor = 1;
@@ -287,40 +296,66 @@ public abstract class CypherAutoMethods extends CypherMethods {
         if (team == Team.RED)
             factor = -1;
         if (pos == 3) {
-            dist = -2.5 * factor;
-            testAutoMove(dist, 0);
+            dist = -8 * factor;
         } else if (pos < 4) {
             idkWhatToCallThis = 4 - pos;
-            dist = factor * (idkWhatToCallThis * 6 - 1);
-            testAutoMove(dist, 0);
+            dist = factor * (idkWhatToCallThis * 4.5);
         } else {
             idkWhatToCallThis = pos - 4;
             dist = -idkWhatToCallThis * 5 * factor;
-            testAutoMove(dist, 0);
         }
 
-        grabSkystone(team);
+
+        if (team == Team.RED)
+            autoMove(dist, 0);
+        else {
+            if (pos == 3) {
+                autoMove(-20, 0);
+                dist = -20;
+            } else
+                autoMove(-dist, 0);
+            //Bill was here lol
+
+        }
+
+        grabSkystone(team,1);
         dist += -10 * factor;
 
         //now u can run the proper auto!!!11!!!
         return dist;
     }
 
-    void grabSkystone(Team team) {
+    private void grabSkystone(Team team, int num) {
         int factor = 1;
         if (team == Team.RED)
             factor = -1;
 
-        testAutoMove(0, factor * (TILE_LENGTH * (2d / 3d) + 4));
-        waitControlIntake(0.7);
-        testAutoMove(-10 * factor, 0);
-        testAutoMove(0, -factor * (TILE_LENGTH * (2d / 3d) + 5));
-        controlIntakeMotors(0);
+        if(team == Team.BLUE && num == 1) {
+            autoMove(0, -(TILE_LENGTH * (2d / 3d) + 4));
+            waitControlIntake(0.7777777777777777777);
+            autoMove(8, 0);
+            autoMove(0, (TILE_LENGTH * (2d / 3d) + 8));
+        } else if((team == Team.BLUE && num == 2))  {
+            autoMove(0, ((TILE_LENGTH * (2d / 3d) + 4) * 2) - 6);
+            waitControlIntake(0.7777777777777777777);
+            autoMove(8, 0);
+            autoMove(0, -((TILE_LENGTH * (2d / 3d) + 10) * 2) - 6);
+        } else if(team == Team.RED) {
+            autoMove(0, (TILE_LENGTH * (2d / 3d) + 4));
+            waitControlIntake(0.7777777777777777777);
+            autoMove(8, 0);
+            autoMove(0, -(TILE_LENGTH * (2d / 3d) + 10));
+        }
+
+
+
+        grabStone(ArmState.PICK);
+
     }
 
     //will find the dist compared to the tile in either (5,2) or (2,2)
     //only call this when robot is facing loading zone
-    double findDistToSkystone(int pos) {
+    private double findDistToSkystone(int pos) {
         double dist;
         int idkWhatToCallThis;
         if (pos == 3) {
@@ -330,9 +365,20 @@ public abstract class CypherAutoMethods extends CypherMethods {
             dist = -(idkWhatToCallThis * 6 + 3);
         } else {
             idkWhatToCallThis = pos - 4;
-            dist = idkWhatToCallThis * 5;
+            dist = idkWhatToCallThis * 3.5;
         }
         return dist;
+    }
+
+    private void grabStone(ArmState state) {
+        switch (state) {
+            case DROP:
+                grabServo(1);
+                break;
+            case PICK:
+                grabServo(0);
+                break;
+        }
     }
 
     protected enum Team {
@@ -412,7 +458,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
             //pick up skystone and move into it
             controlIntakeMotors(1);
-            testAutoMove(2, 0);
+            autoMove(2, 0);
             currentPos.add(0, convertInchToTile(-2));
 
             moveToPos(currentPos.getX() + factor, currentPos.getY(), dir); //move a bit to prevent hitting the neutral bridge
@@ -442,13 +488,13 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     private void moveToPos(Tile end, int dir) {
         double[] move = getDist(currentPos, end, dir);
-        testAutoMove(move[0], move[1]);
+        autoMove(move[0], move[1]);
         currentPos.setLocation(end);
     }
 
  */
 /*@Override
-    protected void testAutoMove(double forward, double left) {
+    protected void autoMove(double forward, double left) {
         if (left < forward) {
             testPIDThingy(0, left);
             testPIDThingy(forward, 0);
@@ -531,18 +577,18 @@ public abstract class CypherAutoMethods extends CypherMethods {
             case RED:
                 switch (side) {
                     case BRIDGE:
-                        testAutoMove(30, 0);
+                        autoMove(30, 0);
                     case WALL:
-                        testAutoMove(0, -10);
-                        testAutoMove(30, 0);
+                        autoMove(0, -10);
+                        autoMove(30, 0);
                 }
             case BLUE:
                 switch (side) {
                     case BRIDGE:
-                        testAutoMove(30, 0);
+                        autoMove(30, 0);
                     case WALL:
-                        testAutoMove(0, 10);
-                        testAutoMove(30, 0);
+                        autoMove(0, 10);
+                        autoMove(30, 0);
                 }
 
 

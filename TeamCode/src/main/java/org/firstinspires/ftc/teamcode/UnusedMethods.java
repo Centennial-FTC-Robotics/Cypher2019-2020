@@ -239,11 +239,11 @@ public class betterEncoder extends CypherMethods {
                                     telemetry.addData("moving", "to skystone.........");
                                 } else {
                                     telemetry.addData("moving", "to the side.........");
-                                    testAutoMove(0, 3 * factor);
+                                    autoMove(0, 3 * factor);
                                 }
                             } else {
                                 telemetry.addData("not skystone", true);
-                                testAutoMove(6, 0);
+                                autoMove(6, 0);
                             }
                         }
                         telemetry.update();
