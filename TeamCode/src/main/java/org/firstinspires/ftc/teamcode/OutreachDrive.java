@@ -12,16 +12,16 @@ public class OutreachDrive extends CypherMethods {
         final int miliTillReady = 250;
         super.runOpMode();
         waitForStart();
-        changeColor(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_RAINBOW_PALETTE);
 
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
         final double factor = 0.75;
         double slideFactor = 1;
-        IntakeState inState = IntakeState.STOP;
         FoundationState foundationState = FoundationState.RELEASE;
         ArmState armState = ArmState.REST;
+        resetEncoders();
+        resetVSlideEncoder();
         while (opModeIsActive()) {
             telemetry.addData("foundation state", foundationState);
             //controller 1 stuff
@@ -34,25 +34,29 @@ public class OutreachDrive extends CypherMethods {
             //controller 2 stuff
             boolean arm = gamepad2.b && notInitController();
             boolean toggleFoundation = gamepad2.y;
-            boolean slow = gamepad2.left_bumper;
+            float slideSlow = gamepad2.left_trigger;
             double vSlide = gamepad2.left_stick_y;
             double hSlide = gamepad2.right_stick_x;
-            int vLeftEncoder, vRightEncoder;
-            int slideEncoder;
+            boolean slowIntake;
+            float slowwwwwintake = gamepad1.right_trigger;
+
 
             //timer thingy
+            telemetry.addData("left slide", vLeft.getCurrentPosition());
+            telemetry.addData("right slide", vRight.getCurrentPosition());
+            slowIntake = slowwwwwintake > 0;
             if (controller1Timer.milliseconds() >= miliTillReady) {
                 if (intakeIn) {
                     controller1Timer.reset();
-                    inState = IntakeState.IN;
+                    intakeState = IntakeState.IN;
                 }
                 if (intakeOut) {
                     controller1Timer.reset();
-                    inState = IntakeState.OUT;
+                    intakeState = IntakeState.OUT;
                 }
                 if (intakeStop) {
                     controller1Timer.reset();
-                    inState = IntakeState.STOP;
+                    intakeState = IntakeState.STOP;
                 }
                 if (toggleFoundation) {
                     controller1Timer.reset();
@@ -66,16 +70,25 @@ public class OutreachDrive extends CypherMethods {
                 }
             }
             //Servo Intake Control------------------------------------------------------------------
-            telemetry.addData("state", inState);
-            switch (inState) {
+            telemetry.addData("state", intakeState);
+            switch (intakeState) {
                 case IN:
-                    controlIntakeMotors(0.7);
+                    if (!slowIntake)
+                        controlIntakeMotors(0.6);
+                    else
+                        controlIntakeMotors(0.3);
+                    changeColor(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
                     break;
                 case OUT:
-                    controlIntakeMotors(-0.2);
+                    if (!slowIntake)
+                        controlIntakeMotors(-0.6);
+                    else
+                        controlIntakeMotors(0.3);
+                    changeColor(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
                     break;
                 case STOP:
                     controlIntakeMotors(0);
+                    changeColor(RevBlinkinLedDriver.BlinkinPattern.BLACK);
                     break;
             }
             //Speed Control-------------------------------------------------------------------------
@@ -93,21 +106,21 @@ public class OutreachDrive extends CypherMethods {
                     } else {
                         armState = ArmState.PICK;
                     }
-
-                    switch (armState) {
-                        case DROP:
-                            grabServo(0.6);
-                            break;
-                        case PICK:
-                            grabServo(0.2);
-                            break;
-                    }
-
-                    if (slow)
-                        slideFactor = 0.4;
-                    else
-                        slideFactor = 1;
                 }
+            }
+            switch (armState) {
+                case DROP:
+                    grabServo(0.6);
+                    break;
+                case PICK:
+                    grabServo(0.2);
+                    break;
+            }
+
+            if (slideSlow > 0)
+                slideFactor = 0.4;
+            else
+                slideFactor = 1;
 
                 //Arm Control---------------------------------------------------------------------------
                 controlArm(hSlide);
@@ -117,4 +130,3 @@ public class OutreachDrive extends CypherMethods {
             }
         }
     }
-}
