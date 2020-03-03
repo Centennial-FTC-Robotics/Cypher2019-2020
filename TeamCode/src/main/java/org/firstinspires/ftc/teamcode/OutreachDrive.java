@@ -39,7 +39,9 @@ public class OutreachDrive extends CypherMethods {
             double hSlide = gamepad2.right_stick_x;
             boolean slowIntake;
             float slowwwwwintake = gamepad1.right_trigger;
-
+            telemetry.addData("foundation state", foundationState);
+            telemetry.addData("slides", vSlideEncoder);
+            telemetry.addData("slides slow", slideSlow);
 
             //timer thingy
             telemetry.addData("left slide", vLeft.getCurrentPosition());

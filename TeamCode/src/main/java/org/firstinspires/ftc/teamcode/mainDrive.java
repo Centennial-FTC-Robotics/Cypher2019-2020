@@ -11,8 +11,6 @@ public class mainDrive extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         final int miliTillReady = 250;
         super.runOpMode();
-        updateVSlideData();
-
         waitForStart();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         ElapsedTime controller2Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -31,6 +29,7 @@ public class mainDrive extends CypherMethods {
         int slideEncoder;
         resetEncoders();
         resetVSlideEncoder();
+        updateVSlideData();
         while (opModeIsActive()) {
             //controller 1 stuff
             intakeIn = gamepad1.a && notInitController();
@@ -98,8 +97,7 @@ public class mainDrive extends CypherMethods {
                         controlIntakeMotors(-0.6);
                     else
                         controlIntakeMotors(0.3);
-                    changeColor(RevBlinkinLedDriver.
-                            BlinkinPattern.YELLOW);
+                    changeColor(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
                     break;
                 case STOP:
                     controlIntakeMotors(0);
@@ -114,7 +112,6 @@ public class mainDrive extends CypherMethods {
                 telemetry.addData("NORMAL MODE", " ");
                 factor = 0.87535463;
             }
-
 
             telemetry.addData("factor", factor);
             //Driving-------------------------------------------------------------------------------
