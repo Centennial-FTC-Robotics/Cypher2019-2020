@@ -60,10 +60,10 @@ public class SkystoneDetector extends CypherMethods {
             float diff;
             for (Recognition recognition : recognitions) {
                 diff = findDiff(recognition);
-                telemetry.addData(recognition.getLabel(), diff);
+                opMode.telemetry.addData(recognition.getLabel(), diff);
             }
         }
-        telemetry.update();
+        opMode.telemetry.update();
     }
 
     //figures out position of skystones assuming it can see at least the first 2 stones
@@ -234,6 +234,8 @@ public class SkystoneDetector extends CypherMethods {
     }
 
     private void initVuforia() {
+        opMode.telemetry.addLine("initing vuforia");
+        opMode.telemetry.update();
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
@@ -246,6 +248,8 @@ public class SkystoneDetector extends CypherMethods {
 
     private void initTfod() {
         if (!isStopRequested()) {
+            opMode.telemetry.addLine("initing tfod");
+            opMode.telemetry.update();
             int tfodMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);

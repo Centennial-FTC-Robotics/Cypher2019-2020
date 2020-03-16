@@ -40,7 +40,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             factor = 1;
 
         //let the intake thingy out
-        controlIntakeMotors(0.1);
+        controlIntakeMotors(0.4);
         double angle = getRotationDimension();
         getInPos(team); //go get ready and scan for skystones
         double angleOther = getRotationDimension();
@@ -61,7 +61,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         waitMilli(500);
         grabStone(ArmState.DROP);
         autoMove(TILE_LENGTH * 2, 0);
-        controlIntakeMotors(-0.5);
+        controlIntakeMotors(-0.3);
         if(team == Team.BLUE) {
             turnAbsolute(180);
         } else
@@ -86,7 +86,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
             turnRelative(90); //if it breaks prob thia line right here
 
-            controlIntakeMotors(-0.8);
+            controlIntakeMotors(-0.3);
             waitMilli(300);
             controlIntakeMotors(0);
 
@@ -97,7 +97,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     }
 
-    private void waitControlIntake(double power) {
+    protected void waitControlIntake(double power) {
         ElapsedTime time = new ElapsedTime();
         controlIntakeMotors(power);
         while (time.milliseconds() < 40 && opModeIsActive()) {
@@ -144,6 +144,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         turnRelative(90 * factor);
         timer.reset();
         controlFoundation(FoundationState.RELEASE);
+        autoMove(-15,0);
         while (timer.seconds() < 1 && opModeIsActive()) {
             if (shouldStop())
                 stopEverything();
@@ -151,7 +152,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         if (side == Side.BRIDGE)
             autoMove(40, 0);
         else {
-            autoMove(0, 20);
+            autoMove(0, 25);
             autoMove(40, 0);
         }
         //turnRelative(90);
@@ -299,7 +300,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
             dist = -8 * factor;
         } else if (pos < 4) {
             idkWhatToCallThis = 4 - pos;
-            dist = factor * (idkWhatToCallThis * 4.5);
+            dist = factor * (idkWhatToCallThis * 6);
         } else {
             idkWhatToCallThis = pos - 4;
             dist = -idkWhatToCallThis * 5 * factor;
@@ -325,10 +326,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
         return dist;
     }
 
-    private void grabSkystone(Team team, int num) {
-        int factor = 1;
-        if (team == Team.RED)
-            factor = -1;
+    protected void grabSkystone(Team team, int num) {
 
         if(team == Team.BLUE && num == 1) {
             autoMove(0, -(TILE_LENGTH * (2d / 3d) + 4));
@@ -355,7 +353,7 @@ public abstract class CypherAutoMethods extends CypherMethods {
 
     //will find the dist compared to the tile in either (5,2) or (2,2)
     //only call this when robot is facing loading zone
-    private double findDistToSkystone(int pos) {
+    protected double findDistToSkystone(int pos) {
         double dist;
         int idkWhatToCallThis;
         if (pos == 3) {
@@ -368,17 +366,6 @@ public abstract class CypherAutoMethods extends CypherMethods {
             dist = idkWhatToCallThis * 3.5;
         }
         return dist;
-    }
-
-    private void grabStone(ArmState state) {
-        switch (state) {
-            case DROP:
-                grabServo(1);
-                break;
-            case PICK:
-                grabServo(0);
-                break;
-        }
     }
 
     protected enum Team {

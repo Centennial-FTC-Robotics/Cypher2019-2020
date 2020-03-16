@@ -8,10 +8,8 @@ public class BetterParkPls extends CypherAutoMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        initEverything();
-
         waitForStart();
-        autoMove(0, 16);
+        autoMove(16, 0);
 
     }
 }

@@ -11,7 +11,6 @@ public class mainDrive extends CypherMethods {
     public void runOpMode() throws InterruptedException {
         final int miliTillReady = 250;
         super.runOpMode();
-        updateVSlideData();
 
         waitForStart();
         ElapsedTime controller1Timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -26,9 +25,6 @@ public class mainDrive extends CypherMethods {
         double hSlide, vSlide;
         boolean slowIntake;
         double slowwwwIntake;
-
-        int vLeftEncoder, vRightEncoder;
-        int slideEncoder;
         resetEncoders();
         resetVSlideEncoder();
         while (opModeIsActive()) {
@@ -47,8 +43,6 @@ public class mainDrive extends CypherMethods {
             slideSlow = gamepad2.left_trigger;
             vSlide = -gamepad2.left_stick_y;
             hSlide = gamepad2.right_stick_x;
-            vLeftEncoder = vLeft.getCurrentPosition();
-            vRightEncoder = vRight.getCurrentPosition();
             telemetry.addData("foundation state", foundationState);
             telemetry.addData("slides", vSlideEncoder);
             telemetry.addData("slides slow", slideSlow);
@@ -88,16 +82,16 @@ public class mainDrive extends CypherMethods {
             switch (intakeState) {
                 case IN:
                     if (!slowIntake)
-                        controlIntakeMotors(0.6);
-                    else
                         controlIntakeMotors(0.3);
+                    else
+                        controlIntakeMotors(0.1);
                     changeColor(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
                     break;
                 case OUT:
                     if (!slowIntake)
-                        controlIntakeMotors(-0.6);
+                        controlIntakeMotors(-0.15);
                     else
-                        controlIntakeMotors(0.3);
+                        controlIntakeMotors(-0.15);
                     changeColor(RevBlinkinLedDriver.
                             BlinkinPattern.YELLOW);
                     break;
@@ -134,7 +128,7 @@ public class mainDrive extends CypherMethods {
 
             switch (armState) {
                 case DROP:
-                    grabServo(1);
+                    grabServo(0.5);
                     break;
                 case PICK:
                     grabServo(0);
@@ -156,7 +150,6 @@ public class mainDrive extends CypherMethods {
 
             telemetry.update();
         }
-        writeVSlideData();
     }
 }
 

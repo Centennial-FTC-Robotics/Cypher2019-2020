@@ -94,7 +94,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    void turnAbsolute(double targetAngle) {
+    protected void turnAbsolute(double targetAngle) {
         double currentAngle;
         int direction;
         double turnRate;
@@ -130,7 +130,7 @@ public abstract class CypherMethods extends CypherHardware {
         setDriveMotors(0);
     }
 
-    void turnRelative(double target) {
+    protected void turnRelative(double target) {
         //turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension('Z') + target));
         turnAbsolute(AngleUnit.normalizeDegrees(getRotationDimension() + target));
     }
@@ -283,6 +283,8 @@ public abstract class CypherMethods extends CypherHardware {
     //INITIALIZE STUFF
     protected void initializeIMU() {
         if (!isStopRequested()) {
+            telemetry.addLine("initing imu");
+            telemetry.update();
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
             parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
             parameters.mode = BNO055IMU.SensorMode.IMU;
@@ -295,7 +297,10 @@ public abstract class CypherMethods extends CypherHardware {
         } else {
             stopEverything();
         }
-        while (!imu.isGyroCalibrated() && !isStopRequested()) ;
+        while (!imu.isGyroCalibrated() && !isStopRequested()) {
+            telemetry.addLine("initing imu");
+            telemetry.update();
+        }
         resetOrientation();
 
     }
@@ -312,7 +317,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //GETTING STUFF LIKE MOTOR POSITION, ORIENTATION, AND STUFF LIKE THAT IDK
-    double getRotationDimension() {
+    protected double getRotationDimension() {
         return AngleUnit.normalizeDegrees(rawDimension() - initialHeading);
     }
 
@@ -385,7 +390,7 @@ public abstract class CypherMethods extends CypherHardware {
     }
 
     //INTAKE METHODS
-    void controlIntakeMotors(double power) {
+    protected void controlIntakeMotors(double power) {
         wheelIntakeMotors[0].setPower(power);
         wheelIntakeMotors[1].setPower(power);
 
@@ -454,7 +459,7 @@ public abstract class CypherMethods extends CypherHardware {
         }
     }
 
-    void controlFoundation(FoundationState state) {
+    protected void controlFoundation(FoundationState state) {
         if (state.equals(FoundationState.RELEASE)) {
             moveFoundation(1);
         } else {
@@ -576,25 +581,16 @@ public abstract class CypherMethods extends CypherHardware {
         return P;
     }
 
-    void updateVSlideData() {
-        String data = ReadWriteFile.readFile(vSlideData).trim();
-        telemetry.addData("slides", data).setRetained(true);
 
-        if(data.equals("")) {
-            vSlideEncoder = 0;
-        } else {
-            try{
-                vSlideEncoder = Integer.parseInt(data);
-            } catch(NumberFormatException e) {
-                vSlideEncoder = 0;
-            }
+    protected void grabStone(ArmState state) {
+        switch (state) {
+            case DROP:
+                grabServo(0.5);
+                break;
+            case PICK:
+                grabServo(0);
+                break;
         }
-        ReadWriteFile.writeFile(vSlideData, "");
-
-    }
-
-    void writeVSlideData() {
-        ReadWriteFile.writeFile(vSlideData, String.valueOf(vSlideEncoder));
     }
 
 
@@ -603,11 +599,11 @@ enum IntakeState {
     IN, OUT, STOP
 }
 
-enum FoundationState {
+protected enum FoundationState {
     DRAG, RELEASE
 }
 
-enum ArmState {
+protected enum ArmState {
     PICK, DROP, REST
 }
 
